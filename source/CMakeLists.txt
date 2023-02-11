@@ -1,0 +1,11 @@
+set(ENGINE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+
+# 引擎运行时
+set(ENGINE_RUNTIME ${CMAKE_CURRENT_BINARY_DIR}/engine)
+
+# 引擎Editor
+set(ENGINE_EDITOR ${CMAKE_CURRENT_BINARY_DIR}/editor)
+
+add_subdirectory(ENGINE_RUNTIME)
+
+add_subdirectory(ENGINE_EDITOR)
