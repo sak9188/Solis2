@@ -26,7 +26,7 @@ source_group(TREE ${PROJECT_INCLUDE_PATH}
 
 # 编译这个lib
 # add_library(solis_core SHARED ${PROJECT_SOURCES} ${PROJECT_HEADERS})
-add_executable(test_windows_stack ${PROJECT_SOURCES} ${PROJECT_HEADERS})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
 target_link_libraries(
     ${PROJECT_NAME}

@@ -1,0 +1,1 @@
+python3 ./getdeps.py build folly --no-tests --extra-cmake-defines '{"CMAKE_BUILD_TYPE":"DEBUG"}' --extra-b2-args toolset=msvc-142 --extra-b2-args debug --vcvars-path "D:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" --scratch-path "D:\temp_scratch"

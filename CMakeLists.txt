@@ -1,6 +1,5 @@
 
 # CMake 最低版本号要求
-
 ################################################################################ 
 cmake_minimum_required(VERSION 3.20)
 
@@ -99,10 +98,17 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Android")
     set(PLATFORM_NAME "Android")
 endif()
 
+# 设置第三方库
+set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
+
+# Source
+set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
+
+# 加入Source集
+add_subdirectory(${SOURCE_PATH})
 
 # Test
 set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
-
 
 # 加入Test集
 add_subdirectory(${TEST_PATH})
