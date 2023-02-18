@@ -3,8 +3,7 @@
 
 namespace Solis
 {
-namespace type
-{
-    
-}
+    namespace type
+    {
+    }
 }

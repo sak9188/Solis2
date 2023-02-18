@@ -103,24 +103,26 @@ set(CMAKE_INSTALL_LIBDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BU
 set(CMAKE_INSTALL_BINDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/lib)
 set(CMAKE_INSTALL_INCLUDEDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/include)
 
-set(BUILD_THIRDPARTY ON CACHE BOOL "Build thirdparty")
+set(CMAKE_INSTALL_LIBDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_INSTALL_BINDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+set(CMAKE_INSTALL_INCLUDEDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
 
-if(${BUILD_THIRDPARTY})
-    # 设置第三方库
-    set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
+set(BUILD_THIRDPARTY OFF)
 
-    # 设置第三方库
-    add_subdirectory(${THIRD_PARTY_PATH})
-else()
-    # Source
-    set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
+# 设置第三方库
+set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 
-    # 加入Source集
-    add_subdirectory(${SOURCE_PATH})
+# 设置第三方库
+add_subdirectory(${THIRD_PARTY_PATH})
 
-    # Test
-    set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
+# Source
+set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
-    # 加入Test集
-    add_subdirectory(${TEST_PATH})
-endif()
+# 加入Source集
+add_subdirectory(${SOURCE_PATH})
+
+# Test
+set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
+
+# 加入Test集
+add_subdirectory(${TEST_PATH})

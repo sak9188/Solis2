@@ -6,6 +6,8 @@ set(ENGINE_RUNTIME ${ENGINE_SOURCE_PATH}/engine)
 # 引擎Editor
 set(ENGINE_EDITOR ${ENGINE_SOURCE_PATH}/editor)
 
-add_subdirectory(${ENGINE_RUNTIME})
+if(NOT ${BUILD_THIRDPARTY})
+    add_subdirectory(${ENGINE_RUNTIME})
 
-add_subdirectory(${ENGINE_EDITOR})
+    add_subdirectory(${ENGINE_EDITOR})
+endif()

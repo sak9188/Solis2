@@ -1,49 +1,77 @@
-# GLM
-add_subdirectory(glm)
+if(${BUILD_THIRDPARTY})
+    # GLM
+    set(GLM_INSTALL ON)
+    add_subdirectory(glm)
 
-# glfw
-add_subdirectory(glfw)
+    # glfw
+    add_subdirectory(glfw)
 
-# ASTC
+    # ASTC
 
-# GLSLANG
-add_subdirectory(glslang)
+    # GLSLANG
+    add_subdirectory(glslang)
 
-# mimalloc
-add_subdirectory(mimalloc)
+    # mimalloc
+    add_subdirectory(mimalloc)
 
-# physfs
-add_subdirectory(physfs)
+    # physfs
+    add_subdirectory(physfs)
 
-# IMGUI
+    # IMGUI
 
-# SPDLOG
-add_subdirectory(spdlog)
+    # SPDLOG
+    add_subdirectory(spdlog)
 
-# STB
-add_subdirectory(stb)
+    # STB
+    add_subdirectory(stb)
 
-# VOLK
-add_subdirectory(volk)
+    # VOLK
+    add_subdirectory(volk)
 
-# VULKAN
-find_package(Vulkan REQUIRED)
+    # VULKAN
+    find_package(Vulkan REQUIRED)
 
-# VMA
-add_subdirectory(VulkanMemoryAllocator)
+    # VMA
+    add_subdirectory(VulkanMemoryAllocator)
 
-# Boost
-# add_subdirectory(boost_1_78)
+    # Boost
+    # add_subdirectory(boost_1_78)
 
-# fmt
-set(FMT_INSTALL ON)
-add_subdirectory(fmt)
+    # fmt
+    set(FMT_INSTALL ON)
+    add_subdirectory(fmt)
 
-# Folly
-# add_subdirectory(folly_2023_02_13)
+    # Folly
+    # add_subdirectory(folly_2023_02_13)
 
-# FreeType
+    # FreeType
 
-# PyBind11
+    # PyBind11
 
-# TracyClient
+    # TracyClient
+else()
+    # MIMalloc
+    set(mimalloc_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/mimalloc-2.0 CACHE INTERNAL "")
+    find_package(mimalloc CONFIG REQUIRED)
+
+    # GLM
+    set(glm_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glm CACHE INTERNAL "")
+    find_package(glm CONFIG REQUIRED)
+
+    # glfw
+    set(glfw3_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glfw3 CACHE INTERNAL "")
+    find_package(glfw3 CONFIG REQUIRED)
+
+    # FMT
+    set(fmt_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/fmt CACHE INTERNAL "")
+    find_package(fmt CONFIG REQUIRED)
+
+    # Boost
+    set(BOOST_VERSION 1.78.0)
+    set(Boost_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
+    find_package(Boost CONFIG REQUIRED)
+
+    # folly
+    set(folly_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/folly CACHE INTERNAL "")
+    find_package(folly CONFIG REQUIRED)
+endif()

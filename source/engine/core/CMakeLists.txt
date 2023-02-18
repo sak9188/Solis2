@@ -24,23 +24,31 @@ source_group(TREE ${PROJECT_INCLUDE_PATH}
 )
 
 # 设置编译宏
-add_definitions(-DSOLIS_CORE_LIB)
+add_definitions(-DSOLIS_CORE_LIB -DUSE_SOLIS_CORE_LIB)
 
 # 编译这个lib
 add_library(solis_core SHARED ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
+# 设置依赖
+find_package(mimalloc CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(folly CONFIG REQUIRED)
+
 target_link_libraries(
     solis_core
     PUBLIC
-        glfw
-        glm
-        stb
+        mimalloc
+        glm::glm
         Folly::folly
 )
+
+message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")
 
 target_include_directories(
     solis_core 
     PUBLIC
+        ${CMAKE_INSTALL_INCLUDEDIR_FULL}
         ${ENGINE_SOURCE_DIR}
 )
 
