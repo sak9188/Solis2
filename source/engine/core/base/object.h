@@ -4,6 +4,8 @@
 
 #include "core/base/using.h"
 
+#include "ctti/nameof.hpp"
+
 namespace solis
 {
     namespace core
@@ -86,14 +88,14 @@ namespace solis
         {
             void *operator new(size_t size)
             {
-                auto name = Core::GetTypeName(typeid(T).name());
+                auto name = ctti::nameof<T>().str();
                 auto ptr = ObjectBase::Malloc(size, name, 1);
                 return ptr;
             }
 
             void *operator new[](size_t size)
             {
-                auto name = Core::GetTypeName(typeid(T).name()) + "[]";
+                auto name = ctti::nameof<T>() + "[]";
                 // 因为多继承的原因，有可能(没有继承Objevt<T>的情况下)无法准确计算数组的大小，所以这里只能用1来代替
                 // 但运行时可以准确知道这个对象是什么类型，所以可以进一步知道这个数组有多少个元素
                 auto ptr = ObjectBase::Malloc(size, name, 1);

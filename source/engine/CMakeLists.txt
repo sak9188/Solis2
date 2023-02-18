@@ -1,6 +1,9 @@
 # SET ENGINE SOURCE
 set(ENGINE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+# 内部库都是Shared的
+set(BUILD_SHARED_LIBS ON)
+
 add_subdirectory("core")
 
 add_subdirectory("inputs")

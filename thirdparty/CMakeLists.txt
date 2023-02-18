@@ -1,4 +1,8 @@
 if(${BUILD_THIRDPARTY})
+    # CTTI
+    set(CTTI_INSTALL ON)
+    add_subdirectory(ctti)
+
     # GLM
     set(GLM_INSTALL ON)
     add_subdirectory(glm)
@@ -23,6 +27,7 @@ if(${BUILD_THIRDPARTY})
     add_subdirectory(spdlog)
 
     # STB
+    set(VOLK_INSTALL ON)
     add_subdirectory(stb)
 
     # VOLK
@@ -50,7 +55,11 @@ if(${BUILD_THIRDPARTY})
 
     # TracyClient
 else()
-    # MIMalloc
+    # ctti
+    set(ctti_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/ctti CACHE INTERNAL "")
+    find_package(ctti CONFIG REQUIRED)
+
+    # mimalloc
     set(mimalloc_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/mimalloc-2.0 CACHE INTERNAL "")
     find_package(mimalloc CONFIG REQUIRED)
 

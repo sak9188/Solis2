@@ -99,15 +99,27 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Android")
 endif()
 
 # 设置安装目录
+# ==============================================================================
 set(CMAKE_INSTALL_LIBDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/lib)
-set(CMAKE_INSTALL_BINDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_INSTALL_BINDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_INSTALL_INCLUDEDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/include)
 
 set(CMAKE_INSTALL_LIBDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_BINDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 set(CMAKE_INSTALL_INCLUDEDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
+# ==============================================================================
 
+# 是否编译第三方库
 set(BUILD_THIRDPARTY OFF)
+
+# 编译时候不生成动态库
+set(BUILD_SHARED_LIBS OFF)
+set(BUILD_STATIC_LIBS ON)
+
+# 只有Windows平台才有这样的设置
+if(BUILD_SHARED_LIBS AND CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_INSTALL_LIBDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/bin)
+endif()
 
 # 设置第三方库
 set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
