@@ -129,7 +129,6 @@ if (${index} GREATER -1)
   # compatibility with older CMake versions.
   set(FMT_REQUIRED_FEATURES cxx_variadic_templates)
 endif ()
-message(STATUS "Required features: ${FMT_REQUIRED_FEATURES}")
 
 if (FMT_MASTER_PROJECT AND NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET)
   set_verbose(CMAKE_CXX_VISIBILITY_PRESET hidden CACHE STRING

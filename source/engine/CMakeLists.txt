@@ -1,3 +1,6 @@
+# SET ENGINE SOURCE
+set(ENGINE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_subdirectory("core")
 
 add_subdirectory("inputs")

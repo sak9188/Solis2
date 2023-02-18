@@ -262,7 +262,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU|Intel" AND NOT CMAKE_SYSTEM
 endif()
 
 if (MSVC AND MSVC_VERSION GREATER_EQUAL 1914)
-  list(APPEND mi_cflags /Zc:__cplusplus)
+  list(APPEND mi_cflags /Zc:__cplusplus /permissive-)
 endif()
 
 # extra needed libraries
@@ -435,7 +435,10 @@ if (MI_BUILD_OBJECT)
 
   # the FILES expression can also be: $<TARGET_OBJECTS:mimalloc-obj>
   # but that fails cmake versions less than 3.10 so we leave it as is for now
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/mimalloc-obj.dir/src/static.c${CMAKE_C_OUTPUT_EXTENSION}
+  # D:\Desktop\GitHub\Solis2\build\thirdparty\mimalloc\mimalloc-obj.dir\Debug\static.obj
+  # D:/Desktop/GitHub/Solis2/build/thirdparty/mimalloc/CMakeFiles/mimalloc-obj.dir/Debug/static.obj":
+
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mimalloc-obj.dir/${CMAKE_BUILD_TYPE}/static${CMAKE_C_OUTPUT_EXTENSION}
           DESTINATION ${mi_install_objdir}
           RENAME ${mi_basename}${CMAKE_C_OUTPUT_EXTENSION} )
 endif()

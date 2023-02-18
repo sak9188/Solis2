@@ -98,17 +98,29 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Android")
     set(PLATFORM_NAME "Android")
 endif()
 
-# 设置第三方库
-set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
+# 设置安装目录
+set(CMAKE_INSTALL_LIBDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_INSTALL_BINDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_INSTALL_INCLUDEDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/include)
 
-# Source
-set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
+set(BUILD_THIRDPARTY ON CACHE BOOL "Build thirdparty")
 
-# 加入Source集
-add_subdirectory(${SOURCE_PATH})
+if(${BUILD_THIRDPARTY})
+    # 设置第三方库
+    set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 
-# Test
-set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
+    # 设置第三方库
+    add_subdirectory(${THIRD_PARTY_PATH})
+else()
+    # Source
+    set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
-# 加入Test集
-add_subdirectory(${TEST_PATH})
+    # 加入Source集
+    add_subdirectory(${SOURCE_PATH})
+
+    # Test
+    set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
+
+    # 加入Test集
+    add_subdirectory(${TEST_PATH})
+endif()
