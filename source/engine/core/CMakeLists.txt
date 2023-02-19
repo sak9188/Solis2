@@ -36,7 +36,6 @@ endif()
 # 设置依赖
 find_package(mimalloc CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
 find_package(folly CONFIG REQUIRED)
 
 target_link_libraries(

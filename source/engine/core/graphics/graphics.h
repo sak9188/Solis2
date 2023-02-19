@@ -14,11 +14,6 @@ namespace solis
         public:
             Graphics() = default;
             virtual ~Graphics() = default;
-
-            virtual void Init() = 0;
-            virtual void Shutdown() = 0;
-            virtual void Update() = 0;
-            virtual void Render() = 0;
         };
     }
 }
