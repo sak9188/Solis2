@@ -67,6 +67,10 @@ else()
     set(glm_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glm CACHE INTERNAL "")
     find_package(glm CONFIG REQUIRED)
 
+    # VOLK
+    set(volk_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/volk CACHE INTERNAL "")
+    find_package(volk CONFIG REQUIRED)
+
     # glfw
     set(glfw3_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glfw3 CACHE INTERNAL "")
     find_package(glfw3 CONFIG REQUIRED)

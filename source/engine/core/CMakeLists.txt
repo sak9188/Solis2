@@ -37,6 +37,7 @@ endif()
 find_package(mimalloc CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(folly CONFIG REQUIRED)
+find_package(volk CONFIG REQUIRED)
 
 target_link_libraries(
     solis_core
@@ -44,6 +45,7 @@ target_link_libraries(
         mimalloc
         glm::glm
         Folly::folly
+        volk::volk
 )
 
 message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")

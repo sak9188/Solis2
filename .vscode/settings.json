@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "locale": "cpp",
+        "*.ipp": "cpp",
+        "chrono": "cpp",
+        "future": "cpp",
+        "system_error": "cpp",
+        "typeindex": "cpp",
+        "xlocale": "cpp",
+        "utility": "cpp",
+        "filesystem": "cpp",
+        "xstring": "cpp",
+        "format": "cpp",
+        "stdexcept": "cpp"
+    }
+}

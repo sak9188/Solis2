@@ -1,3 +1,5 @@
+#pragma once
+
 #include "folly/FBString.h"
 #include "folly/FBVector.h"
 #include "folly/AtomicHashMap.h"

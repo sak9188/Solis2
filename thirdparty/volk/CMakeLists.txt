@@ -35,7 +35,7 @@ if(NOT VOLK_HEADERS_ONLY OR VOLK_INSTALL)
   add_library(volk::volk ALIAS volk)
   target_include_directories(volk PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
   if(VOLK_STATIC_DEFINES)
     target_compile_definitions(volk PUBLIC ${VOLK_STATIC_DEFINES})
@@ -52,7 +52,7 @@ add_library(volk_headers INTERFACE)
 add_library(volk::volk_headers ALIAS volk_headers)
 target_include_directories(volk_headers INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 if (NOT WIN32)
   target_link_libraries(volk_headers INTERFACE dl)
