@@ -23,6 +23,8 @@ namespace solis
         };
         virtual ~Engine() = default;
 
+        // virtual int Run();
+
         inline static Engine *Get()
         {
             return sInstance;
