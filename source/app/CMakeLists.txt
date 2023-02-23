@@ -34,8 +34,7 @@ target_link_libraries(
     solis_app
     PUBLIC
         solis_core
-        glfw3
-
+        glfw
 )
 
 message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")
@@ -57,6 +56,12 @@ set_target_properties(
 set_target_properties(
     solis_app 
     PROPERTIES
-        OUTPUT_NAME "libsolis_app"
-    
+        OUTPUT_NAME "solis_app"
+)
+
+
+set_target_properties(
+    solis_app 
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin
 )

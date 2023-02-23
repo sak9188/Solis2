@@ -70,3 +70,9 @@ set_target_properties(
         OUTPUT_NAME "libsolis_core"
     
 )
+
+set_target_properties(
+    solis_core 
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin
+)

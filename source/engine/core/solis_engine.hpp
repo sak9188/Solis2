@@ -1,7 +1,13 @@
 #pragma once
 
 #include "core/solis_core.hpp"
+
 #include "core/base/object.hpp"
+#include "core/base/i_noncopyable.hpp"
+
+#include "core/base/module.hpp"
+
+#include "ctti/type_id.hpp"
 
 namespace solis
 {
@@ -11,19 +17,20 @@ namespace solis
         vector<const char *> extensions;
     };
 
-    class SOLIS_CORE_API Engine : public Object<Engine>
+    class SOLIS_CORE_API Engine : public Object<Engine>, public INonCopyable
     {
     public:
-        Engine(const EngineCreateInfo &info) : mCreateInfo(info)
-        {
-            if (sInstance != nullptr)
-                throw std::runtime_error("Engine already exists.");
+        Engine(const EngineCreateInfo &info);
 
-            sInstance = this;
-        };
-        virtual ~Engine() = default;
+        virtual ~Engine();
 
-        // virtual int Run();
+        void Destroy();
+
+        virtual int Run();
+
+        virtual void Step();
+
+        // virtual void Update();
 
         inline static Engine *Get()
         {
@@ -31,6 +38,21 @@ namespace solis
         }
 
         const EngineCreateInfo &CreateInfo() const { return mCreateInfo; }
+
+    private:
+        bool ParseEngineCfg(const string &filename);
+
+        void InitFileModuleSearchPath();
+
+        void CreateModule(Module::TRegistryMap::const_iterator it, const ModuleFilter &filter);
+
+        void DestroyModule(ctti::type_index id);
+
+        void UpdateStage(Module::Stage stage);
+
+        hash_map<uint64_t, std::unique_ptr<Module>> mModules{MaxModules};
+
+        std::map<Module::Stage, vector<ctti::type_index>> mModuleStage;
 
     private:
         inline static Engine *sInstance = nullptr;

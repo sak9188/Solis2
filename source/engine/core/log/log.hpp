@@ -44,28 +44,28 @@ namespace solis
         template <typename... Args>
         inline static void SDebug(const string &message, Args &&...args)
         {
-            static Log logger("StaticDebugLogger");
+            static Log logger("Static");
             logger.Debug(message, std::forward<Args>(args)...);
         };
 
         template <typename... Args>
         inline static void SInfo(const string &message, Args &&...args)
         {
-            static Log logger("StaticInfoLogger");
+            static Log logger("Static");
             logger.Info(message, std::forward<Args>(args)...);
         };
 
         template <typename... Args>
         inline static void SWarning(const string &message, Args &&...args)
         {
-            static Log logger("StaticWarningLogger");
+            static Log logger("Static");
             logger.Warning(message, std::forward<Args>(args)...);
         };
 
         template <typename... Args>
         inline static void SError(const string &message, Args &&...args)
         {
-            static Log logger("StaticErrorLogger");
+            static Log logger("Static");
             logger.Error(message, std::forward<Args>(args)...);
         };
 

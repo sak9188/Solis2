@@ -4,6 +4,13 @@ namespace solis
 {
     namespace graphics
     {
+        Graphics::Graphics()
+        {
+            mInstance = std::make_unique<Instance>();
+            mPhysicalDevice = std::make_unique<PhysicalDevice>(*mInstance);
+            mLogicalDevice = std::make_unique<LogicalDevice>(*mInstance, *mPhysicalDevice);
+        }
+
         string Graphics::StringifyResultVk(VkResult result)
         {
             switch (result)

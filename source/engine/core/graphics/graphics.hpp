@@ -8,6 +8,10 @@
 #include "core/base/object.hpp"
 #include "core/base/module.hpp"
 
+#include "core/graphics/instance.hpp"
+#include "core/graphics/physical_device.hpp"
+#include "core/graphics/logical_device.hpp"
+
 #include "volk.h"
 
 namespace solis
@@ -23,7 +27,7 @@ namespace solis
             inline static const bool Registered = Register(Stage::Render);
 
         public:
-            Graphics() = default;
+            Graphics();
             virtual ~Graphics() = default;
 
             virtual void Update() override {}
@@ -32,9 +36,9 @@ namespace solis
             static void CheckVk(VkResult result);
 
         private:
-            std::unique_ptr<Instance> mInstance();
-            std::unique_ptr<PhysicalDevice> mPhysicalDevice();
-            std::unique_ptr<LogicalDevice> mLogicalDevice();
+            std::unique_ptr<Instance> mInstance;
+            std::unique_ptr<PhysicalDevice> mPhysicalDevice;
+            std::unique_ptr<LogicalDevice> mLogicalDevice;
         };
     }
 }

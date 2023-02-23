@@ -18,18 +18,17 @@ namespace solis
 {
     namespace graphics
     {
-#if USE_DEBUG_MESSENGER
-        const std::vector<const char *> Instance::ValidationLayers = {"VK_LAYER_KHRONOS_validation"}; // "VK_LAYER_RENDERDOC_Capture"
+        const vector<const char *> Instance::ValidationLayers = {"VK_LAYER_KHRONOS_validation"}; // "VK_LAYER_RENDERDOC_Capture"
 
         VKAPI_ATTR VkBool32 VKAPI_CALL CallbackDebug(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageTypes,
                                                      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
         {
             if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-                Log::SWarning(pCallbackData->pMessage, '\n');
+                Log::SWarning(pCallbackData->pMessage);
             else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
-                Log::Info(pCallbackData->pMessage, '\n');
-            else // VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
-                Log::Error(pCallbackData->pMessage, '\n');
+                Log::SInfo(pCallbackData->pMessage);
+            else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+                Log::SError(pCallbackData->pMessage);
 
             return VK_FALSE;
         }
@@ -49,38 +48,6 @@ namespace solis
             if (func)
                 return func(instance, messenger, pAllocator);
         }
-#else
-        const vector<const char *> Instance::ValidationLayers = {"VK_LAYER_LUNARG_standard_validation"};
-
-        VKAPI_ATTR VkBool32 VKAPI_CALL CallbackDebug(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t object, size_t location, int32_t messageCode,
-                                                     const char *pLayerPrefix, const char *pMessage, void *pUserData)
-        {
-            if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
-                Log::SWarning(pMessage);
-            else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
-                Log::SInfo(pMessage);
-            else //  VK_DEBUG_REPORT_ERROR_BIT_EXT
-                Log::SError(pMessage);
-
-            return VK_FALSE;
-        }
-
-        VkResult Instance::FvkCreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator,
-                                                           VkDebugReportCallbackEXT *pCallback)
-        {
-            auto func = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
-            if (func)
-                return func(instance, pCreateInfo, pAllocator, pCallback);
-            return VK_ERROR_EXTENSION_NOT_PRESENT;
-        }
-
-        void Instance::FvkDestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, const VkAllocationCallbacks *pAllocator)
-        {
-            auto func = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT"));
-            if (func)
-                func(instance, callback, pAllocator);
-        }
-#endif
 
         void Instance::FvkCmdPushDescriptorSetKHR(VkDevice device, VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t set,
                                                   uint32_t descriptorWriteCount, const VkWriteDescriptorSet *pDescriptorWrites)
@@ -119,11 +86,7 @@ namespace solis
 
         Instance::~Instance()
         {
-#if USE_DEBUG_MESSENGER
             FvkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-#else
-            FvkDestroyDebugReportCallbackEXT(instance, debugReportCallback, nullptr);
-#endif
             vkDestroyInstance(instance, nullptr);
         }
 
@@ -204,12 +167,9 @@ namespace solis
             instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
             instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
-#if USE_DEBUG_MESSENGER
             VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo = {};
-#endif
             if (enableValidationLayers)
             {
-#if USE_DEBUG_MESSENGER
                 debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
                 debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
@@ -217,9 +177,6 @@ namespace solis
                                                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
                 debugUtilsMessengerCreateInfo.pfnUserCallback = &CallbackDebug;
                 instanceCreateInfo.pNext = static_cast<VkDebugUtilsMessengerCreateInfoEXT *>(&debugUtilsMessengerCreateInfo);
-#endif
-                instanceCreateInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-                instanceCreateInfo.ppEnabledLayerNames = ValidationLayers.data();
             }
 
             Graphics::CheckVk(vkCreateInstance(&instanceCreateInfo, nullptr, &instance));
@@ -236,7 +193,7 @@ namespace solis
             if (!enableValidationLayers)
                 return;
 
-#if USE_DEBUG_MESSENGER
+            // #if USE_DEBUG_MESSENGER
             VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo = {};
             debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
             debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
@@ -245,24 +202,6 @@ namespace solis
                                                         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             debugUtilsMessengerCreateInfo.pfnUserCallback = &CallbackDebug;
             Graphics::CheckVk(FvkCreateDebugUtilsMessengerEXT(instance, &debugUtilsMessengerCreateInfo, nullptr, &debugMessenger));
-#else
-            VkDebugReportCallbackCreateInfoEXT debugReportCallbackCreateInfo = {};
-            debugReportCallbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-            debugReportCallbackCreateInfo.pNext = nullptr;
-            debugReportCallbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-            debugReportCallbackCreateInfo.pfnCallback = &CallbackDebug;
-            debugReportCallbackCreateInfo.pUserData = nullptr;
-            auto debugReportResult = FvkCreateDebugReportCallbackEXT(instance, &debugReportCallbackCreateInfo, nullptr, &debugReportCallback);
-            if (debugReportResult == VK_ERROR_EXTENSION_NOT_PRESENT)
-            {
-                enableValidationLayers = false;
-                Log::SError("Extension vkCreateDebugReportCallbackEXT not present!\n");
-            }
-            else
-            {
-                Graphics::CheckVk(debugReportResult);
-            }
-#endif
         }
 
         void Instance::LogVulkanLayers(const vector<VkLayerProperties> &layerProperties)

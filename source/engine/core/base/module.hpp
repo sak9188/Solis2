@@ -116,49 +116,63 @@ namespace solis
     class SOLIS_CORE_API ModuleFilter
     {
     public:
-        ModuleFilter()
-        {
-            include.set();
-        }
+        ModuleFilter() {}
 
         template <typename T>
         bool Check() const noexcept
         {
-            return include.test(ctti::type_id<T>().hash());
+            return Check(ctti::type_id<T>().hash());
         }
 
         bool Check(TypeId typeId) const noexcept
         {
-            return include.test(typeId);
+            if (mExcludeAll)
+            {
+                auto it = include.find(typeId);
+                if (it != include.end())
+                {
+                    return it->second;
+                }
+                return false;
+            }
+            return include.find(typeId) == include.end();
         }
 
         template <typename T>
         ModuleFilter &Exclude() noexcept
         {
-            include.reset(ctti::type_id<T>().hash());
+            include.insert({ctti::type_id<T>().hash(), true});
+            // include.reset(ctti::type_id<T>().hash());
             return *this;
         }
 
         template <typename T>
         ModuleFilter &Include() noexcept
         {
-            include.set(ctti::type_id<T>().hash());
+            if (mExcludeAll)
+            {
+                include.insert({ctti::type_id<T>().hash(), false});
+                return *this;
+            }
+            include.erase(ctti::type_id<T>().hash());
             return *this;
         }
 
         ModuleFilter &ExcludeAll() noexcept
         {
-            include.reset();
+            mExcludeAll = true;
             return *this;
         }
 
         ModuleFilter &IncludeAll() noexcept
         {
-            include.set();
+            mExcludeAll = false;
             return *this;
         }
 
     private:
-        std::bitset<64> include;
+        // std::bitset<64> include;
+        hash_map<uint64_t, bool> include{MaxModules};
+        bool mExcludeAll = false;
     };
 }
