@@ -1,3 +1,4 @@
+#include "core/solis_engine.hpp"
 #include "core/graphics/graphics.hpp"
 
 namespace solis
@@ -6,9 +7,14 @@ namespace solis
     {
         Graphics::Graphics()
         {
+            CheckVk(volkInitialize());
+
             mInstance = std::make_unique<Instance>();
             mPhysicalDevice = std::make_unique<PhysicalDevice>(*mInstance);
             mLogicalDevice = std::make_unique<LogicalDevice>(*mInstance, *mPhysicalDevice);
+
+            auto createInfo = Engine::Get()->CreateInfo();
+            mSurfaces.push_back(std::make_unique<Surface>(*mInstance, *mPhysicalDevice, *mLogicalDevice, createInfo.window));
         }
 
         string Graphics::StringifyResultVk(VkResult result)

@@ -11,6 +11,7 @@
 #include "core/graphics/instance.hpp"
 #include "core/graphics/physical_device.hpp"
 #include "core/graphics/logical_device.hpp"
+#include "core/graphics/surface.hpp"
 
 #include "volk.h"
 
@@ -21,6 +22,7 @@ namespace solis
         class Instance;
         class PhysicalDevice;
         class LogicalDevice;
+        class Surface;
 
         class SOLIS_CORE_API Graphics : public Object<Graphics>, public Module::Registrar<Graphics>
         {
@@ -39,6 +41,8 @@ namespace solis
             std::unique_ptr<Instance> mInstance;
             std::unique_ptr<PhysicalDevice> mPhysicalDevice;
             std::unique_ptr<LogicalDevice> mLogicalDevice;
+
+            vector<std::unique_ptr<Surface>> mSurfaces;
         };
     }
 }

@@ -1,6 +1,18 @@
 #include "core/solis_engine.hpp"
 #include "GLFW/glfw3.h"
 
+#ifdef __WIN__
+#define GLFW_EXPOSE_NATIVE_WIN32
+#elif __LINUX__
+#define GLFW_EXPOSE_NATIVE_X11
+#elif __ANDROID__
+#define GLFW_EXPOSE_NATIVE_ANDROID
+#elif __MAC__
+#define GLFW_EXPOSE_NATIVE_COCOA
+#endif
+
+#include <GLFW/glfw3native.h>
+
 using namespace solis;
 
 GLFWwindow *window;
@@ -33,6 +45,8 @@ int main()
     {
         info.extensions.push_back(glfwExtensions[i]);
     }
+
+    info.window = glfwGetWin32Window(window);
 
     Engine engine(info);
 

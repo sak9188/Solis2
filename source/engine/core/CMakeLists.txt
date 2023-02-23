@@ -1,4 +1,4 @@
-project(solis_core CXX)
+project(solis_core CXX C)
 
 # 设置目录
 set(PROJECT_INCLUDE_PATH ${CMAKE_CURRENT_LIST_DIR})
@@ -6,6 +6,7 @@ set(PROJECT_SOURCE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 # 收集文件
 file(GLOB_RECURSE PROJECT_SOURCES
+    ${PROJECT_SOURCE_PATH}/*.c
     ${PROJECT_SOURCE_PATH}/*.cpp
 )
 
@@ -37,15 +38,26 @@ endif()
 find_package(mimalloc CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(folly CONFIG REQUIRED)
-find_package(volk CONFIG REQUIRED)
+find_package(Vulkan REQUIRED)
+# find_package(volk CONFIG REQUIRED)
+
+if(__WIN__)
+    target_compile_definitions(
+        solis_core
+        PUBLIC 
+            VK_USE_PLATFORM_WIN32_KHR
+            VK_KHR_win32_surface
+    )
+endif()
+
 
 target_link_libraries(
     solis_core
     PUBLIC
         mimalloc
+        Vulkan::Vulkan
         glm::glm
         Folly::folly
-        volk::volk
 )
 
 message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")

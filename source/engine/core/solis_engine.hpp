@@ -13,6 +13,7 @@ namespace solis
 {
     struct SOLIS_CORE_API EngineCreateInfo
     {
+        void *window = nullptr;
         // 扩展
         vector<const char *> extensions;
     };
