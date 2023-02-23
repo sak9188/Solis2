@@ -20,6 +20,8 @@
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "vector": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "span": "cpp",
+        "type_traits": "cpp"
     }
 }
