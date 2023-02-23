@@ -4,6 +4,6 @@ using namespace solis;
 
 int main()
 {
-    Engine engine;
+    Engine engine();
     return engine.Run();
 }
