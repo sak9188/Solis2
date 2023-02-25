@@ -46,7 +46,7 @@ find_package(mimalloc CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(folly CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
-# find_package(volk CONFIG REQUIRED)
+find_package(glslang CONFIG REQUIRED)
 
 if(__WIN__)
     target_compile_definitions(
@@ -66,6 +66,13 @@ target_link_libraries(
         Folly::folly # static
     PRIVATE
         mimalloc-static # static
+        glslang::glslang # static
+        glslang::OGLCompiler # static
+        glslang::OSDependent # static
+        glslang::SPIRV # static
+        # glslang::HLSL # static
+        glslang::SPVRemapper # static
+        glslang::glslang-default-resource-limits
 )
 
 # message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")

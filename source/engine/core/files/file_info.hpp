@@ -40,7 +40,7 @@ namespace solis
             const string GetExtension() const { return mPath.extension().string(); }
 
             // IsExist()
-            bool IsExist() const;
+            bool Exist() const;
 
             // Read()
             vector<string> Read() const;

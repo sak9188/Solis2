@@ -14,7 +14,7 @@ namespace solis
         {
         }
 
-        bool FileInfo::IsExist() const
+        bool FileInfo::Exist() const
         {
             return std::filesystem::exists(mPath);
         }
@@ -34,8 +34,8 @@ namespace solis
 
         vector<uint8_t> FileInfo::ReadBytes() const
         {
-            // Read From File
             std::ifstream file(mPath, std::ios::in | std::ios::binary);
+            file.seekg(0, std::ios::end);
             size_t fileSize = (size_t)file.tellg();
             vector<uint8_t> buffer(fileSize);
             file.seekg(0);
@@ -45,7 +45,6 @@ namespace solis
 
         void FileInfo::Write(const vector<string> &lines, FileWriteMode mode) const
         {
-            // Write To File
             std::ofstream file(mPath, mode == FileWriteMode::Append ? std::ios::app : std::ios::out);
             for (const auto &line : lines)
             {
@@ -55,7 +54,6 @@ namespace solis
 
         void FileInfo::WriteBytes(const vector<uint8_t> &bytes, FileWriteMode mode) const
         {
-            // Write To File
             std::ofstream file(mPath, mode == FileWriteMode::Append ? std::ios::app : std::ios::out | std::ios::binary);
             file.write((char *)bytes.data(), bytes.size());
         }

@@ -5,6 +5,7 @@
 
 #include "core/files/files.hpp"
 #include "core/graphics/graphics.hpp"
+#include "core/graphics/pipeline/shader.hpp"
 
 #include "GLFW/glfw3.h"
 
@@ -65,8 +66,10 @@ int main()
 
     Files::Get()->SetCurrentPath(Files::Get()->GetExecuteBinPath());
 
-    Log::SInfo("object num is: {}", ObjectBase::ObjectCount);
+    Shader shader;
+    shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
 
+    Log::SInfo("object num is: {}", ObjectBase::ObjectCount);
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();

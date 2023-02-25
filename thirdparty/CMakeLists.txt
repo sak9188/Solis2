@@ -87,4 +87,9 @@ else()
     # folly
     set(folly_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/folly CACHE INTERNAL "")
     find_package(folly CONFIG REQUIRED)
+
+    # glslang
+    set(glslang_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glslang CACHE INTERNAL "")
+    find_package(glslang CONFIG REQUIRED)
+
 endif()
