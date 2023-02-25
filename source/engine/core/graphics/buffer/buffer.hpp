@@ -9,7 +9,7 @@ namespace solis
 {
     namespace graphics
     {
-        class SOLIS_CORE_API Buffer
+        class SOLIS_CORE_API Buffer : public Object<Buffer>
         {
         public:
             enum class Status

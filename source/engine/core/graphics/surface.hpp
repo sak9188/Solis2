@@ -3,6 +3,7 @@
 #include "volk.h"
 
 #include "core/solis_core.hpp"
+#include "core/base/object.hpp"
 
 namespace solis
 {
@@ -12,7 +13,7 @@ namespace solis
 		class PhysicalDevice;
 		class LogicalDevice;
 
-		class SOLIS_CORE_API Surface
+		class SOLIS_CORE_API Surface : public Object<Surface>
 		{
 			friend class Graphics;
 

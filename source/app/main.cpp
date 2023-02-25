@@ -1,6 +1,11 @@
 #include "core/solis_engine.hpp"
 #include "core/base/using.hpp"
 
+#include "core/log/log.hpp"
+
+#include "core/files/files.hpp"
+#include "core/graphics/graphics.hpp"
+
 #include "GLFW/glfw3.h"
 
 #ifdef __WIN__
@@ -14,6 +19,7 @@
 #endif
 
 #include <GLFW/glfw3native.h>
+#include <iostream>
 
 using namespace solis;
 
@@ -53,6 +59,13 @@ int main()
     info.windowSize = windowSize;
 
     Engine engine(info);
+
+    using namespace graphics;
+    using namespace files;
+
+    Files::Get()->SetCurrentPath(Files::Get()->GetExecuteBinPath());
+
+    Log::SInfo("object num is: {}", ObjectBase::ObjectCount);
 
     while (!glfwWindowShouldClose(window))
     {

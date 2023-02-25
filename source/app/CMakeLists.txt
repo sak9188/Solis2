@@ -37,12 +37,9 @@ target_link_libraries(
         glfw
 )
 
-message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")
-
 target_include_directories(
     solis_app 
     PUBLIC
-        ${CMAKE_INSTALL_INCLUDEDIR_FULL}
         ${ENGINE_SOURCE_DIR}
 )
 

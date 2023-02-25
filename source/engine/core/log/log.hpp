@@ -16,29 +16,29 @@ namespace solis
         template <typename... Args>
         void Debug(const string &message, Args &&...args)
         {
-            static const string debug = fmt::format("[{}][D]:{}\n", mName, message);
-            fmt::print(debug.toStdString(), std::forward<Args>(args)...);
+            const string debug = fmt::format("[{}][D]:{}\n", mName, message);
+            fmt::print(debug.c_str(), std::forward<Args>(args)...);
         };
 
         template <typename... Args>
         void Info(const string &message, Args &&...args)
         {
-            static const string debug = fmt::format("[{}][I]:{}\n", mName, message);
-            fmt::print(debug.toStdString(), std::forward<Args>(args)...);
+            const string debug = fmt::format("[{}][I]:{}\n", mName, message);
+            fmt::print(debug.c_str(), std::forward<Args>(args)...);
         };
 
         template <typename... Args>
         void Warning(const string &message, Args &&...args)
         {
-            static const string debug = fmt::format("[{}][W]:{}\n", mName, message);
-            fmt::print(debug.toStdString(), std::forward<Args>(args)...);
+            const string debug = fmt::format("[{}][W]:{}\n", mName, message);
+            fmt::print(debug.c_str(), std::forward<Args>(args)...);
         };
 
         template <typename... Args>
         void Error(const string &message, Args &&...args)
         {
-            static const string debug = fmt::format("[{}][E]:{}\n", mName, message);
-            fmt::print(debug.toStdString(), std::forward<Args>(args)...);
+            const string debug = fmt::format("[{}][E]:{}\n", mName, message);
+            fmt::print(debug.c_str(), std::forward<Args>(args)...);
         };
 
         template <typename... Args>

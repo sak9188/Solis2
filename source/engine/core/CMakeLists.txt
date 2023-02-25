@@ -27,9 +27,16 @@ source_group(TREE ${PROJECT_INCLUDE_PATH}
 # 设置编译宏
 message(STATUS "BUILD_SHARED_LIBS: ${BUILD_SHARED_LIBS}")
 if(BUILD_SHARED_LIBS)
-    add_definitions(-DSOLIS_CORE_LIB -DUSE_SOLIS_CORE_LIB)
+    # add_definitions(-DSOLIS_CORE_LIB -DUSE_SOLIS_CORE_LIB)
     # 编译这个lib
     add_library(solis_core SHARED ${PROJECT_SOURCES} ${PROJECT_HEADERS})
+    target_compile_definitions(
+        solis_core
+        PUBLIC
+            SOLIS_CORE_LIB
+        PRIVATE
+            USE_SOLIS_CORE_LIB
+    )
 else()
     add_library(solis_core STATIC ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 endif()
@@ -54,19 +61,20 @@ endif()
 target_link_libraries(
     solis_core
     PUBLIC
-        mimalloc
-        Vulkan::Vulkan
-        glm::glm
-        Folly::folly
+        Vulkan::Vulkan # dynamic
+        glm::glm # static
+        Folly::folly # static
+    PRIVATE
+        mimalloc-static # static
 )
 
-message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")
-
+# message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")
+message(STATUS "ENGINE_SOURCE_DIR: ${ENGINE_SOURCE_DIR}")
 target_include_directories(
     solis_core 
     PUBLIC
-        ${CMAKE_INSTALL_INCLUDEDIR_FULL}
         ${ENGINE_SOURCE_DIR}
+        ${CMAKE_INSTALL_INCLUDEDIR_FULL}
 )
 
 # 项目分租

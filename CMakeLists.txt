@@ -39,7 +39,7 @@ message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
 
 # 使用Unicode字符集
 ###############################################################################
-add_definitions("-DUNICODE -D_UNICODE")
+# add_definitions("-DUNICODE -D_UNICODE")
 add_compile_options(/utf-8)
 
 if(MSVC)

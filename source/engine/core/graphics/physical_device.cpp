@@ -29,7 +29,7 @@ namespace solis
             msaaSamples = GetMaxUsableSampleCount();
 
 #ifdef _DEBUG
-            Log::SInfo("Selected Physical Device: {} \"{}\"", properties.deviceID, properties.deviceName);
+            Log::SInfo("Selected Physical Device: {} {}", properties.deviceID, properties.deviceName);
 #endif
         }
 
