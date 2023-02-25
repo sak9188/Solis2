@@ -77,7 +77,7 @@ namespace solis
         Instance::Instance()
         {
 #ifdef _DEBUG
-            enableValidationLayers = true;
+            mEnableValidationLayers = true;
 #endif
 
             CreateInstance();
@@ -86,8 +86,8 @@ namespace solis
 
         Instance::~Instance()
         {
-            FvkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-            vkDestroyInstance(instance, nullptr);
+            FvkDestroyDebugUtilsMessengerEXT(mInstance, mDebugMessenger, nullptr);
+            vkDestroyInstance(mInstance, nullptr);
         }
 
         bool Instance::CheckValidationLayerSupport() const
@@ -131,7 +131,7 @@ namespace solis
 
             auto extensions = Engine::Get()->CreateInfo().extensions;
 
-            if (enableValidationLayers)
+            if (mEnableValidationLayers)
                 extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
             // extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
             return extensions;
@@ -153,10 +153,10 @@ namespace solis
             applicationInfo.engineVersion = VK_MAKE_VERSION(EngineVersionMajor, EngineVersionMinor, EngineVersionPatch);
             applicationInfo.apiVersion = volkGetInstanceVersion() >= VK_API_VERSION_1_1 ? VK_API_VERSION_1_1 : VK_MAKE_VERSION(1, 0, 57);
 
-            if (enableValidationLayers && !CheckValidationLayerSupport())
+            if (mEnableValidationLayers && !CheckValidationLayerSupport())
             {
                 Log::SError("Validation layers requested, but not available!\n");
-                enableValidationLayers = false;
+                mEnableValidationLayers = false;
             }
 
             auto extensions = GetExtensions();
@@ -168,7 +168,7 @@ namespace solis
             instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
             VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo = {};
-            if (enableValidationLayers)
+            if (mEnableValidationLayers)
             {
                 debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
                 debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
@@ -179,10 +179,10 @@ namespace solis
                 instanceCreateInfo.pNext = static_cast<VkDebugUtilsMessengerCreateInfoEXT *>(&debugUtilsMessengerCreateInfo);
             }
 
-            Graphics::CheckVk(vkCreateInstance(&instanceCreateInfo, nullptr, &instance));
+            Graphics::CheckVk(vkCreateInstance(&instanceCreateInfo, nullptr, &mInstance));
 
 #if VOLK_HEADER_VERSION >= 131
-            volkLoadInstanceOnly(instance);
+            volkLoadInstanceOnly(mInstance);
 #else
             volkLoadInstance(instance);
 #endif
@@ -190,7 +190,7 @@ namespace solis
 
         void Instance::CreateDebugMessenger()
         {
-            if (!enableValidationLayers)
+            if (!mEnableValidationLayers)
                 return;
 
             // #if USE_DEBUG_MESSENGER
@@ -201,7 +201,7 @@ namespace solis
             debugUtilsMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                                                         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             debugUtilsMessengerCreateInfo.pfnUserCallback = &CallbackDebug;
-            Graphics::CheckVk(FvkCreateDebugUtilsMessengerEXT(instance, &debugUtilsMessengerCreateInfo, nullptr, &debugMessenger));
+            Graphics::CheckVk(FvkCreateDebugUtilsMessengerEXT(mInstance, &debugUtilsMessengerCreateInfo, nullptr, &mDebugMessenger));
         }
 
         void Instance::LogVulkanLayers(const vector<VkLayerProperties> &layerProperties)

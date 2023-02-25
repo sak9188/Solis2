@@ -107,7 +107,7 @@ namespace solis
         using StageIndex = std::pair<Stage, TypeId>;
 
         virtual ~Module() = default;
-
+        
         virtual void Update() = 0;
     };
 

@@ -18,7 +18,7 @@ namespace solis
             friend class Graphics;
 
         public:
-            Swapchain(const PhysicalDevice &physicalDevice, const Surface &surface, const LogicalDevice &logicalDevice, const VkExtent2D &extent, const Swapchain *oldSwapchain = nullptr);
+            Swapchain(const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const Surface &surface, const VkExtent2D &extent, const Swapchain *oldSwapchain = nullptr);
             ~Swapchain();
 
             /**

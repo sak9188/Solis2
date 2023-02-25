@@ -12,6 +12,7 @@
 #include "core/graphics/physical_device.hpp"
 #include "core/graphics/logical_device.hpp"
 #include "core/graphics/surface.hpp"
+#include "core/graphics/swapchain.hpp"
 
 #include "volk.h"
 
@@ -30,11 +31,26 @@ namespace solis
 
         public:
             Graphics();
-            virtual ~Graphics() = default;
+            virtual ~Graphics();
 
             virtual void Update() override {}
 
+            // GetLogicalDevice()
+            const LogicalDevice *GetLogicalDevice() const { return mLogicalDevice.get(); }
+
+            // GetPhysicalDevice()
+            const PhysicalDevice *GetPhysicalDevice() const { return mPhysicalDevice.get(); }
+
+            const Instance *GetInstance() const { return mInstance.get(); }
+
+            // CreateSurface
+            void CreateSurfaceSwapchain(const void* window, math::uvec2 extent);
+
+            // CreateSurface
+            void CreateSurfaceSwapchain(const void* window, VkExtent2D extent);
+
             static string StringifyResultVk(VkResult result);
+
             static void CheckVk(VkResult result);
 
         private:
@@ -43,6 +59,7 @@ namespace solis
             std::unique_ptr<LogicalDevice> mLogicalDevice;
 
             vector<std::unique_ptr<Surface>> mSurfaces;
+            vector<std::unique_ptr<Swapchain>> mSwapchains;
         };
     }
 }

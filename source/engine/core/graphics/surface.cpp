@@ -9,7 +9,7 @@ namespace solis
 {
 	namespace graphics
 	{
-		Surface::Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, void *window) : instance(instance),
+		Surface::Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const void *window) : instance(instance),
 																																			 physicalDevice(physicalDevice),
 																																			 logicalDevice(logicalDevice), window(window)
 		{

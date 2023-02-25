@@ -14,8 +14,8 @@ namespace solis
 
         const vector<const char *> LogicalDevice::DeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME}; // VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME
 
-        LogicalDevice::LogicalDevice(const Instance &instance, const PhysicalDevice &physicalDevice) : instance(instance),
-                                                                                                       physicalDevice(physicalDevice)
+        LogicalDevice::LogicalDevice(const Instance &instance, const PhysicalDevice &physicalDevice) : mInstance(instance),
+                                                                                                       mPhysicalDevice(physicalDevice)
         {
             CreateQueueIndices();
             CreateLogicalDevice();
@@ -23,18 +23,18 @@ namespace solis
 
         LogicalDevice::~LogicalDevice()
         {
-            Graphics::CheckVk(vkDeviceWaitIdle(logicalDevice));
-            vkDestroyDevice(logicalDevice, nullptr);
+            Graphics::CheckVk(vkDeviceWaitIdle(mLogicalDevice));
+            vkDestroyDevice(mLogicalDevice, nullptr);
         }
 
         void LogicalDevice::CreateQueueIndices()
         {
             uint32_t deviceQueueFamilyPropertyCount;
-            vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyPropertyCount, nullptr);
+            vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &deviceQueueFamilyPropertyCount, nullptr);
 
             vector<VkQueueFamilyProperties> deviceQueueFamilyProperties(deviceQueueFamilyPropertyCount);
 
-            vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &deviceQueueFamilyPropertyCount, deviceQueueFamilyProperties.data());
+            vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &deviceQueueFamilyPropertyCount, deviceQueueFamilyProperties.data());
 
             std::optional<uint32_t> graphicsFamily, presentFamily, computeFamily, transferFamily;
 
@@ -44,8 +44,8 @@ namespace solis
                 if (deviceQueueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
                 {
                     graphicsFamily = i;
-                    this->graphicsFamily = i;
-                    supportedQueues |= VK_QUEUE_GRAPHICS_BIT;
+                    this->mGraphicsFamily = i;
+                    mSupportedQueues |= VK_QUEUE_GRAPHICS_BIT;
                 }
 
                 // Check for presentation support.
@@ -55,23 +55,23 @@ namespace solis
                 if (deviceQueueFamilyProperties[i].queueCount > 0 /*&& presentSupport*/)
                 {
                     presentFamily = i;
-                    this->presentFamily = i;
+                    this->mPresentFamily = i;
                 }
 
                 // Check for compute support.
                 if (deviceQueueFamilyProperties[i].queueFlags & VK_QUEUE_COMPUTE_BIT)
                 {
                     computeFamily = i;
-                    this->computeFamily = i;
-                    supportedQueues |= VK_QUEUE_COMPUTE_BIT;
+                    this->mComputeFamily = i;
+                    mSupportedQueues |= VK_QUEUE_COMPUTE_BIT;
                 }
 
                 // Check for transfer support.
                 if (deviceQueueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT)
                 {
                     transferFamily = i;
-                    this->transferFamily = i;
-                    supportedQueues |= VK_QUEUE_TRANSFER_BIT;
+                    this->mTransferFamily = i;
+                    mSupportedQueues |= VK_QUEUE_TRANSFER_BIT;
                 }
 
                 if (graphicsFamily && presentFamily && computeFamily && transferFamily)
@@ -89,49 +89,49 @@ namespace solis
             vector<VkDeviceQueueCreateInfo> queueCreateInfos;
             float queuePriorities[1] = {0.0f};
 
-            if (supportedQueues & VK_QUEUE_GRAPHICS_BIT)
+            if (mSupportedQueues & VK_QUEUE_GRAPHICS_BIT)
             {
                 VkDeviceQueueCreateInfo graphicsQueueCreateInfo = {};
                 graphicsQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                graphicsQueueCreateInfo.queueFamilyIndex = graphicsFamily;
+                graphicsQueueCreateInfo.queueFamilyIndex = mGraphicsFamily;
                 graphicsQueueCreateInfo.queueCount = 1;
                 graphicsQueueCreateInfo.pQueuePriorities = queuePriorities;
                 queueCreateInfos.emplace_back(graphicsQueueCreateInfo);
             }
             else
             {
-                graphicsFamily = 0; // VK_NULL_HANDLE;
+                mGraphicsFamily = 0; // VK_NULL_HANDLE;
             }
 
-            if (supportedQueues & VK_QUEUE_COMPUTE_BIT && computeFamily != graphicsFamily)
+            if (mSupportedQueues & VK_QUEUE_COMPUTE_BIT && mComputeFamily != mGraphicsFamily)
             {
                 VkDeviceQueueCreateInfo computeQueueCreateInfo = {};
                 computeQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                computeQueueCreateInfo.queueFamilyIndex = computeFamily;
+                computeQueueCreateInfo.queueFamilyIndex = mComputeFamily;
                 computeQueueCreateInfo.queueCount = 1;
                 computeQueueCreateInfo.pQueuePriorities = queuePriorities;
                 queueCreateInfos.emplace_back(computeQueueCreateInfo);
             }
             else
             {
-                computeFamily = graphicsFamily;
+                mComputeFamily = mGraphicsFamily;
             }
 
-            if (supportedQueues & VK_QUEUE_TRANSFER_BIT && transferFamily != graphicsFamily && transferFamily != computeFamily)
+            if (mSupportedQueues & VK_QUEUE_TRANSFER_BIT && mTransferFamily != mGraphicsFamily && mTransferFamily != mComputeFamily)
             {
                 VkDeviceQueueCreateInfo transferQueueCreateInfo = {};
                 transferQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                transferQueueCreateInfo.queueFamilyIndex = transferFamily;
+                transferQueueCreateInfo.queueFamilyIndex = mTransferFamily;
                 transferQueueCreateInfo.queueCount = 1;
                 transferQueueCreateInfo.pQueuePriorities = queuePriorities;
                 queueCreateInfos.emplace_back(transferQueueCreateInfo);
             }
             else
             {
-                transferFamily = graphicsFamily;
+                mTransferFamily = mGraphicsFamily;
             }
 
-            auto physicalDeviceFeatures = physicalDevice.GetFeatures();
+            auto physicalDeviceFeatures = mPhysicalDevice.GetFeatures();
             VkPhysicalDeviceFeatures enabledFeatures = {};
 
             // Enable sample rate shading filtering if supported.
@@ -206,7 +206,7 @@ namespace solis
             deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
             deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
             deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
-            if (instance.GetEnableValidationLayers())
+            if (mInstance.GetEnableValidationLayers())
             {
                 deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(Instance::ValidationLayers.size());
                 deviceCreateInfo.ppEnabledLayerNames = Instance::ValidationLayers.data();
@@ -214,14 +214,14 @@ namespace solis
             deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
             deviceCreateInfo.ppEnabledExtensionNames = DeviceExtensions.data();
             deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
-            Graphics::CheckVk(vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &logicalDevice));
+            Graphics::CheckVk(vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mLogicalDevice));
 
-            volkLoadDevice(logicalDevice);
+            volkLoadDevice(mLogicalDevice);
 
-            vkGetDeviceQueue(logicalDevice, graphicsFamily, 0, &graphicsQueue);
-            vkGetDeviceQueue(logicalDevice, presentFamily, 0, &presentQueue);
-            vkGetDeviceQueue(logicalDevice, computeFamily, 0, &computeQueue);
-            vkGetDeviceQueue(logicalDevice, transferFamily, 0, &transferQueue);
+            vkGetDeviceQueue(mLogicalDevice, mGraphicsFamily, 0, &mGraphicsQueue);
+            vkGetDeviceQueue(mLogicalDevice, mPresentFamily, 0, &mPresentQueue);
+            vkGetDeviceQueue(mLogicalDevice, mComputeFamily, 0, &mComputeQueue);
+            vkGetDeviceQueue(mLogicalDevice, mTransferFamily, 0, &mTransferQueue);
         }
     }
 }

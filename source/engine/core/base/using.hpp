@@ -4,6 +4,8 @@
 #include "folly/FBVector.h"
 #include "folly/AtomicHashMap.h"
 
+#include "glm/glm.hpp"
+
 namespace solis
 {
 	using string = folly::fbstring;
@@ -14,6 +16,7 @@ namespace solis
 	template <typename K, typename V>
 	using hash_map = folly::AtomicHashMap<K, V>;
 
+	namespace math = glm;
 }
 
 namespace std

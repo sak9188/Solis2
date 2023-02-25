@@ -12,9 +12,27 @@ namespace solis
             mInstance = std::make_unique<Instance>();
             mPhysicalDevice = std::make_unique<PhysicalDevice>(*mInstance);
             mLogicalDevice = std::make_unique<LogicalDevice>(*mInstance, *mPhysicalDevice);
+        }
 
-            auto createInfo = Engine::Get()->CreateInfo();
-            mSurfaces.push_back(std::make_unique<Surface>(*mInstance, *mPhysicalDevice, *mLogicalDevice, createInfo.window));
+        Graphics::~Graphics()
+        {
+            mSwapchains.clear();
+            mSurfaces.clear();
+            mLogicalDevice.reset();
+            mPhysicalDevice.reset();
+            mInstance.reset();
+        }
+
+        void Graphics::CreateSurfaceSwapchain(const void* window, math::uvec2 extent)
+        {
+            VkExtent2D vkextent{ extent.x, extent.y };
+            this->CreateSurfaceSwapchain(window, vkextent);
+        }
+
+        void Graphics::CreateSurfaceSwapchain(const void* window, VkExtent2D extent)
+        {
+            mSurfaces.push_back(std::make_unique<Surface>(*mInstance, *mPhysicalDevice, *mLogicalDevice, window));
+            mSwapchains.push_back(std::make_unique<Swapchain>(*mPhysicalDevice, *mLogicalDevice, *mSurfaces.back(), extent));
         }
 
         string Graphics::StringifyResultVk(VkResult result)

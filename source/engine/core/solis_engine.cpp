@@ -1,5 +1,7 @@
 #include "core/solis_engine.hpp"
 
+#include "core/graphics/graphics.hpp"
+
 namespace solis
 {
     static bool IsDestroyEngine = false;
@@ -17,11 +19,9 @@ namespace solis
         }
 
         // 初始化FileModule搜索路径
+        using namespace graphics;
+        Graphics::Get()->CreateSurfaceSwapchain(info.window, info.windowSize);
 
-        // 这里将会调用GLFW， 所以并不清楚是否需要创建SwapChain
-        // 这里代理了SwapChain，不需要手动释放，RenderModule会释放
-        // mMainSwapChain = RenderModule::Get()->CreateSwapChain(param->mWindowInfo);
-        // RenderModule::Get()->CreateRenderGraph(mMainSwapChain);
 
         // 下一帧触发
         // EVENT_SEND(EngineInitEvent, EngineInitEvent());

@@ -1,6 +1,7 @@
 #include "core/graphics/swapchain.hpp"
 
 #include "core/graphics/graphics.hpp"
+#include "core/graphics/image/image.hpp"
 
 namespace solis
 {
@@ -13,7 +14,7 @@ namespace solis
             VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
         };
 
-        Swapchain::Swapchain(const PhysicalDevice &physicalDevice, const Surface &surface, const LogicalDevice &logicalDevice, const VkExtent2D &extent, const Swapchain *oldSwapchain) : physicalDevice(physicalDevice),
+        Swapchain::Swapchain(const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const Surface &surface, const VkExtent2D &extent, const Swapchain *oldSwapchain) : physicalDevice(physicalDevice),
                                                                                                                                                                                           surface(surface),
                                                                                                                                                                                           logicalDevice(logicalDevice),
                                                                                                                                                                                           extent(extent),

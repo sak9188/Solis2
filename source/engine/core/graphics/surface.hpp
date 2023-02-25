@@ -17,7 +17,7 @@ namespace solis
 			friend class Graphics;
 
 		public:
-			Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, void *window);
+			Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const void *window);
 			~Surface();
 
 			operator const VkSurfaceKHR &() const { return surface; }
@@ -30,7 +30,7 @@ namespace solis
 			const Instance &instance;
 			const PhysicalDevice &physicalDevice;
 			const LogicalDevice &logicalDevice;
-			void *window;
+			const void *window;
 
 			VkSurfaceKHR surface = VK_NULL_HANDLE;
 			VkSurfaceCapabilitiesKHR capabilities = {};

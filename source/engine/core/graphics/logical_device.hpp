@@ -20,18 +20,18 @@ namespace solis
             LogicalDevice(const Instance &instance, const PhysicalDevice &physicalDevice);
             ~LogicalDevice();
 
-            operator const VkDevice &() const { return logicalDevice; }
+            operator const VkDevice &() const { return mLogicalDevice; }
 
-            const VkDevice &GetLogicalDevice() const { return logicalDevice; }
-            const VkPhysicalDeviceFeatures &GetEnabledFeatures() const { return enabledFeatures; }
-            const VkQueue &GetGraphicsQueue() const { return graphicsQueue; }
-            const VkQueue &GetPresentQueue() const { return presentQueue; }
-            const VkQueue &GetComputeQueue() const { return computeQueue; }
-            const VkQueue &GetTransferQueue() const { return transferQueue; }
-            uint32_t GetGraphicsFamily() const { return graphicsFamily; }
-            uint32_t GetPresentFamily() const { return presentFamily; }
-            uint32_t GetComputeFamily() const { return computeFamily; }
-            uint32_t GetTransferFamily() const { return transferFamily; }
+            const VkDevice &GetLogicalDevice() const { return mLogicalDevice; }
+            const VkPhysicalDeviceFeatures &GetEnabledFeatures() const { return mEnabledFeatures; }
+            const VkQueue &GetGraphicsQueue() const { return mGraphicsQueue; }
+            const VkQueue &GetPresentQueue() const { return mPresentQueue; }
+            const VkQueue &GetComputeQueue() const { return mComputeQueue; }
+            const VkQueue &GetTransferQueue() const { return mTransferQueue; }
+            uint32_t GetGraphicsFamily() const { return mGraphicsFamily; }
+            uint32_t GetPresentFamily() const { return mPresentFamily; }
+            uint32_t GetComputeFamily() const { return mComputeFamily; }
+            uint32_t GetTransferFamily() const { return mTransferFamily; }
 
             static const vector<const char *> DeviceExtensions;
 
@@ -39,22 +39,22 @@ namespace solis
             void CreateQueueIndices();
             void CreateLogicalDevice();
 
-            const Instance &instance;
-            const PhysicalDevice &physicalDevice;
+            const Instance &mInstance;
+            const PhysicalDevice &mPhysicalDevice;
 
-            VkDevice logicalDevice = VK_NULL_HANDLE;
-            VkPhysicalDeviceFeatures enabledFeatures = {};
+            VkDevice mLogicalDevice = VK_NULL_HANDLE;
+            VkPhysicalDeviceFeatures mEnabledFeatures = {};
 
-            VkQueueFlags supportedQueues = {};
-            uint32_t graphicsFamily = 0;
-            uint32_t presentFamily = 0;
-            uint32_t computeFamily = 0;
-            uint32_t transferFamily = 0;
+            VkQueueFlags mSupportedQueues = {};
+            uint32_t mGraphicsFamily = 0;
+            uint32_t mPresentFamily = 0;
+            uint32_t mComputeFamily = 0;
+            uint32_t mTransferFamily = 0;
 
-            VkQueue graphicsQueue = VK_NULL_HANDLE;
-            VkQueue presentQueue = VK_NULL_HANDLE;
-            VkQueue computeQueue = VK_NULL_HANDLE;
-            VkQueue transferQueue = VK_NULL_HANDLE;
+            VkQueue mGraphicsQueue = VK_NULL_HANDLE;
+            VkQueue mPresentQueue = VK_NULL_HANDLE;
+            VkQueue mComputeQueue = VK_NULL_HANDLE;
+            VkQueue mTransferQueue = VK_NULL_HANDLE;
         };
     }
 }

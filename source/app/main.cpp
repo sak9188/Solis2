@@ -1,4 +1,6 @@
 #include "core/solis_engine.hpp"
+#include "core/base/using.hpp"
+
 #include "GLFW/glfw3.h"
 
 #ifdef __WIN__
@@ -16,13 +18,14 @@
 using namespace solis;
 
 GLFWwindow *window;
+math::uvec2 windowSize{800, 600};
 
 void InitWindow()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    window = glfwCreateWindow(800, 600, "Solis", nullptr, nullptr);
+    window = glfwCreateWindow(windowSize.x, windowSize.y, "Solis", nullptr, nullptr);
 }
 
 void CleanupWindow()
@@ -47,6 +50,7 @@ int main()
     }
 
     info.window = glfwGetWin32Window(window);
+    info.windowSize = windowSize;
 
     Engine engine(info);
 
