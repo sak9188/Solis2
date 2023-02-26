@@ -68,6 +68,7 @@ int main()
 
     Shader shader;
     shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
+    shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
 
     Log::SInfo("object num is: {}", ObjectBase::ObjectCount);
     while (!glfwWindowShouldClose(window))

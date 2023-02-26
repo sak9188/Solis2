@@ -1,7 +1,12 @@
 #include "core/graphics/swapchain.hpp"
 
 #include "core/graphics/graphics.hpp"
+#include "core/graphics/logical_device.hpp"
+#include "core/graphics/physical_device.hpp"
+#include "core/graphics/surface.hpp"
 #include "core/graphics/image/image.hpp"
+
+#include "core/log/log.hpp"
 
 namespace solis
 {
@@ -134,6 +139,34 @@ namespace solis
             }
 
             vkDestroyFence(logicalDevice, fenceImage, nullptr);
+        }
+
+        void Swapchain::SetRenderPass(const RenderPass &renderPass)
+        {
+            mFrameBuffers.resize(imageCount);
+            for (uint32_t i = 0; i < imageCount; i++)
+            {
+                VkImageView attachments[] = {
+                    imageViews[i]};
+
+                VkFramebufferCreateInfo framebufferInfo{};
+                framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+                framebufferInfo.renderPass = renderPass.GetRenderPass();
+
+                // 下面这两个要从renderpass里面获取
+                framebufferInfo.attachmentCount = 1;
+                framebufferInfo.pAttachments = attachments;
+
+                framebufferInfo.width = extent.width;
+                framebufferInfo.height = extent.height;
+                framebufferInfo.layers = 1;
+
+                if (vkCreateFramebuffer(*Graphics::Get()->GetLogicalDevice(), &framebufferInfo, nullptr, &mFrameBuffers[i]) != VK_SUCCESS)
+                {
+                    Log::SError("failed to create framebuffer!");
+                    throw std::runtime_error("failed to create framebuffer!");
+                }
+            }
         }
 
         VkResult Swapchain::AcquireNextImage(const VkSemaphore &presentCompleteSemaphore, VkFence fence)

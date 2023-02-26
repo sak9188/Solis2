@@ -1,4 +1,6 @@
 #include "core/graphics/graphics.hpp"
+#include "core/graphics/physical_device.hpp"
+
 #include "core/graphics/buffer/buffer.hpp"
 
 namespace solis

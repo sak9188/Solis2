@@ -8,11 +8,11 @@
 #include "core/base/object.hpp"
 #include "core/base/module.hpp"
 
-#include "core/graphics/instance.hpp"
-#include "core/graphics/physical_device.hpp"
-#include "core/graphics/logical_device.hpp"
-#include "core/graphics/surface.hpp"
-#include "core/graphics/swapchain.hpp"
+// #include "core/graphics/instance.hpp"
+// #include "core/graphics/physical_device.hpp"
+// #include "core/graphics/logical_device.hpp"
+// #include "core/graphics/surface.hpp"
+// #include "core/graphics/swapchain.hpp"
 
 #include "volk.h"
 
@@ -24,6 +24,8 @@ namespace solis
         class PhysicalDevice;
         class LogicalDevice;
         class Surface;
+        class Swapchain;
+        class CommandPool;
 
         class SOLIS_CORE_API Graphics : public Object<Graphics>, public Module::Registrar<Graphics>
         {
@@ -43,11 +45,13 @@ namespace solis
 
             const Instance *GetInstance() const { return mInstance.get(); }
 
-            // CreateSurface
-            void CreateSurfaceSwapchain(const void* window, math::uvec2 extent);
+            std::shared_ptr<CommandPool> GetCommandPool() const { return mCommandPool; }
 
             // CreateSurface
-            void CreateSurfaceSwapchain(const void* window, VkExtent2D extent);
+            void CreateSurfaceSwapchain(const void *window, math::uvec2 extent);
+
+            // CreateSurface
+            void CreateSurfaceSwapchain(const void *window, VkExtent2D extent);
 
             static string StringifyResultVk(VkResult result);
 
@@ -57,6 +61,7 @@ namespace solis
             std::unique_ptr<Instance> mInstance;
             std::unique_ptr<PhysicalDevice> mPhysicalDevice;
             std::unique_ptr<LogicalDevice> mLogicalDevice;
+            std::shared_ptr<CommandPool> mCommandPool;
 
             vector<std::unique_ptr<Surface>> mSurfaces;
             vector<std::unique_ptr<Swapchain>> mSwapchains;

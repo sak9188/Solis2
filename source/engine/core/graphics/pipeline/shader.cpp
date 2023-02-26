@@ -1,5 +1,6 @@
 #include "core/graphics/pipeline/shader.hpp"
 #include "core/graphics/graphics.hpp"
+#include "core/graphics/logical_device.hpp"
 
 #include "core/files/files.hpp"
 #include "core/files/file_info.hpp"
@@ -107,6 +108,18 @@ namespace solis
             glslang::FinalizeProcess();
 
             return {spirv.begin(), spirv.end()};
+        }
+
+        Shader::~Shader()
+        {
+            for (auto &shaderModule : mShaderModules)
+            {
+                if (shaderModule != VK_NULL_HANDLE)
+                {
+                    vkDestroyShaderModule(*Graphics::Get()->GetLogicalDevice(), shaderModule, nullptr);
+                    shaderModule = VK_NULL_HANDLE;
+                }
+            }
         }
 
         void Shader::CreateShaderModule(const string &codePath, Type type)

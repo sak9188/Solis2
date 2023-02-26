@@ -35,7 +35,7 @@ namespace solis
             };
 
             Shader() = default;
-            virtual ~Shader() = default;
+            virtual ~Shader();
 
             // glsl, spv
             void CreateShaderModule(const string &codePath, Type type);
@@ -43,6 +43,29 @@ namespace solis
             void CreateShaderModule(const vector<uint32_t> &code, Type type);
 
             const VkShaderModule GetShaderModule(Type type) const { return mShaderModules[(uint32_t)type]; }
+
+            VkPipelineShaderStageCreateInfo GetPipelineShaderStageCreateInfo(Type type) const
+            {
+                VkPipelineShaderStageCreateInfo createInfo = {};
+                createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+                createInfo.stage = (VkShaderStageFlagBits)(uint32_t)type;
+                createInfo.module = mShaderModules[(uint32_t)type];
+                createInfo.pName = "main";
+                return createInfo;
+            }
+
+            vector<VkPipelineShaderStageCreateInfo> GetPipelineShaderStageCreateInfos() const
+            {
+                vector<VkPipelineShaderStageCreateInfo> createInfos;
+                for (uint32_t i = 0; i < (uint32_t)Type::Count; ++i)
+                {
+                    if (mShaderModules[i] != VK_NULL_HANDLE)
+                    {
+                        createInfos.push_back(GetPipelineShaderStageCreateInfo((Type)i));
+                    }
+                }
+                return createInfos;
+            }
 
         private:
             vector<VkShaderModule> mShaderModules{(uint32_t)Type::Count};

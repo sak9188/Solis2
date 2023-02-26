@@ -2,6 +2,7 @@
 
 #include "core/base/using.hpp"
 #include "core/base/object.hpp"
+#include "core/graphics/render_pass.hpp"
 
 #include "volk.h"
 
@@ -20,6 +21,8 @@ namespace solis
         public:
             Swapchain(const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const Surface &surface, const VkExtent2D &extent, const Swapchain *oldSwapchain = nullptr);
             ~Swapchain();
+
+            void SetRenderPass(const RenderPass &renderPass);
 
             /**
              * Acquires the next image in the swapchain into the internal acquired image. The function will always wait until the next image has been acquired by setting timeout to UINT64_MAX.
@@ -64,6 +67,7 @@ namespace solis
             VkCompositeAlphaFlagBitsKHR compositeAlpha;
             vector<VkImage> images;
             vector<VkImageView> imageViews;
+            vector<VkFramebuffer> mFrameBuffers;
             VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 
             VkFence fenceImage = VK_NULL_HANDLE;

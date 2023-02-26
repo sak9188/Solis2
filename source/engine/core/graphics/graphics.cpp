@@ -1,6 +1,13 @@
 #include "core/solis_engine.hpp"
 #include "core/graphics/graphics.hpp"
 
+#include "core/graphics/instance.hpp"
+#include "core/graphics/physical_device.hpp"
+#include "core/graphics/logical_device.hpp"
+#include "core/graphics/surface.hpp"
+#include "core/graphics/swapchain.hpp"
+#include "core/graphics/command/command_pool.hpp"
+
 namespace solis
 {
     namespace graphics
@@ -12,6 +19,8 @@ namespace solis
             mInstance = std::make_unique<Instance>();
             mPhysicalDevice = std::make_unique<PhysicalDevice>(*mInstance);
             mLogicalDevice = std::make_unique<LogicalDevice>(*mInstance, *mPhysicalDevice);
+
+            mCommandPool = std::make_shared<CommandPool>(std::this_thread::get_id());
         }
 
         Graphics::~Graphics()
@@ -23,13 +32,13 @@ namespace solis
             mInstance.reset();
         }
 
-        void Graphics::CreateSurfaceSwapchain(const void* window, math::uvec2 extent)
+        void Graphics::CreateSurfaceSwapchain(const void *window, math::uvec2 extent)
         {
-            VkExtent2D vkextent{ extent.x, extent.y };
+            VkExtent2D vkextent{extent.x, extent.y};
             this->CreateSurfaceSwapchain(window, vkextent);
         }
 
-        void Graphics::CreateSurfaceSwapchain(const void* window, VkExtent2D extent)
+        void Graphics::CreateSurfaceSwapchain(const void *window, VkExtent2D extent)
         {
             mSurfaces.push_back(std::make_unique<Surface>(*mInstance, *mPhysicalDevice, *mLogicalDevice, window));
             mSwapchains.push_back(std::make_unique<Swapchain>(*mPhysicalDevice, *mLogicalDevice, *mSurfaces.back(), extent));
