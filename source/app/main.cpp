@@ -7,6 +7,11 @@
 #include "core/graphics/graphics.hpp"
 #include "core/graphics/pipeline/shader.hpp"
 
+#include "core/graphics/swapchain.hpp"
+#include "core/graphics/pipeline/pipeline_graphics.hpp"
+#include "core/graphics/pipeline/shader.hpp"
+#include "core/graphics/command/command_buffer.hpp"
+
 #include "GLFW/glfw3.h"
 
 #ifdef __WIN__
@@ -66,16 +71,38 @@ int main()
 
     Files::Get()->SetCurrentPath(Files::Get()->GetExecuteBinPath());
 
-    Shader shader;
+    // Shader shader;
+    // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
+    // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
+
+    RenderPass renderPass;
+    renderPass.Build();
+
+    PipelineGraphics pipeline;
+    auto &shader = pipeline.GetShader();
     shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
+    pipeline.Build(renderPass);
 
-    Log::SInfo("object num is: {}", ObjectBase::ObjectCount);
+    CommandBuffer buffer;
+    Swapchain swapchain = engine.GetSwapchain();
+    swapchain.SetRenderPass(renderPass);
+
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-    }
 
+        swapchain.AcquireNextImage();
+        buffer.Begin();
+        buffer.BeginRenderPass(swapchain);
+        buffer.BindPipeline(&pipeline);
+        buffer.SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
+        buffer.SetScissor({0, 0, windowSize.x, windowSize.y});
+        buffer.Draw(3, 1, 0, 0);
+        buffer.EndRenderPass();
+        buffer.End();
+        swapchain.SubmitCommandBuffer(buffer);
+    }
     engine.Destroy();
     CleanupWindow();
     return 0;

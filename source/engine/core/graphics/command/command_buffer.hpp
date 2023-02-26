@@ -13,6 +13,7 @@ namespace solis
 {
     namespace graphics
     {
+        class Swapchain;
         class SOLIS_CORE_API CommandBuffer : public Object<CommandBuffer>
         {
         public:
@@ -22,20 +23,34 @@ namespace solis
              * @param queueType The queue to run this command buffer on.
              * @param bufferLevel The buffer level.
              */
-            explicit CommandBuffer(bool begin = true, VkQueueFlagBits queueType = VK_QUEUE_GRAPHICS_BIT, VkCommandBufferLevel bufferLevel = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+            explicit CommandBuffer(VkQueueFlagBits queueType = VK_QUEUE_GRAPHICS_BIT, VkCommandBufferLevel bufferLevel = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
             ~CommandBuffer();
 
-            /**
-             * Begins the recording state for this command buffer.
-             * @param usage How this command buffer will be used.
-             */
             void Begin(VkCommandBufferUsageFlags usage = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
             void End();
 
-            void BindPipeline(const Pipeline &pipeline) const
+            void BeginRenderPass(Swapchain &swapchain);
+            void EndRenderPass();
+
+            void BindPipeline(const Pipeline *pipeline) const
             {
-                vkCmdBindPipeline(commandBuffer, pipeline.GetPipelineBindPoint(), pipeline.GetPipeline());
+                vkCmdBindPipeline(commandBuffer, pipeline->GetPipelineBindPoint(), pipeline->GetPipeline());
+            }
+
+            void SetViewport(const VkViewport &viewport) const
+            {
+                vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+            }
+
+            void SetScissor(const VkRect2D &scissor) const
+            {
+                vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+            }
+
+            void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t firstVertex = 0, uint32_t firstInstance = 0) const
+            {
+                vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
             }
 
             /**

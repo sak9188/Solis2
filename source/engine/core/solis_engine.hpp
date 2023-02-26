@@ -21,8 +21,14 @@ namespace solis
         vector<const char *> extensions;
     };
 
+    namespace graphics
+    {
+        class Swapchain;
+    }
+
     class SOLIS_CORE_API Engine : public Object<Engine>, public INonCopyable
     {
+
     public:
         Engine(const EngineCreateInfo &info);
 
@@ -43,6 +49,9 @@ namespace solis
 
         const EngineCreateInfo &CreateInfo() const { return mCreateInfo; }
 
+        // TODO: 临时
+        graphics::Swapchain &GetSwapchain() const { return *mSwapchain; };
+
     private:
         bool ParseEngineCfg(const string &filename);
 
@@ -60,6 +69,9 @@ namespace solis
 
     private:
         inline static Engine *sInstance = nullptr;
+
+        // TODO: 临时
+        graphics::Swapchain *mSwapchain = nullptr;
 
         const EngineCreateInfo mCreateInfo;
     };

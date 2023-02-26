@@ -20,8 +20,8 @@ namespace solis
 
         // 初始化FileModule搜索路径
         using namespace graphics;
-        Graphics::Get()->CreateSurfaceSwapchain(info.window, info.windowSize);
-
+        Graphics::Get()->Init();
+        mSwapchain = Graphics::Get()->CreateSurfaceSwapchain(info.window, info.windowSize);
 
         // 下一帧触发
         // EVENT_SEND(EngineInitEvent, EngineInitEvent());

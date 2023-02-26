@@ -8,12 +8,6 @@
 #include "core/base/object.hpp"
 #include "core/base/module.hpp"
 
-// #include "core/graphics/instance.hpp"
-// #include "core/graphics/physical_device.hpp"
-// #include "core/graphics/logical_device.hpp"
-// #include "core/graphics/surface.hpp"
-// #include "core/graphics/swapchain.hpp"
-
 #include "volk.h"
 
 namespace solis
@@ -35,6 +29,8 @@ namespace solis
             Graphics();
             virtual ~Graphics();
 
+            void Init();
+
             virtual void Update() override {}
 
             // GetLogicalDevice()
@@ -48,10 +44,10 @@ namespace solis
             std::shared_ptr<CommandPool> GetCommandPool() const { return mCommandPool; }
 
             // CreateSurface
-            void CreateSurfaceSwapchain(const void *window, math::uvec2 extent);
+            Swapchain *CreateSurfaceSwapchain(const void *window, math::uvec2 extent);
 
             // CreateSurface
-            void CreateSurfaceSwapchain(const void *window, VkExtent2D extent);
+            Swapchain *CreateSurfaceSwapchain(const void *window, VkExtent2D extent);
 
             static string StringifyResultVk(VkResult result);
 

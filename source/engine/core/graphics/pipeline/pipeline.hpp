@@ -19,8 +19,8 @@ namespace solis
             virtual ~Pipeline() = default;
 
             virtual bool Build(const RenderPass &renderPass, size_t subpassIndex = 0) = 0;
-            virtual const Shader *GetShader() const = 0;
-            virtual bool IsPushDescriptors() const = 0;
+            virtual Shader &GetShader() const = 0;
+            // virtual bool IsPushDescriptors() const = 0;
             virtual const VkDescriptorSetLayout &GetDescriptorSetLayout() const = 0;
             virtual const VkDescriptorPool &GetDescriptorPool() const = 0;
             virtual const VkPipeline &GetPipeline() const = 0;

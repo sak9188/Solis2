@@ -2,13 +2,15 @@
 
 #include "core/graphics/graphics.hpp"
 #include "core/graphics/logical_device.hpp"
+#include "core/graphics/render_pass.hpp"
+#include "core/graphics/swapchain.hpp"
 
 namespace solis
 {
     namespace graphics
     {
-        CommandBuffer::CommandBuffer(bool begin, VkQueueFlagBits queueType, VkCommandBufferLevel bufferLevel) : commandPool(Graphics::Get()->GetCommandPool()),
-                                                                                                                queueType(queueType)
+        CommandBuffer::CommandBuffer(VkQueueFlagBits queueType, VkCommandBufferLevel bufferLevel) : commandPool(Graphics::Get()->GetCommandPool()),
+                                                                                                    queueType(queueType)
         {
             auto logicalDevice = Graphics::Get()->GetLogicalDevice();
 
@@ -18,9 +20,6 @@ namespace solis
             commandBufferAllocateInfo.level = bufferLevel;
             commandBufferAllocateInfo.commandBufferCount = 1;
             Graphics::CheckVk(vkAllocateCommandBuffers(*logicalDevice, &commandBufferAllocateInfo, &commandBuffer));
-
-            if (begin)
-                Begin();
         }
 
         CommandBuffer::~CommandBuffer()
@@ -34,10 +33,10 @@ namespace solis
         {
             if (running)
                 return;
-
+            vkResetCommandBuffer(commandBuffer, 0);
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            beginInfo.flags = usage;
+            // beginInfo.flags = usage;
             Graphics::CheckVk(vkBeginCommandBuffer(commandBuffer, &beginInfo));
             running = true;
         }
@@ -49,6 +48,33 @@ namespace solis
 
             Graphics::CheckVk(vkEndCommandBuffer(commandBuffer));
             running = false;
+        }
+
+        void CommandBuffer::BeginRenderPass(Swapchain &swapchain)
+        {
+            if (!running)
+                return;
+
+            VkRenderPassBeginInfo renderPassBeginInfo = {};
+            renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassBeginInfo.renderPass = *swapchain.GetRenderPass();
+            renderPassBeginInfo.framebuffer = swapchain.GetActiveFrameBuffer();
+            renderPassBeginInfo.renderArea.offset = {0, 0};
+            renderPassBeginInfo.renderArea.extent = swapchain.GetExtent();
+
+            VkClearValue clearValue = {0.0f, 0.0f, 0.0f, 1.0f};
+            renderPassBeginInfo.clearValueCount = 1;
+            renderPassBeginInfo.pClearValues = &clearValue;
+
+            vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        }
+
+        void CommandBuffer::EndRenderPass()
+        {
+            if (!running)
+                return;
+
+            vkCmdEndRenderPass(commandBuffer);
         }
 
         // void CommandBuffer::SubmitIdle()

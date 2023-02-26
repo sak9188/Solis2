@@ -43,7 +43,7 @@ namespace solis
             };
 
             virtual bool Build(const RenderPass &, size_t subpassIndex = 0) override;
-            virtual const Shader *GetShader() const override { return mShader.get(); }
+            virtual Shader &GetShader() const override { return *mShader.get(); }
             // virtual bool IsPushDescriptors() const override { return mIsPushDescriptors; }
             virtual const VkDescriptorSetLayout &GetDescriptorSetLayout() const override { return mDescriptorSetLayout; }
             virtual const VkDescriptorPool &GetDescriptorPool() const override { return mDescriptorPool; }
@@ -59,7 +59,7 @@ namespace solis
 
             VkPipeline mPipeline = VK_NULL_HANDLE;
             VkPipelineLayout mPipelineLayout = VK_NULL_HANDLE;
-            VkPipelineBindPoint mPipelineBindPoint;
+            VkPipelineBindPoint mPipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         };
     }
 }
