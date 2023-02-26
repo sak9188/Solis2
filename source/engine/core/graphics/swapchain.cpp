@@ -41,11 +41,19 @@ namespace solis
 
             for (const auto &presentMode : physicalPresentModes)
             {
-                if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+                // 这个才是垂直同步
+                if (presentMode == VK_PRESENT_MODE_FIFO_KHR)
                 {
                     this->presentMode = presentMode;
                     break;
                 }
+
+                // 这个只是高帧率的防撕裂, 显卡还是会跑满
+                // if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+                // {
+                //     this->presentMode = presentMode;
+                //     break;
+                // }
 
                 if (presentMode != VK_PRESENT_MODE_MAILBOX_KHR && presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
                 {

@@ -30,7 +30,7 @@
 using namespace solis;
 
 GLFWwindow *window;
-math::uvec2 windowSize{800, 600};
+math::uvec2 windowSize{1377, 768};
 
 void InitWindow()
 {
