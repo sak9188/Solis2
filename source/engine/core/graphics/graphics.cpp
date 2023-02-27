@@ -27,6 +27,7 @@ namespace solis
 
             mSwapchains.clear();
             mSurfaces.clear();
+            mCommandPool.reset();
             mLogicalDevice.reset();
             mPhysicalDevice.reset();
             mInstance.reset();

@@ -23,16 +23,26 @@ namespace solis
             Swapchain(const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const Surface &surface, const VkExtent2D &extent, const Swapchain *oldSwapchain = nullptr);
             ~Swapchain();
 
+            // 重建Swapchain
+            void Recreate(const VkExtent2D &extent);
+
+            void Recreate()
+            {
+                Recreate(this->mExtent);
+            }
+
+            // 设置渲染通道
             void SetRenderPass(RenderPass &renderPass);
 
+            // 渲染相关
             VkResult AcquireNextImage();
             VkResult QueuePresent();
 
-            bool IsSameExtent(const VkExtent2D &extent2D) { return extent.width == extent2D.width && extent.height == extent2D.height; }
+            bool IsSameExtent(const VkExtent2D &extent2D) { return mExtent.width == extent2D.width && mExtent.height == extent2D.height; }
 
-            operator const VkSwapchainKHR &() const { return swapchain; }
+            operator const VkSwapchainKHR &() const { return mSwapchain; }
 
-            const VkExtent2D &GetExtent() const { return extent; }
+            const VkExtent2D &GetExtent() const { return mExtent; }
             uint32_t GetImageCount() const { return imageCount; }
             VkSurfaceTransformFlagsKHR GetPreTransform() const { return preTransform; }
             VkCompositeAlphaFlagBitsKHR GetCompositeAlpha() const { return compositeAlpha; }
@@ -46,18 +56,23 @@ namespace solis
             const vector<VkImage> &GetImages() const { return images; }
             const VkImage &GetActiveImage() const { return images[GetActiveImageIndex()]; }
             const vector<VkImageView> &GetImageViews() const { return imageViews; }
-            const VkSwapchainKHR &GetSwapchain() const { return swapchain; }
+            const VkSwapchainKHR &GetSwapchain() const { return mSwapchain; }
             uint32_t GetActiveImageIndex() const { return mCurrentFrame % imageCount; }
 
             void SubmitCommandBuffer(CommandBuffer &commandBuffer);
 
         private:
-            const PhysicalDevice &physicalDevice;
-            const Surface &surface;
-            const LogicalDevice &logicalDevice;
+            void Create(const Swapchain *oldSwapchain = nullptr);
+            void Clean();
 
-            VkExtent2D extent;
-            VkPresentModeKHR presentMode;
+        private:
+            const PhysicalDevice &mPhysicalDevice;
+
+            const Surface &mSurface;
+            const LogicalDevice &mLogicalDevice;
+
+            VkExtent2D mExtent;
+            VkPresentModeKHR mPresentMode;
 
             VkSurfaceTransformFlagsKHR preTransform;
             VkCompositeAlphaFlagBitsKHR compositeAlpha;
@@ -76,7 +91,7 @@ namespace solis
             vector<VkSemaphore> mImageAvailableSemaphores;
             vector<VkSemaphore> mRenderFinishedSemaphores;
 
-            VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+            VkSwapchainKHR mSwapchain = VK_NULL_HANDLE;
         };
     }
 }

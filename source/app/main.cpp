@@ -30,7 +30,7 @@
 using namespace solis;
 
 GLFWwindow *window;
-math::uvec2 windowSize{1377, 768};
+math::ivec2 windowSize{1377, 768};
 
 void InitWindow()
 {
@@ -75,34 +75,55 @@ int main()
     // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
 
-    RenderPass renderPass;
-    renderPass.Build();
+    RenderPass* renderPass = new RenderPass();
+    renderPass->Build();
 
-    PipelineGraphics pipeline;
-    auto &shader = pipeline.GetShader();
+    PipelineGraphics* pipeline = new PipelineGraphics();
+    auto &shader = pipeline->GetShader();
     shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
-    pipeline.Build(renderPass);
+    pipeline->Build(*renderPass);
 
-    CommandBuffer buffer;
-    Swapchain swapchain = engine.GetSwapchain();
-    swapchain.SetRenderPass(renderPass);
+    CommandBuffer* buffer = new CommandBuffer();
+    Swapchain& swapchain = engine.GetSwapchain();
+    swapchain.SetRenderPass(*renderPass);
 
     while (!glfwWindowShouldClose(window))
     {
+        glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
+        while (windowSize.x == 0 || windowSize.y == 0)
+        {
+            glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
+            glfwWaitEvents();
+        }
         glfwPollEvents();
 
-        swapchain.AcquireNextImage();
-        buffer.Begin();
-        buffer.BeginRenderPass(swapchain);
-        buffer.BindPipeline(&pipeline);
-        buffer.SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
-        buffer.SetScissor({0, 0, windowSize.x, windowSize.y});
-        buffer.Draw(3, 1, 0, 0);
-        buffer.EndRenderPass();
-        buffer.End();
-        swapchain.SubmitCommandBuffer(buffer);
+        if (!swapchain.IsSameExtent({(uint32_t)windowSize.x, (uint32_t)windowSize.y}))
+        {
+            swapchain.Recreate({(uint32_t)windowSize.x, (uint32_t)windowSize.y});
+        }
+
+        if (swapchain.AcquireNextImage() != VK_SUCCESS)
+        {
+            continue;
+        }
+
+        buffer->Begin();
+        buffer->BeginRenderPass(swapchain);
+        buffer->BindPipeline(pipeline);
+        buffer->SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
+        buffer->SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
+        buffer->Draw(3, 1, 0, 0);
+        buffer->EndRenderPass();
+        buffer->End();
+        swapchain.SubmitCommandBuffer(*buffer);
     }
+    
+    // 这儿还有问题， 不过问题不大
+    delete buffer;
+    delete pipeline;
+	delete renderPass;
+    
     engine.Destroy();
     CleanupWindow();
     return 0;

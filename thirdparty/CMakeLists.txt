@@ -18,6 +18,9 @@ if(${BUILD_THIRDPARTY})
     # mimalloc
     add_subdirectory(mimalloc)
 
+    # tinygltf
+    add_subdirectory(tinygltf)
+
     # physfs
     add_subdirectory(physfs)
 
@@ -92,4 +95,7 @@ else()
     set(glslang_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glslang CACHE INTERNAL "")
     find_package(glslang CONFIG REQUIRED)
 
+    # tinygltf
+    set(TinyGLTF_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake CACHE INTERNAL "")
+    find_package(TinyGLTF CONFIG REQUIRED)
 endif()
