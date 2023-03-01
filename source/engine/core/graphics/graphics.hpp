@@ -34,10 +34,10 @@ namespace solis
             virtual void Update() override {}
 
             // GetLogicalDevice()
-            const LogicalDevice *GetLogicalDevice() const { return mLogicalDevice.get(); }
+            LogicalDevice *GetLogicalDevice() const { return mLogicalDevice.get(); }
 
             // GetPhysicalDevice()
-            const PhysicalDevice *GetPhysicalDevice() const { return mPhysicalDevice.get(); }
+            PhysicalDevice *GetPhysicalDevice() const { return mPhysicalDevice.get(); }
 
             const Instance *GetInstance() const { return mInstance.get(); }
 

@@ -7,6 +7,7 @@
 
 #include "core/solis_core.hpp"
 #include "core/base/using.hpp"
+#include "core/base/const.hpp"
 
 #include "ctti/type_id.hpp"
 
@@ -15,7 +16,6 @@
 namespace solis
 {
     // 最大的模块数量
-    inline static size_t const MaxModules = 32;
 
     using TypeId = uint64_t;
 
@@ -107,7 +107,7 @@ namespace solis
         using StageIndex = std::pair<Stage, TypeId>;
 
         virtual ~Module() = default;
-        
+
         virtual void Update() = 0;
     };
 

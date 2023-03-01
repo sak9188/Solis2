@@ -19,6 +19,14 @@ namespace solis
                 Normal
             };
 
+            enum class Type
+            {
+                None,
+                Vertex,
+                Index,
+                Uniform
+            };
+
             /**
              * Creates a new buffer with optional data.
              * @param size Size of the buffer in bytes.
@@ -26,18 +34,21 @@ namespace solis
              * @param properties Memory properties for this buffer (i.e. device local, host visible, coherent).
              * @param data Pointer to the data that should be copied to the buffer after creation (optional, if not set, no data is copied over).
              */
-            // Buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, const void *data = nullptr);
-            // virtual ~Buffer();
+            Buffer(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const VkMemoryPropertyFlags &properties, const void *data = nullptr);
+            Buffer(Type type, const VkDeviceSize &size, const void *data = nullptr);
+            virtual ~Buffer();
 
             void MapMemory(void **data) const;
 
             void UnmapMemory() const;
 
-            VkDeviceSize GetSize() const { return size; }
+            VkDeviceSize GetSize() const { return mSize; }
 
-            const VkBuffer &GetBuffer() const { return buffer; }
+            operator VkBuffer() const { return mBuffer; }
 
-            const VkDeviceMemory &GetBufferMemory() const { return bufferMemory; }
+            const VkBuffer &GetBuffer() const { return mBuffer; }
+
+            const VkDeviceMemory &GetBufferMemory() const { return mBufferMemory; }
 
             static uint32_t FindMemoryType(uint32_t typeFilter, const VkMemoryPropertyFlags &requiredProperties);
 
@@ -45,9 +56,11 @@ namespace solis
             // VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDeviceSize offset = 0, VkDeviceSize size = VK_WHOLE_SIZE);
 
         protected:
-            VkDeviceSize size;
-            VkBuffer buffer = VK_NULL_HANDLE;
-            VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
+            Type mType = Type::None;
+            VkDeviceSize mSize = 0;
+            VkBuffer mBuffer = VK_NULL_HANDLE;
+            VkDeviceMemory mBufferMemory = VK_NULL_HANDLE;
+            VkMemoryPropertyFlags mMemoryProperties = 0;
         };
     }
 }

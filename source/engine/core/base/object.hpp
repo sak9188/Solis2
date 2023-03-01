@@ -2,6 +2,7 @@
 
 #include "core/solis_core.hpp"
 #include "core/base/using.hpp"
+#include "core/base/const.hpp"
 
 #include "ctti/nameof.hpp"
 
@@ -10,7 +11,6 @@ namespace solis
     class SOLIS_CORE_API ObjectBase
     {
         // 最大 1000 堆上的对象
-        const static size_t GlobalObjectSize = 1000;
 
     public:
         ObjectBase() = default;

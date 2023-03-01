@@ -36,7 +36,7 @@ void InitWindow()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     window = glfwCreateWindow(windowSize.x, windowSize.y, "Solis", nullptr, nullptr);
 }
 
@@ -75,17 +75,17 @@ int main()
     // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
 
-    RenderPass* renderPass = new RenderPass();
+    RenderPass *renderPass = new RenderPass();
     renderPass->Build();
 
-    PipelineGraphics* pipeline = new PipelineGraphics();
+    PipelineGraphics *pipeline = new PipelineGraphics();
     auto &shader = pipeline->GetShader();
     shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
     pipeline->Build(*renderPass);
 
-    CommandBuffer* buffer = new CommandBuffer();
-    Swapchain& swapchain = engine.GetSwapchain();
+    CommandBuffer *buffer = new CommandBuffer();
+    Swapchain &swapchain = engine.GetSwapchain();
     swapchain.SetRenderPass(*renderPass);
 
     while (!glfwWindowShouldClose(window))
@@ -118,12 +118,12 @@ int main()
         buffer->End();
         swapchain.SubmitCommandBuffer(*buffer);
     }
-    
+
     // 这儿还有问题， 不过问题不大
     delete buffer;
     delete pipeline;
-	delete renderPass;
-    
+    delete renderPass;
+
     engine.Destroy();
     CleanupWindow();
     return 0;
