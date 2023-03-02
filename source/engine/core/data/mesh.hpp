@@ -1,6 +1,8 @@
 #pragma once
 
-#include "core/base/solis_core.hpp"
+#include <unordered_map>
+
+#include "core/solis_core.hpp"
 #include "core/base/object.hpp"
 #include "core/base/using.hpp"
 
@@ -13,7 +15,7 @@ namespace solis
         math::vec4 position;
         math::vec3 normal;
         math::vec2 texcoord;
-    }
+    };
 
     struct VertexAttribute
     {
@@ -52,6 +54,21 @@ namespace solis
             return false;
         }
 
+        const graphics::Buffer *GetIndexBuffer() const
+        {
+            return mIndexBuffer.get();
+        }
+
+        const graphics::Buffer *GetVertexBuffer() const
+        {
+            auto it = mBuffers.find("vertex");
+            if (it != mBuffers.end())
+            {
+                return &it->second;
+            }
+            return nullptr;
+        }
+
     private:
         uint32_t mIndexOffset = 0;
         uint32_t mIndicesCount = 0;
@@ -59,8 +76,7 @@ namespace solis
 
         std::unique_ptr<graphics::Buffer> mIndexBuffer;
 
-        hash_map<string, graphics::Buffer> mBuffers{1024};
-
-        hash_map<string, VertexAttribute> mAttributes{MaxVertexAttributes};
+        std::unordered_map<string, graphics::Buffer> mBuffers;
+        std::unordered_map<string, VertexAttribute> mAttributes;
     };
 }

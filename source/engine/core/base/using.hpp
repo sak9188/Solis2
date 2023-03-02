@@ -6,6 +6,10 @@
 
 #include "glm/glm.hpp"
 
+#ifndef offsetof
+#define offsetof(s, m) (size_t) & (((s *)0)->m)
+#endif
+
 namespace solis
 {
 	using string = folly::fbstring;

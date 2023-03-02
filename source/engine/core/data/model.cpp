@@ -1,4 +1,29 @@
 #include "core/data/model.hpp"
+#include "core/log/log.hpp"
+
+#include "core/math/math.hpp"
+
+#ifndef TINYGLTF_IMPLEMENTATION
+#define TINYGLTF_IMPLEMENTATION
+#endif
+
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#endif
+
+#ifndef TINYGLTF_NOEXCEPTION
+#define TINYGLTF_NOEXCEPTION
+#endif
+
+#ifndef JSON_NOEXCEPTION
+#define JSON_NOEXCEPTION
+#endif
+
+#include "tiny_gltf.h"
 
 namespace solis
 {
@@ -6,10 +31,10 @@ namespace solis
     {
         tinygltf::Model model;
         tinygltf::TinyGLTF loader;
-        string err;
-        string warn;
+        std::string err;
+        std::string warn;
 
-        bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name);
+        bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, file_name.toStdString());
 
         if (!warn.empty())
         {
@@ -74,9 +99,9 @@ namespace solis
                 auto texcoord_data = reinterpret_cast<float *>(&texcoord_buffer.data[texcoord_buffer_view.byteOffset + texcoord_accessor.byteOffset]);
                 auto index_data = reinterpret_cast<uint32_t *>(&index_buffer.data[index_buffer_view.byteOffset + index_accessor.byteOffset]);
 
-                m->SetAttribute("POSITION", {VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3, 0});
-                m->SetAttribute("NORMAL", {VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3, 0});
-                m->SetAttribute("TEXCOORD_0", {VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 2, 0});
+                m->SetAttribute("POSITION", {VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 4, 0});
+                m->SetAttribute("NORMAL", {VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3, sizeof(float) * 3});
+                m->SetAttribute("TEXCOORD_0", {VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 2, sizeof(float) * 7});
 
                 m->mVerticesCount = position_accessor.count;
                 m->mIndexOffset = index_accessor.count;
@@ -85,18 +110,18 @@ namespace solis
                 for (size_t v = 0; v < m->mVerticesCount; v++)
                 {
                     Vertex vertex{};
-                    vertex.position = glm::vec4(glm::make_vec3(&position_data[v * 3]), 1.0f);
-                    vertex.normal = glm::normalize(glm::make_vec3(&normal_data[v * 3]));
-                    vertex.texcoord = glm::make_vec2(&texcoord_data[v * 2]);
+                    vertex.position = math::vec4(math::make_vec3(&position_data[v * 3]), 1.0f);
+                    vertex.normal = math::normalize(math::make_vec3(&normal_data[v * 3]));
+                    vertex.texcoord = math::make_vec2(&texcoord_data[v * 2]);
                     vertices.push_back(vertex);
                 }
 
                 using BufferType = graphics::Buffer::Type;
-                graphics::Buffer index_buffer(BufferType::Index, m->mIndexOffset * sizeof(uint32_t), index_data);
-                graphics::Buffer vertex_buffer(BufferType::Vertex, m->mVerticesCount * sizeof(Vertex), vertices.data());
+                // graphics::Buffer indexBuffer{BufferType::Index, m->mIndexOffset * sizeof(uint32_t), index_data};
+                graphics::Buffer vertexBuffer{BufferType::Vertex, m->mVerticesCount * sizeof(Vertex), vertices.data()};
 
-                m->mBuffers.insert({"vertex", std::move(vertex_buffer)});
-                m->mIndexBuffer = std::move(index_buffer);
+                m->mBuffers.insert({"vertex", std::move(vertexBuffer)});
+                m->mIndexBuffer = std::make_unique<graphics::Buffer>(BufferType::Index, m->mIndexOffset * sizeof(uint32_t), index_data);
 
                 mMeshes.push_back(m);
             }

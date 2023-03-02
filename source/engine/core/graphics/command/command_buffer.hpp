@@ -7,6 +7,8 @@
 #include "core/graphics/pipeline/pipeline.hpp"
 #include "core/graphics/command/command_pool.hpp"
 
+#include "core/data/model.hpp"
+
 #include "volk.h"
 
 namespace solis
@@ -33,7 +35,7 @@ namespace solis
             void BeginRenderPass(Swapchain &swapchain);
             void EndRenderPass();
 
-            void BindPipeline(const Pipeline *pipeline) const
+            void BindPipeline(Pipeline *pipeline) const
             {
                 vkCmdBindPipeline(commandBuffer, pipeline->GetPipelineBindPoint(), pipeline->GetPipeline());
             }
@@ -51,6 +53,24 @@ namespace solis
             void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t firstVertex = 0, uint32_t firstInstance = 0) const
             {
                 vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+            }
+
+            void Draw(const Model &model) const
+            {
+                for (auto &mesh : model.GetMeshes())
+                {
+                    auto vertexBuffer = mesh->GetVertexBuffer();
+                    assert(!vertexBuffer);
+                    // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
+                    VkBuffer vertexBuffers[] = {vertexBuffer->GetBuffer()};
+                    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, 0);
+
+                    auto indexBuffer = mesh->GetIndexBuffer();
+                    assert(!indexBuffer);
+                    // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
+                    vkCmdBindIndexBuffer(commandBuffer, *indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                    vkCmdDrawIndexed(commandBuffer, mesh->IndicesCount(), 1, 0, 0, 0);
+                }
             }
 
             /**

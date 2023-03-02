@@ -49,6 +49,12 @@ namespace solis
             return ptr;
         }
 
+        // placement new
+        void *operator new(size_t size, void *ptr)
+        {
+            return ptr;
+        }
+
         void *operator new[](size_t size)
         {
             auto name = ctti::nameof<T>().str() + "[]";

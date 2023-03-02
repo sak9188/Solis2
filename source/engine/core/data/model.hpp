@@ -1,25 +1,25 @@
 #pragma once
 
-#include "core/base/solis_core.hpp"
+#include "core/solis_core.hpp"
 #include "core/base/object.hpp"
 #include "core/base/using.hpp"
 
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define TINYGLTF_NOEXCEPTION
-#define JSON_NOEXCEPTION
-#include "tiny_gltf.h"
-
 #include "core/data/mesh.hpp"
+
+namespace tinygltf
+{
+    class Model;
+}
 
 namespace solis
 {
-    class Model : public Object<Model>
+    class SOLIS_CORE_API Model : public Object<Model>
     {
     public:
         Model(const string &file_name);
         ~Model();
+
+        const vector<std::shared_ptr<Mesh>> &GetMeshes() const { return mMeshes; }
 
     private:
         void LoadMeshes(tinygltf::Model &model);

@@ -12,6 +12,8 @@
 #include "core/graphics/pipeline/shader.hpp"
 #include "core/graphics/command/command_buffer.hpp"
 
+#include "core/data/model.hpp"
+
 #include "GLFW/glfw3.h"
 
 #ifdef __WIN__
@@ -80,14 +82,19 @@ int main()
 
     PipelineGraphics *pipeline = new PipelineGraphics();
     auto &shader = pipeline->GetShader();
-    shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
-    shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
+    // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
+    // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
+    shader.CreateShaderModule("./shaders/sponza/sponza.vert", Shader::Type::Vertex);
+    shader.CreateShaderModule("./shaders/sponza/sponza.frag", Shader::Type::Fragment);
     pipeline->Build(*renderPass);
+
+    Model model{"./gltfs/sponza/Sponza.gltf"};
 
     CommandBuffer *buffer = new CommandBuffer();
     Swapchain &swapchain = engine.GetSwapchain();
     swapchain.SetRenderPass(*renderPass);
 
+    pipeline->ResizeUniformBuffers(swapchain.GetImageCount());
     while (!glfwWindowShouldClose(window))
     {
         glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
@@ -113,7 +120,8 @@ int main()
         buffer->BindPipeline(pipeline);
         buffer->SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
         buffer->SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
-        buffer->Draw(3, 1, 0, 0);
+        // buffer->Draw(3, 1, 0, 0);
+        buffer->Draw(model);
         buffer->EndRenderPass();
         buffer->End();
         swapchain.SubmitCommandBuffer(*buffer);
