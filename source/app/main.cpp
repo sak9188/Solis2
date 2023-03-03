@@ -54,7 +54,7 @@ int main()
 
     EngineCreateInfo info;
 
-    uint32_t glfwExtensionCount = 0;
+    uint32_t     glfwExtensionCount = 0;
     const char **glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
@@ -63,7 +63,7 @@ int main()
         info.extensions.push_back(glfwExtensions[i]);
     }
 
-    info.window = glfwGetWin32Window(window);
+    info.window     = glfwGetWin32Window(window);
     info.windowSize = windowSize;
 
     Engine engine(info);
@@ -81,7 +81,7 @@ int main()
     renderPass->Build();
 
     PipelineGraphics *pipeline = new PipelineGraphics();
-    auto &shader = pipeline->GetShader();
+    auto             &shader   = pipeline->GetShader();
     // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
     shader.CreateShaderModule("./shaders/sponza/sponza.vert", Shader::Type::Vertex);
@@ -90,8 +90,8 @@ int main()
 
     Model model{"./gltfs/sponza/Sponza.gltf"};
 
-    CommandBuffer *buffer = new CommandBuffer();
-    Swapchain &swapchain = engine.GetSwapchain();
+    CommandBuffer *buffer    = new CommandBuffer();
+    Swapchain     &swapchain = engine.GetSwapchain();
     swapchain.SetRenderPass(*renderPass);
 
     pipeline->ResizeUniformBuffers(swapchain.GetImageCount());

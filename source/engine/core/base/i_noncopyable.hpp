@@ -2,18 +2,17 @@
 
 #include "core/solis_core.hpp"
 
-namespace solis
+namespace solis {
+class SOLIS_CORE_API INonCopyable
 {
-    class SOLIS_CORE_API INonCopyable
-    {
-    public:
-        INonCopyable() = default;
-        virtual ~INonCopyable() = default;
+public:
+    INonCopyable()          = default;
+    virtual ~INonCopyable() = default;
 
-        // Copy Constructor
-        INonCopyable(const INonCopyable &) = delete;
+    // Copy Constructor
+    INonCopyable(const INonCopyable &) = delete;
 
-        // Copy Assignment Operator
-        INonCopyable &operator=(const INonCopyable &) = delete;
-    };
-}
+    // Copy Assignment Operator
+    INonCopyable &operator=(const INonCopyable &) = delete;
+};
+} // namespace solis

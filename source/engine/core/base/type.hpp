@@ -5,10 +5,8 @@
 
 #include "core/base/using.h"
 
-namespace solis
-{
-    namespace type
-    {
-        // 摆烂了， 以后做完啦大部分再改吧
-    }
+namespace solis {
+namespace type {
+// 摆烂了， 以后做完啦大部分再改吧
 }
+} // namespace solis::type

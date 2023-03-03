@@ -6,25 +6,26 @@
 
 #include "core/data/mesh.hpp"
 
-namespace tinygltf
-{
-    class Model;
+namespace tinygltf {
+class Model;
 }
 
-namespace solis
+namespace solis {
+class SOLIS_CORE_API Model : public Object<Model>
 {
-    class SOLIS_CORE_API Model : public Object<Model>
+public:
+    Model(const string &file_name);
+    ~Model();
+
+    const vector<std::shared_ptr<Mesh>> &GetMeshes() const
     {
-    public:
-        Model(const string &file_name);
-        ~Model();
+        return mMeshes;
+    }
 
-        const vector<std::shared_ptr<Mesh>> &GetMeshes() const { return mMeshes; }
+private:
+    void LoadMeshes(tinygltf::Model &model);
 
-    private:
-        void LoadMeshes(tinygltf::Model &model);
-
-    private:
-        vector<std::shared_ptr<Mesh>> mMeshes;
-    };
-}
+private:
+    vector<std::shared_ptr<Mesh>> mMeshes;
+};
+} // namespace solis

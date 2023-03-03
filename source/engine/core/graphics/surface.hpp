@@ -5,37 +5,47 @@
 #include "core/solis_core.hpp"
 #include "core/base/object.hpp"
 
-namespace solis
+namespace solis {
+namespace graphics {
+class Instance;
+class PhysicalDevice;
+class LogicalDevice;
+
+class SOLIS_CORE_API Surface : public Object<Surface>
 {
-	namespace graphics
-	{
-		class Instance;
-		class PhysicalDevice;
-		class LogicalDevice;
+    friend class Graphics;
 
-		class SOLIS_CORE_API Surface : public Object<Surface>
-		{
-			friend class Graphics;
+public:
+    Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const void *window);
+    ~Surface();
 
-		public:
-			Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const void *window);
-			~Surface();
+    operator const VkSurfaceKHR &() const
+    {
+        return surface;
+    }
 
-			operator const VkSurfaceKHR &() const { return surface; }
+    const VkSurfaceKHR &GetSurface() const
+    {
+        return surface;
+    }
+    const VkSurfaceCapabilitiesKHR &GetCapabilities() const
+    {
+        return capabilities;
+    }
+    const VkSurfaceFormatKHR &GetFormat() const
+    {
+        return format;
+    }
 
-			const VkSurfaceKHR &GetSurface() const { return surface; }
-			const VkSurfaceCapabilitiesKHR &GetCapabilities() const { return capabilities; }
-			const VkSurfaceFormatKHR &GetFormat() const { return format; }
+private:
+    const Instance       &instance;
+    const PhysicalDevice &physicalDevice;
+    const LogicalDevice  &logicalDevice;
+    const void           *window;
 
-		private:
-			const Instance &instance;
-			const PhysicalDevice &physicalDevice;
-			const LogicalDevice &logicalDevice;
-			const void *window;
-
-			VkSurfaceKHR surface = VK_NULL_HANDLE;
-			VkSurfaceCapabilitiesKHR capabilities = {};
-			VkSurfaceFormatKHR format = {};
-		};
-	}
+    VkSurfaceKHR             surface      = VK_NULL_HANDLE;
+    VkSurfaceCapabilitiesKHR capabilities = {};
+    VkSurfaceFormatKHR       format       = {};
+};
 }
+} // namespace solis::graphics

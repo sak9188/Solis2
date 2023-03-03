@@ -1,9 +1,9 @@
-#include <fstream>
-#include <iostream>
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include <fstream>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 #include "shaders.h"
 #include "window.h"
@@ -39,8 +39,8 @@ bool loadModel(tinygltf::Model &model, const char *filename) {
   return res;
 }
 
-void bindMesh(std::map<int, GLuint>& vbos,
-              tinygltf::Model &model, tinygltf::Mesh &mesh) {
+void bindMesh(std::map<int, GLuint> &vbos, tinygltf::Model &model,
+              tinygltf::Mesh &mesh) {
   for (size_t i = 0; i < model.bufferViews.size(); ++i) {
     const tinygltf::BufferView &bufferView = model.bufferViews[i];
     if (bufferView.target == 0) {  // TODO impl drawarrays
@@ -51,8 +51,8 @@ void bindMesh(std::map<int, GLuint>& vbos,
                    https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
                             ... drawArrays function should be used with a count equal to
                    the count            property of any of the accessors referenced by the
-                   attributes            property            (they are all equal for a given
-                   primitive).
+                   attributes            property            (they are all equal for a
+                   given            primitive).
                  */
     }
 
@@ -105,7 +105,6 @@ void bindMesh(std::map<int, GLuint>& vbos,
       tinygltf::Texture &tex = model.textures[0];
 
       if (tex.source > -1) {
-
         GLuint texid;
         glGenTextures(1, &texid);
 
@@ -147,7 +146,7 @@ void bindMesh(std::map<int, GLuint>& vbos,
 }
 
 // bind models
-void bindModelNodes(std::map<int, GLuint>& vbos, tinygltf::Model &model,
+void bindModelNodes(std::map<int, GLuint> &vbos, tinygltf::Model &model,
                     tinygltf::Node &node) {
   if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
     bindMesh(vbos, model, model.meshes[node.mesh]);
@@ -159,7 +158,7 @@ void bindModelNodes(std::map<int, GLuint>& vbos, tinygltf::Model &model,
   }
 }
 
-std::pair<GLuint, std::map<int, GLuint>> bindModel(tinygltf::Model &model) {
+std::pair<GLuint, std::map<int, GLuint> > bindModel(tinygltf::Model &model) {
   std::map<int, GLuint> vbos;
   GLuint vao;
   glGenVertexArrays(1, &vao);
@@ -178,8 +177,7 @@ std::pair<GLuint, std::map<int, GLuint>> bindModel(tinygltf::Model &model) {
     if (bufferView.target != GL_ELEMENT_ARRAY_BUFFER) {
       glDeleteBuffers(1, &vbos[it->first]);
       vbos.erase(it++);
-    }
-    else {
+    } else {
       ++it;
     }
   }
@@ -187,8 +185,8 @@ std::pair<GLuint, std::map<int, GLuint>> bindModel(tinygltf::Model &model) {
   return {vao, vbos};
 }
 
-void drawMesh(const std::map<int, GLuint>& vbos,
-              tinygltf::Model &model, tinygltf::Mesh &mesh) {
+void drawMesh(const std::map<int, GLuint> &vbos, tinygltf::Model &model,
+              tinygltf::Mesh &mesh) {
   for (size_t i = 0; i < mesh.primitives.size(); ++i) {
     tinygltf::Primitive primitive = mesh.primitives[i];
     tinygltf::Accessor indexAccessor = model.accessors[primitive.indices];
@@ -202,7 +200,7 @@ void drawMesh(const std::map<int, GLuint>& vbos,
 }
 
 // recursively draw node and children nodes of model
-void drawModelNodes(const std::pair<GLuint, std::map<int, GLuint>>& vaoAndEbos,
+void drawModelNodes(const std::pair<GLuint, std::map<int, GLuint> > &vaoAndEbos,
                     tinygltf::Model &model, tinygltf::Node &node) {
   if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
     drawMesh(vaoAndEbos.second, model, model.meshes[node.mesh]);
@@ -211,7 +209,7 @@ void drawModelNodes(const std::pair<GLuint, std::map<int, GLuint>>& vaoAndEbos,
     drawModelNodes(vaoAndEbos, model, model.nodes[node.children[i]]);
   }
 }
-void drawModel(const std::pair<GLuint, std::map<int, GLuint>>& vaoAndEbos,
+void drawModel(const std::pair<GLuint, std::map<int, GLuint> > &vaoAndEbos,
                tinygltf::Model &model) {
   glBindVertexArray(vaoAndEbos.first);
 
@@ -293,7 +291,7 @@ void displayLoop(Window &window, const std::string &filename) {
   tinygltf::Model model;
   if (!loadModel(model, filename.c_str())) return;
 
-  std::pair<GLuint, std::map<int, GLuint>> vaoAndEbos = bindModel(model);
+  std::pair<GLuint, std::map<int, GLuint> > vaoAndEbos = bindModel(model);
   // dbgModel(model); return;
 
   // Model matrix : an identity matrix (model will be at the origin)
@@ -353,8 +351,10 @@ int main(int argc, char **argv) {
   if (!glfwInit()) return -1;
 
   // Force create OpenGL 3.3
-  // NOTE(syoyo): Linux + NVIDIA driver segfaults for some reason? commenting out glfwWindowHint will work.
-  // Note (PE): On laptops with intel hd graphics card you can overcome the segfault by enabling experimental, see below (tested on lenovo thinkpad)
+  // NOTE(syoyo): Linux + NVIDIA driver segfaults for some reason? commenting
+  // out glfwWindowHint will work. Note (PE): On laptops with intel hd graphics
+  // card you can overcome the segfault by enabling experimental, see below
+  // (tested on lenovo thinkpad)
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
