@@ -36,6 +36,16 @@ public:
     Buffer(Type type, const VkDeviceSize &size, const void *data = nullptr);
     virtual ~Buffer();
 
+    // copy constructor
+    // Buffer(const Buffer &other) = delete;
+
+    // move constructor
+    // Buffer(Buffer &&other) noexcept;
+
+    void Update(const void *data);
+
+    void Update(const void *data, const size_t size);
+
     void MapMemory(void **data) const;
 
     void UnmapMemory() const;
@@ -71,6 +81,9 @@ protected:
     VkBuffer              mBuffer           = VK_NULL_HANDLE;
     VkDeviceMemory        mBufferMemory     = VK_NULL_HANDLE;
     VkMemoryPropertyFlags mMemoryProperties = 0;
+
+private:
+    void Init(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const VkMemoryPropertyFlags &properties, const void *data);
 };
 }
 } // namespace solis::graphics

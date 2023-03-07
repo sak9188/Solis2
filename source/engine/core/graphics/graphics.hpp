@@ -19,6 +19,11 @@ class Surface;
 class Swapchain;
 class CommandPool;
 
+struct UniformBufferObject
+{
+    math::mat4 mvp;
+};
+
 class SOLIS_CORE_API Graphics : public Object<Graphics>, public Module::Registrar<Graphics>
 {
     inline static const bool Registered = Register(Stage::Render);
@@ -66,12 +71,12 @@ public:
     static void CheckVk(VkResult result);
 
 private:
-    std::unique_ptr<Instance> mInstance;
+    std::unique_ptr<Instance>       mInstance;
     std::unique_ptr<PhysicalDevice> mPhysicalDevice;
-    std::unique_ptr<LogicalDevice> mLogicalDevice;
-    std::shared_ptr<CommandPool> mCommandPool;
+    std::unique_ptr<LogicalDevice>  mLogicalDevice;
+    std::shared_ptr<CommandPool>    mCommandPool;
 
-    vector<std::unique_ptr<Surface>> mSurfaces;
+    vector<std::unique_ptr<Surface>>   mSurfaces;
     vector<std::unique_ptr<Swapchain>> mSwapchains;
 };
 }

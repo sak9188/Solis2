@@ -6,7 +6,8 @@
 
 namespace solis {
 namespace graphics {
-Buffer::Buffer(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const VkMemoryPropertyFlags &properties, const void *data)
+
+void Buffer::Init(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const VkMemoryPropertyFlags &properties, const void *data)
 {
     // 如果是EXCLUESIVE的话，是不需要这个的
     // auto logicalDevice = Graphics::Get()->GetLogicalDevice();
@@ -36,10 +37,9 @@ Buffer::Buffer(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const 
 
     Graphics::CheckVk(vkAllocateMemory(*Graphics::Get()->GetLogicalDevice(), &allocInfo, nullptr, &mBufferMemory));
 
+    vkBindBufferMemory(*Graphics::Get()->GetLogicalDevice(), mBuffer, mBufferMemory, 0);
     if (data != nullptr)
     {
-        vkBindBufferMemory(*Graphics::Get()->GetLogicalDevice(), mBuffer, mBufferMemory, 0);
-
         void *mapped;
         MapMemory(&mapped);
         memcpy(mapped, data, static_cast<size_t>(size));
@@ -47,13 +47,52 @@ Buffer::Buffer(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const 
     }
 }
 
-Buffer::~Buffer()
+Buffer::Buffer(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const VkMemoryPropertyFlags &properties, const void *data) :
+    mSize(size), mMemoryProperties(properties)
 {
-    vkDestroyBuffer(*Graphics::Get()->GetLogicalDevice(), mBuffer, nullptr);
-    vkFreeMemory(*Graphics::Get()->GetLogicalDevice(), mBufferMemory, nullptr);
+    Init(size, usage, properties, data);
 }
 
-Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data)
+// Buffer::Buffer(Buffer &&other) noexcept
+// {
+//     mBuffer           = other.mBuffer;
+//     mBufferMemory     = other.mBufferMemory;
+//     mSize             = other.mSize;
+//     mType             = other.mType;
+//     mMemoryProperties = other.mMemoryProperties;
+//
+//     other.mBuffer           = VK_NULL_HANDLE;
+//     other.mBufferMemory     = VK_NULL_HANDLE;
+//     other.mSize             = 0;
+//     other.mType             = Type::Vertex;
+//     other.mMemoryProperties = 0;
+// }
+
+void Buffer::Update(const void *data)
+{
+    void *mapped;
+    MapMemory(&mapped);
+    memcpy(mapped, data, static_cast<size_t>(mSize));
+    UnmapMemory();
+}
+
+void Buffer::Update(const void *data, const size_t size)
+{
+    void *mapped;
+    MapMemory(&mapped);
+    memcpy(mapped, data, size);
+    UnmapMemory();
+}
+
+Buffer::~Buffer()
+{
+    // TODO: for now we don't need to destroy buffer
+    // vkDestroyBuffer(*Graphics::Get()->GetLogicalDevice(), mBuffer, nullptr);
+    // vkFreeMemory(*Graphics::Get()->GetLogicalDevice(), mBufferMemory, nullptr);
+}
+
+Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data) :
+    mType(type)
 {
     VkBufferUsageFlags    usage      = 0;
     VkMemoryPropertyFlags properties = 0;
@@ -77,7 +116,7 @@ Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data)
         throw std::runtime_error("Invalid buffer type!");
     }
 
-    Buffer(size, usage, properties, data);
+    Init(size, usage, properties, data);
 }
 
 void Buffer::MapMemory(void **data) const

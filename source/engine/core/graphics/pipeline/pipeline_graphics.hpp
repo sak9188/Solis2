@@ -10,10 +10,6 @@
 
 namespace solis {
 namespace graphics {
-struct UniformBufferObject
-{
-    math::mat4 mvp;
-};
 
 class SOLIS_CORE_API PipelineGraphics : public Pipeline
 {

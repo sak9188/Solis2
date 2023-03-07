@@ -16,6 +16,10 @@
 
 #include "GLFW/glfw3.h"
 
+#define GLM_FORCE_RADIANS
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 #ifdef __WIN__
 #define GLFW_EXPOSE_NATIVE_WIN32
 #elif __LINUX__
@@ -88,7 +92,7 @@ int main()
     shader.CreateShaderModule("./shaders/sponza/sponza.frag", Shader::Type::Fragment);
     pipeline->Build(*renderPass);
 
-    Model model{"./gltfs/sponza/Sponza.gltf"};
+    Model sponzamodel{"./gltfs/sponza/Sponza.gltf"};
 
     CommandBuffer *buffer    = new CommandBuffer();
     Swapchain     &swapchain = engine.GetSwapchain();
@@ -118,10 +122,27 @@ int main()
         buffer->Begin();
         buffer->BeginRenderPass(swapchain);
         buffer->BindPipeline(pipeline);
+
+        // ubo
+        // buffer->BindUniformBuffer(0, 0, pipeline->GetUniformBuffer(swapchain.GetImageIndex()));
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto  currentTime = std::chrono::high_resolution_clock::now();
+        float time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        auto &ubo   = pipeline->GetUniformBuffer(&swapchain, swapchain.GetActiveImageIndex());
+        auto  model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        auto  view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        auto  proj  = glm::perspective(glm::radians(45.0f), windowSize.x / (float)windowSize.y, 0.1f, 10.0f);
+        proj[1][1] *= -1;
+
+        auto mvp = proj * view * model;
+        ubo.Update(&mvp, sizeof(mvp));
+
         buffer->SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
         buffer->SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
         // buffer->Draw(3, 1, 0, 0);
-        buffer->Draw(model);
+        buffer->Draw(sponzamodel);
         buffer->EndRenderPass();
         buffer->End();
         swapchain.SubmitCommandBuffer(*buffer);
