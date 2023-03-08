@@ -27,6 +27,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL CallbackDebug(VkDebugUtilsMessageSeverityFlagBits
         Log::SInfo(pCallbackData->pMessage);
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         Log::SError(pCallbackData->pMessage);
+    else
+        Log::SInfo(pCallbackData->pMessage);
 
     return VK_FALSE;
 }

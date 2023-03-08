@@ -111,6 +111,13 @@ void Graphics::CheckVk(VkResult result)
     if (result >= 0)
         return;
 
+    // if (result == VK_ERROR_DEVICE_LOST)
+    // {
+    // VkDeviceFaultCountsEXT faultCounts;
+    // VkDeviceFaultInfoEXT   faultInfo;
+    // vkGetDeviceFaultInfoEXT(*Graphics::Get()->GetLogicalDevice(), &faultCounts, &faultInfo);
+    // }
+
     auto failure = StringifyResultVk(result);
 
     throw std::runtime_error("Vulkan error: " + failure.toStdString());

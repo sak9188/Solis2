@@ -22,6 +22,7 @@ public:
         None,
         Vertex,
         Index,
+        Stage,
         Uniform
     };
 
@@ -50,6 +51,8 @@ public:
 
     void UnmapMemory() const;
 
+    void CopyToBuffer(Buffer &buffer);
+
     VkDeviceSize GetSize() const
     {
         return mSize;
@@ -76,6 +79,7 @@ public:
     // VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDeviceSize offset = 0, VkDeviceSize size = VK_WHOLE_SIZE);
 
 protected:
+    bool                  mDestroyed        = false;
     Type                  mType             = Type::None;
     VkDeviceSize          mSize             = 0;
     VkBuffer              mBuffer           = VK_NULL_HANDLE;

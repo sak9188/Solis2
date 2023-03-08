@@ -14,8 +14,11 @@ namespace solis
 {
 	using string = folly::fbstring;
 
+	// template <typename T>
+	// using vector = folly::fbvector<T>;
+
 	template <typename T>
-	using vector = folly::fbvector<T>;
+	using vector = std::vector<T>;
 
 	template <typename K, typename V>
 	using hash_map = folly::AtomicHashMap<K, V>;

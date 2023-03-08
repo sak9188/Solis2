@@ -57,14 +57,15 @@ public:
             auto vertexBuffer = mesh->GetVertexBuffer();
             assert(vertexBuffer);
             // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
-            VkBuffer vertexBuffers[] = {vertexBuffer->GetBuffer()};
-            VkDeviceSize offsets[]   = {0};
+            VkBuffer     vertexBuffers[] = {vertexBuffer->GetBuffer()};
+            VkDeviceSize offsets[]       = {0};
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+            // vkCmdDraw(commandBuffer, 12, 1, 0, 0);
 
             auto indexBuffer = mesh->GetIndexBuffer();
             assert(indexBuffer);
             // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
-            vkCmdBindIndexBuffer(commandBuffer, *indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
             vkCmdDrawIndexed(commandBuffer, mesh->IndicesCount(), 1, 0, 0, 0);
         }
     }

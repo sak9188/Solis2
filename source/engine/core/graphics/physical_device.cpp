@@ -161,7 +161,7 @@ void PhysicalDevice::LogVulkanDevice(const VkPhysicalDeviceProperties &physicalD
 
     ss << "Extensions: ";
     for (const auto &extension : extensionProperties)
-        ss << extension.extensionName << ", ";
+        ss << extension.extensionName << std::endl;
 
     ss << "\n\n";
     Log::SInfo(ss.str());

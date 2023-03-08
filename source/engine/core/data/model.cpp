@@ -59,17 +59,18 @@ Model::Model(const string &file_name)
 
 Model::~Model(){};
 
-std::vector<uint8_t> convert_underlying_data_stride(const std::vector<uint8_t> &src_data, uint32_t src_stride, uint32_t dst_stride)
+std::vector<uint8_t> ConvertUnderlyingDataStride(uint8_t *src_data, size_t length, uint32_t src_stride, uint32_t dst_stride)
 {
-    auto elem_count = uint32_t(src_data.size()) / src_stride;
+    auto elem_count = uint32_t(length) / src_stride;
 
     std::vector<uint8_t> result(elem_count * dst_stride);
 
     for (uint32_t idxSrc = 0, idxDst = 0;
-         idxSrc < src_data.size() && idxDst < result.size();
+         idxSrc < length && idxDst < result.size();
          idxSrc += src_stride, idxDst += dst_stride)
     {
-        std::copy(src_data.begin() + idxSrc, src_data.begin() + idxSrc + src_stride, result.begin() + idxDst);
+        // std::copy(src_data + idxSrc, src_data + idxSrc + src_stride, result.begin() + idxDst);
+        memcpy(result.data() + idxDst, src_data + idxSrc, src_stride);
     }
 
     return result;
@@ -80,6 +81,15 @@ void Model::LoadMeshes(tinygltf::Model &model)
     for (auto &mesh : model.meshes)
     {
         auto m = std::make_shared<Mesh>();
+
+        vector<Vertex>   vertices_mesh;
+        vector<uint32_t> indices_mesh;
+
+        // 默认都用这这个值
+        m->SetAttribute("POSITION", {VK_FORMAT_R32G32B32A32_SFLOAT, sizeof(float) * 4, 0});
+        m->SetAttribute("NORMAL", {VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3, sizeof(float) * 3});
+        m->SetAttribute("TEXCOORD_0", {VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 2, sizeof(float) * 7});
+
         for (auto &primitive : mesh.primitives)
         {
             auto &attributes = primitive.attributes;
@@ -113,6 +123,15 @@ void Model::LoadMeshes(tinygltf::Model &model)
             auto normal_data   = reinterpret_cast<float *>(&normal_buffer.data[normal_buffer_view.byteOffset + normal_accessor.byteOffset]);
             auto texcoord_data = reinterpret_cast<float *>(&texcoord_buffer.data[texcoord_buffer_view.byteOffset + texcoord_accessor.byteOffset]);
 
+            for (size_t v = 0; v < position_accessor.count; v++)
+            {
+                Vertex vertex{};
+                vertex.position = math::vec4(math::make_vec3(&position_data[v * 3]), 1.0f);
+                vertex.normal   = math::normalize(math::make_vec3(&normal_data[v * 3]));
+                vertex.texcoord = math::make_vec2(&texcoord_data[v * 2]);
+                vertices_mesh.push_back(vertex);
+            }
+
             uint32_t sizeIndex = 0;
             switch (index_accessor.componentType)
             {
@@ -131,37 +150,28 @@ void Model::LoadMeshes(tinygltf::Model &model)
             default:
                 break;
             }
-            auto index_data = reinterpret_cast<uint8_t *>(&index_buffer.data[index_buffer_view.byteOffset + index_accessor.byteOffset]);
+            auto indexData = reinterpret_cast<uint8_t *>(&index_buffer.data[index_buffer_view.byteOffset + index_accessor.byteOffset]);
 
-            m->SetAttribute("POSITION", {VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 4, 0});
-            m->SetAttribute("NORMAL", {VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 3, sizeof(float) * 3});
-            m->SetAttribute("TEXCOORD_0", {VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 2, sizeof(float) * 7});
-
-            m->mVerticesCount = position_accessor.count;
-            m->mIndicesCount  = index_accessor.count;
-
-            vector<Vertex> vertices;
-            for (size_t v = 0; v < m->mVerticesCount; v++)
+            if (sizeIndex != 4)
             {
-                Vertex vertex{};
-                vertex.position = math::vec4(math::make_vec3(&position_data[v * 3]), 1.0f);
-                vertex.normal   = math::normalize(math::make_vec3(&normal_data[v * 3]));
-                vertex.texcoord = math::make_vec2(&texcoord_data[v * 2]);
-                vertices.push_back(vertex);
+                auto convertIndexData = ConvertUnderlyingDataStride(indexData, index_accessor.count * sizeIndex, sizeIndex, 4);
+                indices_mesh.insert(indices_mesh.end(), (uint32_t *)convertIndexData.data(), (uint32_t *)convertIndexData.data() + convertIndexData.size() / 4);
             }
-
-            using BufferType = graphics::Buffer::Type;
-            graphics::Buffer vertexBuffer{BufferType::Vertex, m->mVerticesCount * sizeof(Vertex), vertices.data()};
-            m->mBuffers.insert({"vertex", std::move(vertexBuffer)});
-
-            auto indices = convert_underlying_data_stride(byteData, sizeIndex, 4);
-
-            m->mIndexBuffer = std::make_unique<graphics::Buffer>(BufferType::Index, m->mIndicesCount * 4, (void *)indices.data());
-
-            mMeshes.push_back(m);
+            else
+            {
+                indices_mesh.insert(indices_mesh.end(), (uint32_t *)indexData, (uint32_t *)indexData + index_accessor.count);
+            }
         }
 
-        Log::SInfo("Load meshes: {}", mesh.name);
+        m->mVerticesCount = vertices_mesh.size();
+        m->mIndicesCount  = indices_mesh.size();
+
+        using BufferType = graphics::Buffer::Type;
+        graphics::Buffer vertexBuffer{BufferType::Vertex, vertices_mesh.size() * sizeof(Vertex), vertices_mesh.data()};
+        m->mBuffers.insert({"vertex", std::move(vertexBuffer)});
+        m->mIndexBuffer = std::make_unique<graphics::Buffer>(BufferType::Index, indices_mesh.size() * 4, (void *)(indices_mesh.data()));
+
+        mMeshes.push_back(m);
     }
 }
 } // namespace solis

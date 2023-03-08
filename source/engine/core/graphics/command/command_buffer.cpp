@@ -25,7 +25,6 @@ CommandBuffer::CommandBuffer(VkQueueFlagBits queueType, VkCommandBufferLevel buf
 CommandBuffer::~CommandBuffer()
 {
     auto logicalDevice = Graphics::Get()->GetLogicalDevice();
-
     vkFreeCommandBuffers(*logicalDevice, commandPool->GetCommandPool(), 1, &commandBuffer);
 }
 
