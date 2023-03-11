@@ -19,4 +19,10 @@ inline const size_t GlobalObjectSize = 1000;
 
 // 最大VertexAttribute数量
 inline const size_t MaxVertexAttributes = 16;
+
+// 最大FrameInFlight数量
+inline const size_t MaxFrameInFlight = 3;
+
+// Max Swapchain
+inline const size_t MaxSwapchain = 5;
 } // namespace solis

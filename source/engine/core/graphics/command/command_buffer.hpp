@@ -34,6 +34,7 @@ public:
     void EndRenderPass();
 
     void BindPipeline(Pipeline *pipeline);
+    void BindPipelineDescriptorSet() const;
 
     void SetViewport(const VkViewport &viewport) const
     {
@@ -52,6 +53,7 @@ public:
 
     void Draw(const Model &model) const
     {
+        BindPipelineDescriptorSet();
         for (auto &mesh : model.GetMeshes())
         {
             auto vertexBuffer = mesh->GetVertexBuffer();
@@ -94,7 +96,9 @@ public:
 private:
     VkQueue                      GetQueue() const;
     std::shared_ptr<CommandPool> commandPool;
-    Swapchain                   *mSwapchain = nullptr;
+
+    Swapchain *mSwapchain = nullptr;
+    Pipeline  *mPipeline  = nullptr;
 
     VkQueueFlagBits queueType;
     VkCommandBuffer commandBuffer = VK_NULL_HANDLE;

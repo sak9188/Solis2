@@ -80,14 +80,24 @@ void CommandBuffer::EndRenderPass()
 
 void CommandBuffer::BindPipeline(Pipeline *pipeline)
 {
+    assert(mSwapchain);
+
     if (!running)
         return;
 
     vkCmdBindPipeline(commandBuffer, pipeline->GetPipelineBindPoint(), pipeline->GetPipeline());
 
-    assert(mSwapchain);
-
     pipeline->InitUniformBuffers(mSwapchain, sizeof(UniformBufferObject), 1);
+    mPipeline = pipeline;
+}
+
+void CommandBuffer::BindPipelineDescriptorSet() const
+{
+    assert(mSwapchain);
+    assert(mPipeline);
+
+    vkCmdBindDescriptorSets(commandBuffer, mPipeline->GetPipelineBindPoint(), mPipeline->GetPipelineLayout(),
+                            0, 1, &(mPipeline->GetDescriptorSets()[mSwapchain->GetActiveImageIndex()]), 0, nullptr);
 }
 
 // void CommandBuffer::SubmitIdle()

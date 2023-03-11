@@ -57,7 +57,7 @@ bool PipelineGraphics::Build(const RenderPass &renderPass, size_t subpassIndex)
     rasterizer.polygonMode             = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth               = 1.0f;
     rasterizer.cullMode                = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace               = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace               = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable         = VK_FALSE;
 
     // 这里是设置多重采样
@@ -86,29 +86,17 @@ bool PipelineGraphics::Build(const RenderPass &renderPass, size_t subpassIndex)
     vector<VkDynamicState> dynamicStates = {
         VK_DYNAMIC_STATE_VIEWPORT,
         VK_DYNAMIC_STATE_SCISSOR};
+
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicState.pDynamicStates    = dynamicStates.data();
 
     // 创建Pipeline DescriptorSetLayout
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding            = 0;
-    uboLayoutBinding.descriptorCount    = 1;
-    uboLayoutBinding.descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-    uboLayoutBinding.stageFlags         = VK_SHADER_STAGE_VERTEX_BIT;
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings    = &uboLayoutBinding;
-    Graphics::CheckVk(vkCreateDescriptorSetLayout(*Graphics::Get()->GetLogicalDevice(), &layoutInfo, nullptr, &mDescriptorSetLayout));
-
-    // 创建Pipeline DescriptorSetLayout
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount         = 0;
+    pipelineLayoutInfo.setLayoutCount         = 1;
+    pipelineLayoutInfo.pSetLayouts            = &mDescriptorSetLayout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     if (vkCreatePipelineLayout(*Graphics::Get()->GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &mPipelineLayout) != VK_SUCCESS)
@@ -144,6 +132,38 @@ bool PipelineGraphics::Build(const RenderPass &renderPass, size_t subpassIndex)
     }
 
     return true;
+}
+
+Buffer &PipelineGraphics::GetUniformBuffer(const Swapchain *swapchain, size_t index)
+{
+    auto &ubo = Pipeline::GetUniformBuffer(swapchain, index);
+
+    size_t hashUbo = std::hash<size_t>()(size_t(uintptr_t(ubo.GetBuffer()))) + index;
+
+    if (mDirtyDescriptorSets.find(hashUbo) == mDirtyDescriptorSets.end())
+    {
+        VkDescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = ubo.GetBuffer();
+        bufferInfo.offset = 0;
+        bufferInfo.range  = ubo.GetSize();
+
+        VkWriteDescriptorSet descriptorWrite{};
+        descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet          = mDescriptorSets[index];
+        descriptorWrite.dstBinding      = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo     = &bufferInfo;
+
+        // 有些UnionBuffer
+        vkUpdateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), 1, &descriptorWrite, 0, nullptr);
+
+        // 加入hash中
+        mDirtyDescriptorSets.insert(hashUbo);
+    }
+
+    return ubo;
 }
 }
 } // namespace solis::graphics

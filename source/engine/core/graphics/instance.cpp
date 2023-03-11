@@ -206,7 +206,7 @@ void Instance::LogVulkanLayers(const vector<VkLayerProperties> &layerProperties)
 
     ss << "Instance Layers: ";
     for (const auto &layer : layerProperties)
-        ss << layer.layerName << ", ";
+        ss << layer.layerName << std::endl;
 
     ss << "\n\n";
     Log::SInfo(ss.str());

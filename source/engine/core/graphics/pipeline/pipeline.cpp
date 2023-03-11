@@ -16,12 +16,12 @@ void Pipeline::InitUniformBuffers(const Swapchain *swapchain, size_t size, size_
             it = pair.first;
         }
 
-		vector<Buffer> &unionBuffers = it->second;
-		unionBuffers.clear();
-		for (size_t i = 0; i < count; ++i)
-		{
-			unionBuffers.emplace_back(Buffer::Type::Uniform, size);
-		}
+        vector<Buffer> &unionBuffers = it->second;
+        unionBuffers.clear();
+        for (size_t i = 0; i < count; ++i)
+        {
+            unionBuffers.emplace_back(Buffer::Type::Uniform, size);
+        }
     }
 }
 
