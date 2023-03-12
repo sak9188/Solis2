@@ -118,7 +118,7 @@ set(CMAKE_INSTALL_INCLUDEDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUD
 # ==============================================================================
 
 # 是否编译第三方库
-set(BUILD_THIRDPARTY OFF)
+set(BUILD_THIRDPARTY ON)
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)

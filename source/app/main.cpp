@@ -1,13 +1,13 @@
 
 #include "core/solis_engine.hpp"
 #include "core/base/using.hpp"
+#include "core/base/memory.hpp"
 
 #include "core/log/log.hpp"
-
 #include "core/files/files.hpp"
+
 #include "core/graphics/graphics.hpp"
 #include "core/graphics/pipeline/shader.hpp"
-
 #include "core/graphics/swapchain.hpp"
 #include "core/graphics/pipeline/pipeline_graphics.hpp"
 #include "core/graphics/pipeline/shader.hpp"
@@ -34,9 +34,11 @@
 #include <GLFW/glfw3native.h>
 #include <iostream>
 
-#include "core/base/memory.hpp"
-
+#if defined(_DEBUG)
 #pragma pop_macro("getcwd")
+#endif
+
+#include "folly/GLog.h"
 
 using namespace solis;
 
@@ -101,14 +103,14 @@ void CleanupWindow()
     glfwTerminate();
 }
 
-class Test : public Object<Test>
-{
-};
-
-int main()
+int main(int argc, char **argv)
 {
     MemoryDebuger memoryDebuger;
     _CrtMemCheckpoint(&s1);
+
+    google::InitGoogleLogging(argv[0]);
+    FLAGS_logtostderr      = true;
+    FLAGS_colorlogtostderr = true;
 
     InitWindow();
 
@@ -160,6 +162,7 @@ int main()
 
         while (!glfwWindowShouldClose(window))
         {
+            FB_LOG_EVERY_MS(WARNING, 1000) << "Test";
             glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
             while (windowSize.x == 0 || windowSize.y == 0)
             {
@@ -219,14 +222,15 @@ int main()
         }
     }
     ObjectBase::Clear();
+    google::ShutdownGoogleLogging();
 
     // 这里因为引用了folly库，folly库又引用gflags和glog，导致这里的内存无法被手动释放干净
     // 大概有30k左右
     MemoryDebuger::StatusMemory();
-    MemoryDebuger::ResetStatusMemory();
 
 #if defined(_DEBUG)
-    // 这里会因为folly的hash_map导致有1024k的内存无法手动释放(静态代码段里malloc内存，除非手动new和delete)
+    // 这里的内存泄露是查的最准的，因为这里没有算加载glog和gflags的导致增加的内存
+    // 这里会因为folly的hash_map导致有1k的内存无法手动释放(静态代码段里malloc内存，除非手动new和delete)
     _CrtMemCheckpoint(&s2);
     if (_CrtMemDifference(&s3, &s1, &s2))
     {

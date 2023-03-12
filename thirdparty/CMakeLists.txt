@@ -49,8 +49,23 @@ if(${BUILD_THIRDPARTY})
     set(FMT_INSTALL ON)
     add_subdirectory(fmt)
 
+    # gflags
+    set(BUILD_SHARED_LIBS ON)
+    set(BUILD_gflags_LIB ON)
+    set(INSTALL_SHARED_LIBS ON)
+    set(BUILD_gflags_nothreads_LIB OFF)
+    add_subdirectory(gflags-2.2.2)
+
+    # glog
+    add_subdirectory(glog-0.6.0)
+
+    # Boost
+    set(BOOST_VERSION 1.78.0)
+    set(Boost_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
+    find_package(Boost CONFIG REQUIRED)
+
     # Folly
-    # add_subdirectory(folly_2023_02_13)
+    add_subdirectory(folly_2023_02_13)
 
     # FreeType
 
