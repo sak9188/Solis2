@@ -12,13 +12,15 @@ class Surface;
 class LogicalDevice;
 class CommandBuffer;
 
-class SOLIS_CORE_API Swapchain : public Object<Swapchain>
+class SOLIS_CORE_API Swapchain : public Object<Swapchain>, public IDestroyable
 {
     friend class Graphics;
 
 public:
     Swapchain(const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const Surface &surface, const VkExtent2D &extent, const Swapchain *oldSwapchain = nullptr);
     ~Swapchain();
+
+    virtual void Destroy() override;
 
     // 重建Swapchain
     void Recreate(const VkExtent2D &extent);

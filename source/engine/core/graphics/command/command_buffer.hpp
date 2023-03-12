@@ -57,7 +57,7 @@ public:
         for (auto &mesh : model.GetMeshes())
         {
             auto vertexBuffer = mesh->GetVertexBuffer();
-            assert(vertexBuffer);
+            assert(vertexBuffer && "Vertex buffer is null");
             // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
             VkBuffer     vertexBuffers[] = {vertexBuffer->GetBuffer()};
             VkDeviceSize offsets[]       = {0};
@@ -65,7 +65,7 @@ public:
             // vkCmdDraw(commandBuffer, 12, 1, 0, 0);
 
             auto indexBuffer = mesh->GetIndexBuffer();
-            assert(indexBuffer);
+            assert(indexBuffer && "Index buffer is null");
             // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
             vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
             vkCmdDrawIndexed(commandBuffer, mesh->IndicesCount(), 1, 0, 0, 0);

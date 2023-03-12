@@ -1,3 +1,4 @@
+
 #include "core/solis_engine.hpp"
 #include "core/base/using.hpp"
 
@@ -33,10 +34,57 @@
 #include <GLFW/glfw3native.h>
 #include <iostream>
 
+#include "core/base/memory.hpp"
+
+#pragma pop_macro("getcwd")
+
 using namespace solis;
 
 GLFWwindow *window;
 math::ivec2 windowSize{1377, 768};
+
+float      CameraSpeed{1.0f};
+math::vec3 CameraPos{2.0f, 2.0f, 2.0f};
+
+_CrtMemState s1, s2, s3;
+
+void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+
+    if (key == GLFW_KEY_W && action == GLFW_PRESS)
+    {
+        CameraPos.z -= 0.1f * CameraSpeed;
+    }
+
+    if (key == GLFW_KEY_S && action == GLFW_PRESS)
+    {
+        CameraPos.z += 0.1f * CameraSpeed;
+    }
+
+    if (key == GLFW_KEY_A && action == GLFW_PRESS)
+    {
+        CameraPos.x -= 0.1f * CameraSpeed;
+    }
+
+    if (key == GLFW_KEY_D && action == GLFW_PRESS)
+    {
+        CameraPos.x += 0.1f * CameraSpeed;
+    }
+
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+    {
+        CameraPos.y += 0.1f * CameraSpeed;
+    }
+
+    if (key == GLFW_KEY_E && action == GLFW_PRESS)
+    {
+        CameraPos.y -= 0.1f * CameraSpeed;
+    }
+}
 
 void InitWindow()
 {
@@ -44,6 +92,7 @@ void InitWindow()
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     window = glfwCreateWindow(windowSize.x, windowSize.y, "Solis", nullptr, nullptr);
+    glfwSetKeyCallback(window, KeyCallback);
 }
 
 void CleanupWindow()
@@ -52,8 +101,15 @@ void CleanupWindow()
     glfwTerminate();
 }
 
+class Test : public Object<Test>
+{
+};
+
 int main()
 {
+    MemoryDebuger memoryDebuger;
+    _CrtMemCheckpoint(&s1);
+
     InitWindow();
 
     EngineCreateInfo info;
@@ -83,79 +139,99 @@ int main()
     // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
 
-    RenderPass *renderPass = new RenderPass();
-    renderPass->Build();
+    RenderPass renderPass;
+    renderPass.Build();
 
-    PipelineGraphics *pipeline = new PipelineGraphics();
-    auto             &shader   = pipeline->GetShader();
+    PipelineGraphics pipeline;
+    auto            &shader = pipeline.GetShader();
     // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
     // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
     shader.CreateShaderModule("./shaders/sponza/sponza.vert", Shader::Type::Vertex);
     shader.CreateShaderModule("./shaders/sponza/sponza.frag", Shader::Type::Fragment);
-    pipeline->Build(*renderPass);
+    pipeline.Build(renderPass);
 
     // Model sponzamodel{"./gltfs/sponza/Sponza.gltf"};
-    Model sponzamodel{"./gltfs/cube/cube.gltf"};
-
-    CommandBuffer *buffer    = new CommandBuffer();
-    Swapchain     &swapchain = engine.GetSwapchain();
-    swapchain.SetRenderPass(*renderPass);
-
-    while (!glfwWindowShouldClose(window))
     {
-        glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
-        while (windowSize.x == 0 || windowSize.y == 0)
+        Model sponzamodel{"./gltfs/cube/cube.gltf"};
+
+        CommandBuffer buffer;
+        Swapchain    &swapchain = engine.GetSwapchain();
+        swapchain.SetRenderPass(renderPass);
+
+        while (!glfwWindowShouldClose(window))
         {
             glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
-            glfwWaitEvents();
+            while (windowSize.x == 0 || windowSize.y == 0)
+            {
+                glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
+                glfwWaitEvents();
+            }
+            glfwPollEvents();
+
+            if (!swapchain.IsSameExtent({(uint32_t)windowSize.x, (uint32_t)windowSize.y}))
+            {
+                swapchain.Recreate({(uint32_t)windowSize.x, (uint32_t)windowSize.y});
+            }
+
+            if (swapchain.AcquireNextImage() != VK_SUCCESS)
+            {
+                continue;
+            }
+
+            buffer.Begin();
+            buffer.BeginRenderPass(swapchain);
+            buffer.BindPipeline(&pipeline);
+            auto &ubo = pipeline.GetUniformBuffer(&swapchain, swapchain.GetActiveImageIndex());
+
+            // ubo
+            // buffer->BindUniformBuffer(0, 0, pipeline->GetUniformBuffer(swapchain.GetImageIndex()));
+
+            static auto startTime   = std::chrono::high_resolution_clock::now();
+            auto        currentTime = std::chrono::high_resolution_clock::now();
+            float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+            auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            auto view  = glm::lookAt(CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            auto proj  = glm::perspective(glm::radians(45.0f), windowSize.x / (float)windowSize.y, 0.1f, 10.0f);
+            proj[1][1] *= -1;
+
+            auto mvp = proj * view * model;
+            ubo.Update(&mvp, sizeof(mvp));
+
+            buffer.SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
+            buffer.SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
+            // buffer->Draw(3, 1, 0, 0);
+            buffer.Draw(sponzamodel);
+            buffer.EndRenderPass();
+            buffer.End();
+            swapchain.SubmitCommandBuffer(buffer);
         }
-        glfwPollEvents();
-
-        if (!swapchain.IsSameExtent({(uint32_t)windowSize.x, (uint32_t)windowSize.y}))
-        {
-            swapchain.Recreate({(uint32_t)windowSize.x, (uint32_t)windowSize.y});
-        }
-
-        if (swapchain.AcquireNextImage() != VK_SUCCESS)
-        {
-            continue;
-        }
-
-        buffer->Begin();
-        buffer->BeginRenderPass(swapchain);
-        buffer->BindPipeline(pipeline);
-        auto &ubo = pipeline->GetUniformBuffer(&swapchain, swapchain.GetActiveImageIndex());
-
-        // ubo
-        // buffer->BindUniformBuffer(0, 0, pipeline->GetUniformBuffer(swapchain.GetImageIndex()));
-
-        static auto startTime   = std::chrono::high_resolution_clock::now();
-        auto        currentTime = std::chrono::high_resolution_clock::now();
-        float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-        auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        auto view  = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        auto proj  = glm::perspective(glm::radians(45.0f), windowSize.x / (float)windowSize.y, 0.1f, 10.0f);
-        proj[1][1] *= -1;
-
-        auto mvp = proj * view * model;
-        ubo.Update(&mvp, sizeof(mvp));
-
-        buffer->SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
-        buffer->SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
-        // buffer->Draw(3, 1, 0, 0);
-        buffer->Draw(sponzamodel);
-        buffer->EndRenderPass();
-        buffer->End();
-        swapchain.SubmitCommandBuffer(*buffer);
     }
 
     // 这儿还有问题， 不过问题不大
-    delete buffer;
-    delete pipeline;
-    delete renderPass;
-
     engine.Destroy();
     CleanupWindow();
+    if (ObjectBase::ObjectCount != 0)
+    {
+        for (auto &[pointer, name] : ObjectBase::ObjectTypeNameMap)
+        {
+            Log::SError("Object Class Name: {} is leaked! pointer: {}", name, pointer);
+        }
+    }
+    ObjectBase::Clear();
+
+    // 这里因为引用了folly库，folly库又引用gflags和glog，导致这里的内存无法被手动释放干净
+    // 大概有30k左右
+    MemoryDebuger::StatusMemory();
+    MemoryDebuger::ResetStatusMemory();
+
+#if defined(_DEBUG)
+    // 这里会因为folly的hash_map导致有1024k的内存无法手动释放(静态代码段里malloc内存，除非手动new和delete)
+    _CrtMemCheckpoint(&s2);
+    if (_CrtMemDifference(&s3, &s1, &s2))
+    {
+        _CrtMemDumpStatistics(&s3);
+    }
+#endif
     return 0;
 }

@@ -14,11 +14,13 @@ namespace solis {
 namespace graphics {
 class Buffer;
 class Swapchain;
-class SOLIS_CORE_API Pipeline : public Object<Pipeline>
+class SOLIS_CORE_API Pipeline : public Object<Pipeline>, public IDestroyable
 {
 public:
-    Pipeline()          = default;
-    virtual ~Pipeline() = default;
+    Pipeline();
+    virtual ~Pipeline();
+
+    virtual void Destroy() override;
 
     virtual bool    Build(const RenderPass &renderPass, size_t subpassIndex = 0) = 0;
     virtual Shader &GetShader() const                                            = 0;
@@ -35,7 +37,7 @@ public:
 
 private:
     // vector<Buffer> mUnionBuffers;
-    hash_map<size_t, vector<Buffer>> mUnionBufferMap{MaxSwapchain};
+    hash_map<size_t, vector<std::shared_ptr<Buffer>>> mUnionBufferMap{MaxSwapchain};
 };
 }
 } // namespace solis::graphics

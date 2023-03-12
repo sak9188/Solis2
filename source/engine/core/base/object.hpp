@@ -15,7 +15,7 @@ public:
     ObjectBase()          = default;
     virtual ~ObjectBase() = default;
 
-    static void *Malloc(size_t size, string name, size_t count);
+    static void *Malloc(size_t size, const string &name, size_t count);
 
     static void Free(void *ptr);
 
@@ -27,6 +27,16 @@ public:
     inline static hash_map<void *, size_t> ObjectMap{ObjectBase::GlobalObjectSize};
     inline static hash_map<void *, string> ObjectTypeNameMap{ObjectBase::GlobalObjectSize};
     inline static hash_map<void *, size_t> ObjectArrayCountMap{ObjectBase::GlobalObjectSize};
+
+    inline static void Clear()
+    {
+        ObjectCount   = 0;
+        ObjectMemSize = 0;
+        ObjectNameMap.clear();
+        ObjectMap.clear();
+        ObjectTypeNameMap.clear();
+        ObjectArrayCountMap.clear();
+    }
 #endif
 };
 

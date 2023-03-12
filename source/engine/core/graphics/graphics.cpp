@@ -7,13 +7,14 @@
 #include "core/graphics/surface.hpp"
 #include "core/graphics/swapchain.hpp"
 #include "core/graphics/command/command_pool.hpp"
+#include "core/graphics/pipeline/pipeline.hpp"
+#include "core/graphics/render_pass.hpp"
 
 namespace solis {
 namespace graphics {
 Graphics::Graphics()
 {
     CheckVk(volkInitialize());
-
     mInstance       = std::make_unique<Instance>();
     mPhysicalDevice = std::make_unique<PhysicalDevice>(*mInstance);
     mLogicalDevice  = std::make_unique<LogicalDevice>(*mInstance, *mPhysicalDevice);
@@ -24,10 +25,21 @@ Graphics::~Graphics()
     vkDeviceWaitIdle(*mLogicalDevice);
 
     mSwapchains.clear();
-    mSurfaces.clear();
+
+    for (auto &renderPass : mRenderPasses)
+    {
+        renderPass->Destroy();
+    }
+
+    for (auto &pipeline : mPipelines)
+    {
+        pipeline->Destroy();
+    }
+
     mCommandPool.reset();
-    mLogicalDevice.reset();
     mPhysicalDevice.reset();
+    mLogicalDevice.reset();
+    mSurfaces.clear();
     mInstance.reset();
 }
 

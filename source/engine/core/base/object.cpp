@@ -1,9 +1,23 @@
 #include "core/base/object.hpp"
 #include "core/base/memory.hpp"
 
-namespace solis {
-void *ObjectBase::Malloc(size_t size, string name, size_t count)
+#include "mimalloc-2.0/mimalloc-new-delete.h"
+
+struct InitFuction
 {
+    InitFuction()
+    {
+        // mi_option_set(mi_option_e::mi_option_verbose, 1);
+        // mi_option_set(mi_option_e::mi_option_show_stats, 1);
+        mi_option_set(mi_option_e::mi_option_show_errors, 1);
+    }
+};
+
+namespace solis {
+void *ObjectBase::Malloc(size_t size, const string &name, size_t count)
+{
+    static InitFuction initFuction;
+
     auto ptr = operator new(size *count);
 #ifdef _DEBUG
     ObjectCount += count;

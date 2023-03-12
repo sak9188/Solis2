@@ -45,6 +45,8 @@ void Engine::Destroy()
     }
 
     IsDestroyEngine = true;
+
+    mSwapchain = nullptr;
 }
 
 int Engine::Run()
@@ -72,7 +74,8 @@ void Engine::CreateModule(Module::TRegistryMap::const_iterator it, const ModuleF
 
 void Engine::DestroyModule(ctti::type_index id)
 {
-    if (mModules.find(id.hash()) == mModules.end())
+    auto it = mModules.find(id.hash());
+    if (it == mModules.end())
         return;
 
     // Destroy all module dependencies first.
@@ -82,7 +85,8 @@ void Engine::DestroyModule(ctti::type_index id)
             DestroyModule(registrarId);
     }
 
-    mModules.erase(id.hash());
+    it->second.reset();
+    mModules.erase(it.getIndex());
 }
 
 void Engine::Step()

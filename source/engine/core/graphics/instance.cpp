@@ -79,7 +79,6 @@ Instance::Instance()
 #ifdef _DEBUG
     mEnableValidationLayers = true;
 #endif
-
     CreateInstance();
     CreateDebugMessenger();
 }
@@ -142,7 +141,6 @@ void Instance::CreateInstance()
     // const auto &engineVersion = Engine::Get()->GetVersion();
     // const auto &appVersion = Engine::Get()->GetApp()->GetVersion();
     // const auto &appName = Engine::Get()->GetApp()->GetName();
-
     Graphics::CheckVk(volkInitialize());
 
     VkApplicationInfo applicationInfo = {};

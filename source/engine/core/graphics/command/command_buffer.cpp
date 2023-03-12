@@ -80,7 +80,7 @@ void CommandBuffer::EndRenderPass()
 
 void CommandBuffer::BindPipeline(Pipeline *pipeline)
 {
-    assert(mSwapchain);
+    assert(mSwapchain && "Swapchain must be set before binding pipeline");
 
     if (!running)
         return;
@@ -93,8 +93,8 @@ void CommandBuffer::BindPipeline(Pipeline *pipeline)
 
 void CommandBuffer::BindPipelineDescriptorSet() const
 {
-    assert(mSwapchain);
-    assert(mPipeline);
+    assert(mSwapchain && "Swapchain must be set before binding pipeline");
+    assert(mPipeline && "Pipeline must be set before binding pipeline descriptor set");
 
     vkCmdBindDescriptorSets(commandBuffer, mPipeline->GetPipelineBindPoint(), mPipeline->GetPipelineLayout(),
                             0, 1, &(mPipeline->GetDescriptorSets()[mSwapchain->GetActiveImageIndex()]), 0, nullptr);

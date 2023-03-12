@@ -51,6 +51,16 @@ Swapchain::Swapchain(const PhysicalDevice &physicalDevice, const LogicalDevice &
 
 Swapchain::~Swapchain()
 {
+    this->Destroy();
+}
+
+void Swapchain::Destroy()
+{
+    if (IsDestroyed())
+    {
+        return;
+    }
+
     this->Clean();
 
     for (const auto &fence : mWaitFences)
@@ -87,12 +97,6 @@ void Swapchain::Clean()
         vkDestroyImageView(mLogicalDevice, imageView, nullptr);
     }
     imageViews.clear();
-
-    // for (const auto &image : images)
-    // {
-    //     vkDestroyImage(mLogicalDevice, image, nullptr);
-    // }
-    // images.clear();
 
     vkDestroySwapchainKHR(mLogicalDevice, mSwapchain, nullptr);
 }

@@ -7,14 +7,32 @@
 
 namespace solis {
 namespace graphics {
+
+RenderPass::RenderPass()
+{
+    Graphics::Get()->AddRenderPass(this);
+}
+
 RenderPass::~RenderPass()
 {
+    Destroy();
+};
+
+void RenderPass::Destroy()
+{
+    if (IsDestroyed())
+    {
+        return;
+    }
+
     if (mRenderPass != VK_NULL_HANDLE)
     {
         vkDestroyRenderPass(*Graphics::Get()->GetLogicalDevice(), mRenderPass, nullptr);
         mRenderPass = VK_NULL_HANDLE;
     }
-};
+
+    mDestroyed = true;
+}
 
 bool RenderPass::Build()
 {

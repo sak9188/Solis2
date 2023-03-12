@@ -19,3 +19,14 @@
 #else
 #define SOLIS_CORE_API
 #endif
+
+#if defined(__WIN__) && defined(_DEBUG)
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+#endif
+
+#pragma push_macro("getcwd")
+#undef getcwd

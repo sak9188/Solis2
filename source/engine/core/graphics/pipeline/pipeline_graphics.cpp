@@ -7,6 +7,92 @@
 
 namespace solis {
 namespace graphics {
+PipelineGraphics::PipelineGraphics()
+{
+    VkDescriptorPoolSize poolSize = {};
+    poolSize.type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount      = MaxFrameInFlight; // 这里要根据shader的descriptor数量来设置 * 3
+
+    VkDescriptorPoolCreateInfo poolInfo = {};
+    poolInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount              = 1;
+    poolInfo.pPoolSizes                 = &poolSize;
+    poolInfo.maxSets                    = MaxFrameInFlight; // todo: 这里要根据shader的descriptor数量来设置 *
+
+    Graphics::CheckVk(vkCreateDescriptorPool(*Graphics::Get()->GetLogicalDevice(), &poolInfo, nullptr, &mDescriptorPool));
+
+    // 创建Pipeline DescriptorSetLayout
+    VkDescriptorSetLayoutBinding uboLayoutBinding{};
+    uboLayoutBinding.binding            = 0;
+    uboLayoutBinding.descriptorCount    = 1; // todo: 这里要根据shader的descriptor数量来设置
+    uboLayoutBinding.descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.pImmutableSamplers = nullptr;
+    uboLayoutBinding.stageFlags         = VK_SHADER_STAGE_VERTEX_BIT; // 这里需要根据具体的shader来设置
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1; // todo: 这里应该通过反射来获取
+    layoutInfo.pBindings    = &uboLayoutBinding;
+
+    Graphics::CheckVk(vkCreateDescriptorSetLayout(*Graphics::Get()->GetLogicalDevice(), &layoutInfo, nullptr, &mDescriptorSetLayout));
+
+    // Allocate DescriptorSet
+    vector<VkDescriptorSetLayout> layouts(MaxFrameInFlight, mDescriptorSetLayout);
+    VkDescriptorSetAllocateInfo   allocInfo{};
+    allocInfo.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool     = mDescriptorPool;
+    allocInfo.descriptorSetCount = layouts.size(); // todo: 这里要根据shader的descriptor数量来设置
+    allocInfo.pSetLayouts        = layouts.data();
+
+    mDescriptorSets.resize(MaxFrameInFlight); // 这里其实是有问题的 MaxFrameInFlight * Shader中的实际数量
+    Graphics::CheckVk(vkAllocateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), &allocInfo, mDescriptorSets.data()));
+}
+
+PipelineGraphics::~PipelineGraphics()
+{
+    Destroy();
+}
+
+void PipelineGraphics::Destroy()
+{
+    if (IsDestroyed())
+    {
+        return;
+    }
+
+    Pipeline::Destroy();
+
+    auto device = Graphics::Get()->GetLogicalDevice();
+
+    mShader.reset();
+
+    if (mPipeline != VK_NULL_HANDLE)
+    {
+        vkDestroyPipeline(*device, mPipeline, nullptr);
+        mPipeline = VK_NULL_HANDLE;
+    }
+
+    if (mPipelineLayout != VK_NULL_HANDLE)
+    {
+        vkDestroyPipelineLayout(*device, mPipelineLayout, nullptr);
+        mPipelineLayout = VK_NULL_HANDLE;
+    }
+
+    if (mDescriptorPool != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorPool(*device, mDescriptorPool, nullptr);
+        mDescriptorPool = VK_NULL_HANDLE;
+    }
+
+    if (mDescriptorSetLayout != VK_NULL_HANDLE)
+    {
+        vkDestroyDescriptorSetLayout(*device, mDescriptorSetLayout, nullptr);
+        mDescriptorSetLayout = VK_NULL_HANDLE;
+    }
+
+    mDestroyed = true;
+}
+
 bool PipelineGraphics::Build(const RenderPass &renderPass, size_t subpassIndex)
 {
     VkVertexInputBindingDescription bindingDescription{};

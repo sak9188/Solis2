@@ -18,6 +18,9 @@ class LogicalDevice;
 class Surface;
 class Swapchain;
 class CommandPool;
+class RenderPass;
+class Pipeline;
+class Buffer;
 
 struct UniformBufferObject
 {
@@ -60,10 +63,26 @@ public:
         return mCommandPool;
     }
 
-    // CreateSurface
+    // AddRenderPass
+    void AddRenderPass(RenderPass *renderPass) noexcept
+    {
+        mRenderPasses.push_back(renderPass);
+    }
+
+    // AddPipeline
+    void AddPipeline(Pipeline *pipeline) noexcept
+    {
+        mPipelines.push_back(pipeline);
+    }
+
+    // AddBuffer
+    // void AddBuffer(Buffer *buffer) noexcept
+    // {
+    //     mBuffers.push_back(buffer);
+    // }
+
     Swapchain *CreateSurfaceSwapchain(const void *window, math::uvec2 extent);
 
-    // CreateSurface
     Swapchain *CreateSurfaceSwapchain(const void *window, VkExtent2D extent);
 
     static string StringifyResultVk(VkResult result);
@@ -78,6 +97,10 @@ private:
 
     vector<std::unique_ptr<Surface>>   mSurfaces;
     vector<std::unique_ptr<Swapchain>> mSwapchains;
+
+    vector<RenderPass *> mRenderPasses;
+    vector<Pipeline *>   mPipelines;
+    // vector<Buffer *>     mBuffers;
 };
 }
 } // namespace solis::graphics

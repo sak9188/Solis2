@@ -45,6 +45,8 @@ void Buffer::Init(const VkDeviceSize &size, const VkBufferUsageFlags &usage, con
         memcpy(mapped, data, static_cast<size_t>(size));
         UnmapMemory();
     }
+
+    // Graphics::Get()->AddBuffer(this);
 }
 
 Buffer::Buffer(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const VkMemoryPropertyFlags &properties, const void *data) :
@@ -52,21 +54,6 @@ Buffer::Buffer(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const 
 {
     Init(size, usage, properties, data);
 }
-
-// Buffer::Buffer(Buffer &&other) noexcept
-// {
-//     mBuffer           = other.mBuffer;
-//     mBufferMemory     = other.mBufferMemory;
-//     mSize             = other.mSize;
-//     mType             = other.mType;
-//     mMemoryProperties = other.mMemoryProperties;
-//
-//     other.mBuffer           = VK_NULL_HANDLE;
-//     other.mBufferMemory     = VK_NULL_HANDLE;
-//     other.mSize             = 0;
-//     other.mType             = Type::Vertex;
-//     other.mMemoryProperties = 0;
-// }
 
 void Buffer::Update(const void *data)
 {
@@ -86,12 +73,20 @@ void Buffer::Update(const void *data, const size_t size)
 
 Buffer::~Buffer()
 {
-    if (mDestroyed)
+    Destroy();
+}
+
+void Buffer::Destroy()
+{
+    if (IsDestroyed())
     {
-        vkDestroyBuffer(*Graphics::Get()->GetLogicalDevice(), mBuffer, nullptr);
-        vkFreeMemory(*Graphics::Get()->GetLogicalDevice(), mBufferMemory, nullptr);
+        return;
     }
-    // TODO: for now we don't need to destroy buffer
+
+    vkDestroyBuffer(*Graphics::Get()->GetLogicalDevice(), mBuffer, nullptr);
+    vkFreeMemory(*Graphics::Get()->GetLogicalDevice(), mBufferMemory, nullptr);
+
+    mDestroyed = true;
 }
 
 Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data) :
@@ -123,10 +118,10 @@ Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data) :
         throw std::runtime_error("Invalid buffer type!");
     }
 
-    Buffer *stageBuffer = nullptr;
+    std::unique_ptr<Buffer> stageBuffer;
     if (type == Type::Vertex || type == Type::Index)
     {
-        stageBuffer = new Buffer(Type::Stage, size, data);
+        stageBuffer = std::make_unique<Buffer>(Type::Stage, size, data);
         data        = nullptr;
     }
 
@@ -135,7 +130,6 @@ Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data) :
     if (stageBuffer)
     {
         stageBuffer->CopyToBuffer(*this);
-        delete stageBuffer;
     }
 }
 

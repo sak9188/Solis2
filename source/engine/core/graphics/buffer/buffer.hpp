@@ -2,12 +2,13 @@
 
 #include "core/base/using.hpp"
 #include "core/base/object.hpp"
+#include "core/base/i_destroyable.hpp"
 
 #include "volk.h"
 
 namespace solis {
 namespace graphics {
-class SOLIS_CORE_API Buffer : public Object<Buffer>
+class SOLIS_CORE_API Buffer : public Object<Buffer>, public IDestroyable
 {
 public:
     enum class Status
@@ -37,11 +38,26 @@ public:
     Buffer(Type type, const VkDeviceSize &size, const void *data = nullptr);
     virtual ~Buffer();
 
+    virtual void Destroy() override;
+
     // copy constructor
     // Buffer(const Buffer &other) = delete;
 
     // move constructor
-    // Buffer(Buffer &&other) noexcept;
+    Buffer(Buffer &&other) noexcept
+    {
+        mType             = other.mType;
+        mSize             = other.mSize;
+        mBuffer           = other.mBuffer;
+        mBufferMemory     = other.mBufferMemory;
+        mMemoryProperties = other.mMemoryProperties;
+
+        other.mType             = Type::None;
+        other.mSize             = 0;
+        other.mBuffer           = VK_NULL_HANDLE;
+        other.mBufferMemory     = VK_NULL_HANDLE;
+        other.mMemoryProperties = 0;
+    }
 
     void Update(const void *data);
 
@@ -79,7 +95,6 @@ public:
     // VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDeviceSize offset = 0, VkDeviceSize size = VK_WHOLE_SIZE);
 
 protected:
-    bool                  mDestroyed        = false;
     Type                  mType             = Type::None;
     VkDeviceSize          mSize             = 0;
     VkBuffer              mBuffer           = VK_NULL_HANDLE;
