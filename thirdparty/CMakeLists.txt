@@ -43,7 +43,9 @@ if(${BUILD_THIRDPARTY})
     add_subdirectory(VulkanMemoryAllocator)
 
     # Boost
-    # add_subdirectory(boost_1_78)
+    set(BOOST_VERSION 1.78.0)
+    set(Boost_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
+    find_package(Boost CONFIG REQUIRED)
 
     # fmt
     set(FMT_INSTALL ON)
@@ -59,13 +61,11 @@ if(${BUILD_THIRDPARTY})
     # glog
     add_subdirectory(glog-0.6.0)
 
-    # Boost
-    set(BOOST_VERSION 1.78.0)
-    set(Boost_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
-    find_package(Boost CONFIG REQUIRED)
+    # double conversion
+    # add_subdirectory(double-conversion)
 
     # Folly
-    add_subdirectory(folly_2023_02_13)
+    # add_subdirectory(folly_2023_02_13)
 
     # FreeType
 
