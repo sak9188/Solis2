@@ -10,6 +10,7 @@ elseif(__MAC__)
 endif()
 
 
+
 macro(install_library lib_name lib_defines)
     message(STATUS "build_library: ${lib_name}")
     set(build_command 
@@ -57,14 +58,18 @@ macro(install_library lib_name lib_defines)
 
 endmacro(install_library)
 
+# 类Unix平台的安装
 macro(mingw_install_library lib_name)
+    # 这里需要先保证mingw64的环境变量已经设置好了
+    # 所以这里有可能需要执行一段检查路径搜索的代码
+    # 在上面
+
     message(STATUS "build_library: ${lib_name}")
     set(build_command 
-        D:\msys64\msys2_shell.cmd -mingw64 
+        D:/msys64/msys2_shell.cmd -mingw64 ./configure --prefix=${CMAKE_INSTALL_PREFIX}
     )
 
     message(STATUS "build_command: ${build_command}")
-
     execute_process(
         COMMAND ${build_command}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${lib_name}
@@ -80,7 +85,7 @@ macro(mingw_install_library lib_name)
     endif()
 
     # install 
-    set(install_command cmake --build ./build/ --target install)
+    set(install_command make install)
     execute_process(
         COMMAND ${install_command}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${lib_name}
@@ -94,4 +99,5 @@ macro(mingw_install_library lib_name)
         message(FATAL_ERROR "install ${lib_name} failed")
     endif()
 endmacro(mingw_install_library)
+
 

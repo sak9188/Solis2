@@ -1,73 +1,76 @@
 if(${BUILD_THIRDPARTY})
+    # .\b2.exe address-model=64 --build-dir=build toolset=msvc-14.2 --build-type=complete stage install --prefix=install
+
     include(install_script.cmake)
     # 0级库(意味着一定要提前编译好
     #       因为boost有他自己独有的编译机制,无法直接从source编译,
     #       所以这里需要提前编译好, 并且编译成静态库)
     # boost(0级库只有boost, 以后这里需要写一个脚本, 自动下载boost, 并编译安装到指定路径)
     # Boost
-    set(BOOST_VERSION 1.81.0)
-    set(Boost_DIR ${CMAKE_INSTALL_PREFIX}/boost/lib/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
-    find_package(Boost CONFIG REQUIRED)
+    # set(BOOST_VERSION 1.81.0)
+    # set(Boost_DIR ${CMAKE_INSTALL_PREFIX}/boost/lib/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
+    # find_package(Boost CONFIG REQUIRED)
 
-    # =======================================================================
-    # 1级库(可以直接通过CMake完成编译和Install)
-    # =======================================================================
-    # CTTI
-    install_library(ctti -DCTTI_INSTALL=ON)
+    # # =======================================================================
+    # # 1级库(可以直接通过CMake完成编译和Install)
+    # # =======================================================================
+    # # CTTI
+    # install_library(ctti -DCTTI_INSTALL=ON)
 
-    # GLM
-    install_library(glm -DGLM_INSTALL=ON)
+    # # GLM
+    # install_library(glm -DGLM_INSTALL=ON)
  
-    # glfw
-    install_library(glfw -DGLFW_BUILD_DOCS=OFF)
+    # # glfw
+    # install_library(glfw -DGLFW_BUILD_DOCS=OFF)
  
-    # ASTC
+    # # ASTC
  
-    # GLSLANG
-    # SPIRV 没有导出符号，所有只能用静态库
-    install_library(glslang -DBUILD_SHARED_LIBS=OFF)
+    # # GLSLANG
+    # # SPIRV 没有导出符号，所有只能用静态库
+    # install_library(glslang -DBUILD_SHARED_LIBS=OFF)
  
-    # mimalloc
-    install_library(mimalloc "")
+    # # mimalloc
+    # install_library(mimalloc "")
  
-    # tinygltf
-    install_library(tinygltf "")
+    # # tinygltf
+    # install_library(tinygltf "")
  
-    # physfs
-    install_library(physfs "")
+    # # physfs
+    # install_library(physfs "")
  
-    # IMGUI
+    # # IMGUI
  
-    # SPDLOG
-    install_library(spdlog "")
+    # # SPDLOG
+    # install_library(spdlog "")
  
-    # STB 这个得手写cmake
-    # install_library(stb "")
+    # # STB 这个得手写cmake
+    # # install_library(stb "")
  
-    # VOLK
-    install_library(volk -DVOLK_INSTALL=ON)
+    # # VOLK
+    # install_library(volk -DVOLK_INSTALL=ON)
  
-    # VULKAN
-    find_package(Vulkan REQUIRED)
+    # # VULKAN
+    # find_package(Vulkan REQUIRED)
  
-    # VMA
-    install_library(VulkanMemoryAllocator "")
+    # # VMA
+    # install_library(VulkanMemoryAllocator "")
 
-    # fmt
-    install_library(fmt -DFMT_INSTALL=ON)
+    # # fmt
+    # install_library(fmt -DFMT_INSTALL=ON)
 
-    # gflags
-    install_library(gflags-2.2.2 -DBUILD_gflags_LIB=ON -DBUILD_SHARED_LIBS=ON -DINSTALL_SHARED_LIBS=ON)
+    # # gflags
+    # install_library(gflags-2.2.2 -DBUILD_gflags_LIB=ON -DBUILD_SHARED_LIBS=ON -DINSTALL_SHARED_LIBS=ON)
 
-    # double conversion -> folly
-    install_library(double-conversion "")
+    # # double conversion -> folly
+    # install_library(double-conversion "")
 
-    # libunwind -> glog
-    if(__LINUX__)
-        install_library(libunwind-1.6.2 "")
-    endif()
+    # # libunwind -> glog
+    # if(__LINUX__)
+        # install_library(libunwind-1.6.2 "")
+    # endif()
 
     # openssl -> folly
+    # mingw_install_library(openssl-3.1.0)
 
     # zlib -> folly
     install_library(zlib-1.2.13 "")
