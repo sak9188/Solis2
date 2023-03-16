@@ -92,6 +92,7 @@ if(${BUILD_THIRDPARTY})
     # 3级库(依赖2级库, 1级库)
     # =======================================================================
     # folly
+    install_library(folly -DBUILD_TESTS=OFF)
 
     # FreeType
 

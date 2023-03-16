@@ -56,3 +56,42 @@ macro(install_library lib_name lib_defines)
     endif()
 
 endmacro(install_library)
+
+macro(mingw_install_library lib_name)
+    message(STATUS "build_library: ${lib_name}")
+    set(build_command 
+        D:\msys64\msys2_shell.cmd -mingw64 
+    )
+
+    message(STATUS "build_command: ${build_command}")
+
+    execute_process(
+        COMMAND ${build_command}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${lib_name}
+        RESULT_VARIABLE build_result
+        OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${lib_name}/build.log
+    )
+    message(STATUS "work directory: ${CMAKE_CURRENT_SOURCE_DIR}/${lib_name}")
+
+    if(build_result EQUAL 0)
+        message(STATUS "build ${lib_name} success")
+    else()
+        message(FATAL_ERROR "build ${lib_name} failed")
+    endif()
+
+    # install 
+    set(install_command cmake --build ./build/ --target install)
+    execute_process(
+        COMMAND ${install_command}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${lib_name}
+        RESULT_VARIABLE install_result
+    )
+    
+    message(STATUS "install command: ${install_command}")
+    if(install_result EQUAL 0)
+        message(STATUS "install ${lib_name} success")
+    else()
+        message(FATAL_ERROR "install ${lib_name} failed")
+    endif()
+endmacro(mingw_install_library)
+
