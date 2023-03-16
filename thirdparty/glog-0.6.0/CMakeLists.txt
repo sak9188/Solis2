@@ -79,14 +79,9 @@ if (WITH_GMOCK AND TARGET GTest::gmock)
 endif (WITH_GMOCK AND TARGET GTest::gmock)
 
 if (WITH_GFLAGS)
-
-if(TARGET gflags::gflags)
-  set (gflags_FOUND 1)
-else()
   find_package (gflags 2.2.2)
-endif()
-
   if (gflags_FOUND)
+    message(STATUS "Found gflags: ${gflags_INCLUDE_DIR}")
     set (HAVE_LIB_GFLAGS 1)
     determine_gflags_namespace (gflags_NAMESPACE)
   endif (gflags_FOUND)

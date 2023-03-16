@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.1)
+
 project(ctti)
 
 option(CTTI_BUILD_TESTS "Build ctti feature tests" OFF)

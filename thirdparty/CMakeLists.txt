@@ -1,71 +1,97 @@
 if(${BUILD_THIRDPARTY})
-    # CTTI
-    set(CTTI_INSTALL ON)
-    add_subdirectory(ctti)
-
-    # GLM
-    set(GLM_INSTALL ON)
-    add_subdirectory(glm)
-
-    # glfw
-    add_subdirectory(glfw)
-
-    # ASTC
-
-    # GLSLANG
-    add_subdirectory(glslang)
-
-    # mimalloc
-    add_subdirectory(mimalloc)
-
-    # tinygltf
-    add_subdirectory(tinygltf)
-
-    # physfs
-    add_subdirectory(physfs)
-
-    # IMGUI
-
-    # SPDLOG
-    add_subdirectory(spdlog)
-
-    # STB
-    set(VOLK_INSTALL ON)
-    add_subdirectory(stb)
-
-    # VOLK
-    add_subdirectory(volk)
-
-    # VULKAN
-    find_package(Vulkan REQUIRED)
-
-    # VMA
-    add_subdirectory(VulkanMemoryAllocator)
-
+    include(install_script.cmake)
+    # 0级库(意味着一定要提前编译好
+    #       因为boost有他自己独有的编译机制,无法直接从source编译,
+    #       所以这里需要提前编译好, 并且编译成静态库)
+    # boost(0级库只有boost, 以后这里需要写一个脚本, 自动下载boost, 并编译安装到指定路径)
     # Boost
-    set(BOOST_VERSION 1.78.0)
-    set(Boost_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
+    set(BOOST_VERSION 1.81.0)
+    set(Boost_DIR ${CMAKE_INSTALL_PREFIX}/boost/lib/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
     find_package(Boost CONFIG REQUIRED)
 
+    # =======================================================================
+    # 1级库(可以直接通过CMake完成编译和Install)
+    # =======================================================================
+    # CTTI
+    install_library(ctti -DCTTI_INSTALL=ON)
+
+    # GLM
+    install_library(glm -DGLM_INSTALL=ON)
+ 
+    # glfw
+    install_library(glfw -DGLFW_BUILD_DOCS=OFF)
+ 
+    # ASTC
+ 
+    # GLSLANG
+    # SPIRV 没有导出符号，所有只能用静态库
+    install_library(glslang -DBUILD_SHARED_LIBS=OFF)
+ 
+    # mimalloc
+    install_library(mimalloc "")
+ 
+    # tinygltf
+    install_library(tinygltf "")
+ 
+    # physfs
+    install_library(physfs "")
+ 
+    # IMGUI
+ 
+    # SPDLOG
+    install_library(spdlog "")
+ 
+    # STB 这个得手写cmake
+    # install_library(stb "")
+ 
+    # VOLK
+    install_library(volk -DVOLK_INSTALL=ON)
+ 
+    # VULKAN
+    find_package(Vulkan REQUIRED)
+ 
+    # VMA
+    install_library(VulkanMemoryAllocator "")
+
     # fmt
-    set(FMT_INSTALL ON)
-    add_subdirectory(fmt)
+    install_library(fmt -DFMT_INSTALL=ON)
 
     # gflags
-    set(BUILD_SHARED_LIBS ON)
-    set(BUILD_gflags_LIB ON)
-    set(INSTALL_SHARED_LIBS ON)
-    set(BUILD_gflags_nothreads_LIB OFF)
-    add_subdirectory(gflags-2.2.2)
+    install_library(gflags-2.2.2 -DBUILD_gflags_LIB=ON -DBUILD_SHARED_LIBS=ON -DINSTALL_SHARED_LIBS=ON)
 
-    # glog
-    add_subdirectory(glog-0.6.0)
+    # double conversion -> folly
+    install_library(double-conversion "")
 
-    # double conversion
-    # add_subdirectory(double-conversion)
+    # libunwind -> glog
+    if(__LINUX__)
+        install_library(libunwind-1.6.2 "")
+    endif()
 
-    # Folly
-    # add_subdirectory(folly_2023_02_13)
+    # openssl -> folly
+
+    # zlib -> folly
+    install_library(zlib-1.2.13 "")
+
+    # lz4 -> folly
+    install_library(lz4-1.9.4 "")
+
+    # zstd -> folly
+
+    # snappy -> folly
+
+    # =======================================================================
+    # 2级库(依赖1级库)
+    # =======================================================================
+    # libevent(openssl) -> folly
+    install_library(libevent-2.1.12 "")
+
+    # glog -> folly
+    install_library(glog-0.6.0 "")
+
+    # =======================================================================
+    # 3级库(依赖2级库, 1级库)
+    # =======================================================================
+    # folly
 
     # FreeType
 
