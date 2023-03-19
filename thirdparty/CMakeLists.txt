@@ -1,6 +1,5 @@
 if(${BUILD_THIRDPARTY})
     # .\b2.exe address-model=64 --build-dir=build toolset=msvc-14.2 --build-type=complete stage install --prefix=install
-
     include(install_script.cmake)
     # 0级库(意味着一定要提前编译好
     #       因为boost有他自己独有的编译机制,无法直接从source编译,
@@ -70,13 +69,13 @@ if(${BUILD_THIRDPARTY})
     # endif()
 
     # openssl -> folly
-    # mingw_install_library(openssl-3.1.0)
+    mingw_install_library(openssl_1_1_1t --openssldir=${CMAKE_INSTALL_PREFIX}/openssl)
 
     # zlib -> folly
     install_library(zlib-1.2.13 "")
 
     # lz4 -> folly
-    install_library(lz4-1.9.4 "")
+    # install_library(lz4-1.9.4 "")
 
     # zstd -> folly
 
