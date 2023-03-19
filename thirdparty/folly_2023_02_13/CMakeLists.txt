@@ -392,9 +392,13 @@ add_library(folly_base OBJECT
   ${folly_base_files}
   ${CMAKE_CURRENT_BINARY_DIR}/folly/folly-config.h
 )
+
 if (BUILD_SHARED_LIBS)
-  set_property(TARGET folly_base PROPERTY POSITION_INDEPENDENT_CODE ON)
+  # set_property(TARGET folly_base PROPERTY POSITION_INDEPENDENT_CODE ON)
+  # 对于Folly来说这个动态库根本没意义(没有导出), 而且会导致编译错误
+  set(BUILD_SHARED_LIBS OFF)
 endif()
+
 auto_source_group(folly ${FOLLY_DIR} ${files} ${hfiles})
 apply_folly_compile_options_to_target(folly_base)
 # Add the generated files to the correct source group.
@@ -413,7 +417,7 @@ target_include_directories(folly_deps
 )
 target_include_directories(folly_deps
   INTERFACE
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_include_directories(folly_base
@@ -458,15 +462,15 @@ list(APPEND FOLLY_INSTALL_TARGETS folly_test_util)
 
 install(TARGETS ${FOLLY_INSTALL_TARGETS}
   EXPORT folly
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
-  ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 auto_install_files(folly ${FOLLY_DIR}
   ${hfiles}
 )
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/folly/folly-config.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/folly
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/folly
   COMPONENT dev
 )
 
@@ -477,19 +481,19 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(
   CMake/folly-config.cmake.in
   folly-config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DIR}
+  INSTALL_DESTINATION  ${CMAKE_INSTALL_LIBDIR}/folly
   PATH_VARS
     INCLUDE_INSTALL_DIR
     CMAKE_INSTALL_DIR
 )
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/folly-config.cmake
-  DESTINATION ${CMAKE_INSTALL_DIR}
+  DESTINATION  ${CMAKE_INSTALL_LIBDIR}/folly
   COMPONENT dev
 )
 install(
   EXPORT folly
-  DESTINATION ${CMAKE_INSTALL_DIR}
+  DESTINATION  ${CMAKE_INSTALL_LIBDIR}/folly
   NAMESPACE Folly::
   FILE folly-targets.cmake
   COMPONENT dev
@@ -518,7 +522,7 @@ file(
 )
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/libfolly.pc
-  DESTINATION ${LIB_INSTALL_DIR}/pkgconfig
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/folly/pkgconfig
   COMPONENT dev
 )
 

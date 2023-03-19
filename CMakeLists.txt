@@ -68,10 +68,10 @@ mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 set(CMAKE_BUILD_TYPE Debug)
 
 # 定义渲染后端
-set(RENDER_API_BACKEND GLFW)
+# set(RENDER_API_BACKEND GLFW)
 
 # 定义渲染API平台
-set(RENDER_API_PLATFORM OpenGL)
+# set(RENDER_API_PLATFORM OpenGL)
 
 # 设置架构
 message(STATUS "CMAKE_HOST_SYSTEM_NAME:      ${CMAKE_HOST_SYSTEM_NAME}")
@@ -105,6 +105,9 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
     add_definitions(-D__LINUX__)
     set(__LINUX__ 1)
 endif()
+
+# 设置库的编译架构
+set(CMAKE_LIBRARY_ARCHITECTURE ${PLATFORM_ARCH_PATH})
 
 # 设置安装目录
 # ==============================================================================

@@ -23,8 +23,8 @@ macro(install_library lib_name lib_defines)
         -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
         -DCMAKE_INSTALL_BINDIR=${CMAKE_INSTALL_BINDIR}
         -DCMAKE_INSTALL_INCLUDEDIR=${CMAKE_INSTALL_INCLUDEDIR}
-        -DBUILD_SHARED_LIBS=ON
         -DBUILD_STATIC_LIBS=ON
+        -DBUILD_SHARED_LIBS=ON
         -DENABLE_TESTING=OFF
         ${lib_defines}
     )

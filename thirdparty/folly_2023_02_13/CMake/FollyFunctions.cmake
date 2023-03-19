@@ -162,7 +162,7 @@ function(auto_install_files rootName rootDir)
       math(EXPR filePathLength "${filePathLength} - ${rootDirLength}")
       string(SUBSTRING "${filePath}" ${rootDirLength} ${filePathLength} fileGroup)
       install(FILES ${fil}
-              DESTINATION ${INCLUDE_INSTALL_DIR}/${rootName}${fileGroup})
+              DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${rootName}${fileGroup})
     endif()
   endforeach()
 endfunction()

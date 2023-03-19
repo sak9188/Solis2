@@ -54,7 +54,7 @@ macro(export_install_target TYPE LIB_NAME OUTER_INCLUDES)
             set(OUTER_INCS ${OUTER_INCLUDES})
         endif()
         target_include_directories("${LIB_NAME}_${TYPE}"
-            PUBLIC  "$<INSTALL_INTERFACE:include>"
+            PUBLIC  "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
                     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
                     "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
                     ${OUTER_INCS}

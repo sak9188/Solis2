@@ -85,19 +85,23 @@ if(${BUILD_THIRDPARTY})
     # snappy -> folly
 
     # libevent(openssl) -> folly
-    install_library(libevent-2.1.12 -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR})
+    # install_library(libevent-2.1.12 -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR})
 
     # =======================================================================
     # 2级库(依赖1级库)
     # =======================================================================
     # glog -> folly
-    install_library(glog-0.6.0 "")
+    # install_library(glog-0.6.0 "")
 
     # =======================================================================
     # 3级库(依赖2级库, 1级库)
     # =======================================================================
     # folly
-    install_library(folly -DBUILD_TESTS=OFF)
+    # install_library(folly_2023_02_13
+    # "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;
+    # -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};
+    # -DBUILD_SHARED_LIBS=OFF;
+    # -DCMAKE_PREFIX_PATH=${CMAKE_INSTALL_LIBDIR_FULL}/../;")
 
     # FreeType
 

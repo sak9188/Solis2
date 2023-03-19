@@ -128,8 +128,8 @@ if(CONFIG_FOR_INSTALL_TREE)
     # Find libraries
     macro(find_event_lib _comp)
         unset(_event_lib CACHE)
-        find_library(_event_lib
-                    NAMES "event_${_comp}"
+        find_file(_event_lib
+                    NAMES "event_${_comp}.lib" "event_${_comp}.a"
                     PATHS "${_INSTALL_PREFIX}/lib"
                     NO_DEFAULT_PATH)
         if(_event_lib)
