@@ -1,3 +1,8 @@
+# 这里以后需要变成python版本的一键install脚本
+# 原因在于，cmake启动以后本身拥有的环境变量就不太好控制了
+# 如果在Windows平台下，编译类unix平台的库, 那么就会在Make阶段找错编译器路径
+# 这个是非常难调整的
+
 if(__WIN__)
     set(CMAKE_BUILD_TOOLS "Visual Studio 16 2019")
 elseif(__ANDROID__)
@@ -8,8 +13,6 @@ elseif(__LINUX__)
 elseif(__MAC__)
     set(CMAKE_BUILD_TOOLS "Unix Makefiles")
 endif()
-
-
 
 macro(install_library lib_name lib_defines)
     message(STATUS "build_library: ${lib_name}")

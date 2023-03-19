@@ -12,9 +12,9 @@ endmacro()
 
 macro(generate_pkgconfig LIB_NAME)
     set(prefix      ${CMAKE_INSTALL_PREFIX})
-    set(exec_prefix ${CMAKE_INSTALL_PREFIX})
-    set(libdir      ${CMAKE_INSTALL_PREFIX}/lib)
-    set(includedir  ${CMAKE_INSTALL_PREFIX}/include)
+    set(exec_prefix ${CMKAE_INSTALL_BINDIR})
+    set(libdir      ${CMAKE_INSTALL_LIBDIR})
+    set(includedir  ${CMAKE_INSTALL_INCLUDEDIR})
 
     set(VERSION ${EVENT_ABI_LIBVERSION})
 
@@ -31,7 +31,7 @@ macro(generate_pkgconfig LIB_NAME)
     configure_file("lib${LIB_NAME}.pc.in" "lib${LIB_NAME}.pc" @ONLY)
     install(
         FILES "${CMAKE_CURRENT_BINARY_DIR}/lib${LIB_NAME}.pc"
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
     )
 endmacro()
 
@@ -40,9 +40,9 @@ endmacro()
 macro(export_install_target TYPE LIB_NAME OUTER_INCLUDES)
     if("${LIB_NAME}" STREQUAL "event")
         install(TARGETS "${LIB_NAME}_${TYPE}"
-            LIBRARY DESTINATION "lib" COMPONENT lib
-            ARCHIVE DESTINATION "lib" COMPONENT lib
-            RUNTIME DESTINATION "lib" COMPONENT lib
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT lib
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT lib
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT lib
             COMPONENT dev
         )
     else()
@@ -67,9 +67,9 @@ macro(export_install_target TYPE LIB_NAME OUTER_INCLUDES)
         )
         install(TARGETS "${LIB_NAME}_${TYPE}"
             EXPORT LibeventTargets-${TYPE}
-            LIBRARY DESTINATION "lib" COMPONENT lib
-            ARCHIVE DESTINATION "lib" COMPONENT lib
-            RUNTIME DESTINATION "lib" COMPONENT lib
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT lib
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT lib
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT lib
             COMPONENT dev
         )
     endif()
