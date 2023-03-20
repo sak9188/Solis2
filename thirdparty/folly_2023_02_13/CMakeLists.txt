@@ -460,6 +460,9 @@ target_link_libraries(folly_test_util
 apply_folly_compile_options_to_target(folly_test_util)
 list(APPEND FOLLY_INSTALL_TARGETS folly_test_util)
 
+set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR})
+set(CMAKE_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/folly)
+
 install(TARGETS ${FOLLY_INSTALL_TARGETS}
   EXPORT folly
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -468,32 +471,33 @@ install(TARGETS ${FOLLY_INSTALL_TARGETS}
 auto_install_files(folly ${FOLLY_DIR}
   ${hfiles}
 )
+
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/folly/folly-config.h
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/folly
+  DESTINATION ${INCLUDE_INSTALL_DIR}/folly
   COMPONENT dev
 )
-
 # Generate the folly-config.cmake file for installation so that
 # downstream projects that use on folly can easily depend on it in their CMake
 # files using "find_package(folly CONFIG)"
+
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
   CMake/folly-config.cmake.in
   folly-config.cmake
-  INSTALL_DESTINATION  ${CMAKE_INSTALL_LIBDIR}/folly
+  INSTALL_DESTINATION  ${CMAKE_INSTALL_DIR}
   PATH_VARS
     INCLUDE_INSTALL_DIR
     CMAKE_INSTALL_DIR
 )
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/folly-config.cmake
-  DESTINATION  ${CMAKE_INSTALL_LIBDIR}/folly
+  DESTINATION  ${CMAKE_INSTALL_DIR}
   COMPONENT dev
 )
 install(
   EXPORT folly
-  DESTINATION  ${CMAKE_INSTALL_LIBDIR}/folly
+  DESTINATION  ${CMAKE_INSTALL_DIR}
   NAMESPACE Folly::
   FILE folly-targets.cmake
   COMPONENT dev
@@ -520,9 +524,10 @@ file(
   INPUT ${CMAKE_CURRENT_BINARY_DIR}/libfolly.pc.gen
   ${target_arg}
 )
+
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/libfolly.pc
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/folly/pkgconfig
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
   COMPONENT dev
 )
 

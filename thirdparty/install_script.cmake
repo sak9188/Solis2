@@ -26,6 +26,9 @@ macro(install_library lib_name lib_defines)
         -DBUILD_STATIC_LIBS=ON
         -DBUILD_SHARED_LIBS=ON
         -DENABLE_TESTING=OFF
+        -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
+        -DCMAKE_INCLUDE_PATH=${CMAKE_PREFIX_PATH}/include
+        -DCMAKE_LIBRARY_PATH=${CMAKE_PREFIX_PATH}/lib
         ${lib_defines}
     )
 

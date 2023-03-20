@@ -38,7 +38,7 @@ if(${BUILD_THIRDPARTY})
     # install_library(mimalloc "")
  
     # # tinygltf
-    # install_library(tinygltf "")
+    # install_library(tinygltf -DBUILD_SHARED_LIBS=OFF)
  
     # # physfs
     # install_library(physfs "")
@@ -64,7 +64,11 @@ if(${BUILD_THIRDPARTY})
     # install_library(fmt -DFMT_INSTALL=ON)
 
     # # gflags
-    # install_library(gflags-2.2.2 -DBUILD_gflags_LIB=ON -DBUILD_SHARED_LIBS=ON -DINSTALL_SHARED_LIBS=ON)
+    install_library(gflags-2.2.2 "
+    -DBUILD_gflags_LIB=ON;
+    -DBUILD_SHARED_LIBS=ON;
+    -DINSTALL_SHARED_LIBS=ON;
+    ")
 
     # # double conversion -> folly
     # install_library(double-conversion "")
@@ -98,10 +102,7 @@ if(${BUILD_THIRDPARTY})
     # =======================================================================
     # folly
     # install_library(folly_2023_02_13
-    # "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;
-    # -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};
-    # -DBUILD_SHARED_LIBS=OFF;
-    # -DCMAKE_PREFIX_PATH=${CMAKE_INSTALL_LIBDIR_FULL}/../;")
+    # "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
 
     # FreeType
 
@@ -110,43 +111,32 @@ if(${BUILD_THIRDPARTY})
     # TracyClient
 else()
     # ctti
-    set(ctti_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/ctti CACHE INTERNAL "")
     find_package(ctti CONFIG REQUIRED)
 
     # mimalloc
-    set(mimalloc_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/mimalloc-2.0 CACHE INTERNAL "")
     find_package(mimalloc CONFIG REQUIRED)
 
     # GLM
-    set(glm_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glm CACHE INTERNAL "")
     find_package(glm CONFIG REQUIRED)
 
     # VOLK
-    set(volk_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/volk CACHE INTERNAL "")
     find_package(volk CONFIG REQUIRED)
 
     # glfw
-    set(glfw3_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glfw3 CACHE INTERNAL "")
     find_package(glfw3 CONFIG REQUIRED)
 
     # FMT
-    set(fmt_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/fmt CACHE INTERNAL "")
     find_package(fmt CONFIG REQUIRED)
 
     # Boost
-    set(BOOST_VERSION 1.78.0)
-    set(Boost_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/Boost-${BOOST_VERSION} CACHE INTERNAL "")
     find_package(Boost CONFIG REQUIRED)
 
     # folly
-    set(folly_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/folly CACHE INTERNAL "")
     find_package(folly CONFIG REQUIRED)
 
     # glslang
-    set(glslang_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake/glslang CACHE INTERNAL "")
     find_package(glslang CONFIG REQUIRED)
 
     # tinygltf
-    set(TinyGLTF_DIR ${CMAKE_INSTALL_LIBDIR_FULL}/cmake CACHE INTERNAL "")
     find_package(TinyGLTF CONFIG REQUIRED)
 endif()

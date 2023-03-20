@@ -107,7 +107,7 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
 endif()
 
 # 设置库的编译架构
-set(CMAKE_LIBRARY_ARCHITECTURE ${PLATFORM_ARCH_PATH})
+# set(CMAKE_LIBRARY_ARCHITECTURE ${PLATFORM_ARCH_PATH})
 
 # 设置安装目录
 # ==============================================================================
@@ -119,6 +119,9 @@ set(CMAKE_INSTALL_LIBDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_BINDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 set(CMAKE_INSTALL_INCLUDEDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
 # ==============================================================================
+
+# set prefix path
+set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE})
 
 # 是否编译第三方库
 set(BUILD_THIRDPARTY ON)
