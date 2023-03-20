@@ -30,6 +30,8 @@ set(FOLLY_LIBRARIES Folly::folly)
 # Find folly's dependencies
 find_dependency(fmt)
 
+find_dependency(gflags)
+
 set(Boost_USE_STATIC_LIBS "@FOLLY_BOOST_LINK_STATIC@")
 find_dependency(Boost 1.51.0 MODULE
   COMPONENTS

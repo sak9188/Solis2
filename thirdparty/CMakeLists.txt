@@ -64,11 +64,11 @@ if(${BUILD_THIRDPARTY})
     # install_library(fmt -DFMT_INSTALL=ON)
 
     # # gflags
-    install_library(gflags-2.2.2 "
-    -DBUILD_gflags_LIB=ON;
-    -DBUILD_SHARED_LIBS=ON;
-    -DINSTALL_SHARED_LIBS=ON;
-    ")
+    # install_library(gflags-2.2.2 "
+    # -DBUILD_gflags_LIB=ON;
+    # -DBUILD_SHARED_LIBS=ON;
+    # -DINSTALL_SHARED_LIBS=ON;
+    # ")
 
     # # double conversion -> folly
     # install_library(double-conversion "")
@@ -101,8 +101,8 @@ if(${BUILD_THIRDPARTY})
     # 3级库(依赖2级库, 1级库)
     # =======================================================================
     # folly
-    # install_library(folly_2023_02_13
-    # "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
+    install_library(folly_2023_02_13
+    "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
 
     # FreeType
 
@@ -130,6 +130,13 @@ else()
 
     # Boost
     find_package(Boost CONFIG REQUIRED)
+
+    # gflags
+    set(GFLAGS_USE_TARGET_NAMESPACE ON)
+    find_package(gflags REQUIRED)
+    if(TARGET gflags)
+        set(GFLAGS_LIBRARIES gflags)
+    endif()
 
     # folly
     find_package(folly CONFIG REQUIRED)
