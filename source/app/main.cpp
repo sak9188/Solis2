@@ -221,12 +221,9 @@ int main(int argc, char **argv)
             Log::SError("Object Class Name: {} is leaked! pointer: {}", name, pointer);
         }
     }
+
     ObjectBase::Clear();
     google::ShutdownGoogleLogging();
-
-    // 这里因为引用了folly库，folly库又引用gflags和glog，导致这里的内存无法被手动释放干净
-    // 大概有30k左右
-    MemoryDebuger::StatusMemory();
 
 #if defined(_DEBUG)
     // 这里的内存泄露是查的最准的，因为这里没有算加载glog和gflags的导致增加的内存
