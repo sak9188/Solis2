@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 
         while (!glfwWindowShouldClose(window))
         {
-            FB_LOG_EVERY_MS(WARNING, 1000) << "Test";
+            // FB_LOG_EVERY_MS(WARNING, 1000) << "Test";
             glfwGetFramebufferSize(window, &windowSize.x, &windowSize.y);
             while (windowSize.x == 0 || windowSize.y == 0)
             {
