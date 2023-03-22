@@ -1,22 +1,26 @@
 #include "core/graphics/pipeline/pipeline_graphics.hpp"
 #include "core/graphics/logical_device.hpp"
+#include "core/graphics/image/image.hpp"
 
 #include "core/log/log.hpp"
 
 #include "core/data/mesh.hpp"
+#include "core/data/texture.hpp"
 
 namespace solis {
 namespace graphics {
 PipelineGraphics::PipelineGraphics()
 {
-    VkDescriptorPoolSize poolSize = {};
-    poolSize.type                 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount      = MaxFrameInFlight; // 这里要根据shader的descriptor数量来设置 * 3
+    std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+    poolSizes[0].type                             = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount                  = MaxFrameInFlight;
+    poolSizes[1].type                             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[1].descriptorCount                  = MaxFrameInFlight;
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount              = 1;
-    poolInfo.pPoolSizes                 = &poolSize;
+    poolInfo.poolSizeCount              = poolSizes.size();
+    poolInfo.pPoolSizes                 = poolSizes.data();
     poolInfo.maxSets                    = MaxFrameInFlight; // todo: 这里要根据shader的descriptor数量来设置 *
 
     Graphics::CheckVk(vkCreateDescriptorPool(*Graphics::Get()->GetLogicalDevice(), &poolInfo, nullptr, &mDescriptorPool));
@@ -29,10 +33,20 @@ PipelineGraphics::PipelineGraphics()
     uboLayoutBinding.pImmutableSamplers = nullptr;
     uboLayoutBinding.stageFlags         = VK_SHADER_STAGE_VERTEX_BIT; // 这里需要根据具体的shader来设置
 
+    // sampler layout
+    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+    samplerLayoutBinding.binding            = 0;
+    samplerLayoutBinding.descriptorCount    = 1; // todo: 这里要根据shader的descriptor数量来设置
+    samplerLayoutBinding.descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding.pImmutableSamplers = nullptr;
+    samplerLayoutBinding.stageFlags         = VK_SHADER_STAGE_FRAGMENT_BIT; // 这里需要根据具体的shader来设置
+
+    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
+
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1; // todo: 这里应该通过反射来获取
-    layoutInfo.pBindings    = &uboLayoutBinding;
+    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size()); // todo: 这里应该通过反射来获取
+    layoutInfo.pBindings    = bindings.data();
 
     Graphics::CheckVk(vkCreateDescriptorSetLayout(*Graphics::Get()->GetLogicalDevice(), &layoutInfo, nullptr, &mDescriptorSetLayout));
 
@@ -44,7 +58,7 @@ PipelineGraphics::PipelineGraphics()
     allocInfo.descriptorSetCount = layouts.size(); // todo: 这里要根据shader的descriptor数量来设置
     allocInfo.pSetLayouts        = layouts.data();
 
-    mDescriptorSets.resize(MaxFrameInFlight); // 这里其实是有问题的 MaxFrameInFlight * Shader中的实际数量
+    mDescriptorSets.resize(MaxFrameInFlight);
     Graphics::CheckVk(vkAllocateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), &allocInfo, mDescriptorSets.data()));
 }
 
@@ -250,6 +264,34 @@ Buffer &PipelineGraphics::GetUniformBuffer(const Swapchain *swapchain, size_t in
     }
 
     return ubo;
+}
+
+// 暂时这么做， 以后再改
+void PipelineGraphics::BindTexture(Texture &texture)
+{
+    if (mTexture != &texture)
+    {
+        mTexture = &texture;
+
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView   = texture.GetImage().GetView();
+        imageInfo.sampler     = texture.GetImage().GetSampler();
+
+        for (auto &descriptorSet : mDescriptorSets)
+        {
+            VkWriteDescriptorSet descriptorWrite{};
+            descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.dstSet          = descriptorSet;
+            descriptorWrite.dstBinding      = 0;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pImageInfo      = &imageInfo;
+
+            vkUpdateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), 1, &descriptorWrite, 0, nullptr);
+        }
+    }
 }
 }
 } // namespace solis::graphics

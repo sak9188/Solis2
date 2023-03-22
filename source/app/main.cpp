@@ -14,6 +14,7 @@
 #include "core/graphics/command/command_buffer.hpp"
 
 #include "core/data/model.hpp"
+#include "core/data/texture.hpp"
 
 #include "GLFW/glfw3.h"
 
@@ -105,12 +106,11 @@ void CleanupWindow()
 
 int main(int argc, char **argv)
 {
-    MemoryDebuger memoryDebuger;
     _CrtMemCheckpoint(&s1);
 
-    google::InitGoogleLogging(argv[0]);
-    FLAGS_logtostderr      = true;
-    FLAGS_colorlogtostderr = true;
+    // google::InitGoogleLogging(argv[0]);
+    // FLAGS_logtostderr      = true;
+    // FLAGS_colorlogtostderr = true;
 
     InitWindow();
 
@@ -154,7 +154,9 @@ int main(int argc, char **argv)
 
     // Model sponzamodel{"./gltfs/sponza/Sponza.gltf"};
     {
-        Model sponzamodel{"./gltfs/cube/cube.gltf"};
+        Model   sponzamodel{"./gltfs/cube/cube.gltf"};
+        Texture texture("./gltfs/cube/test.jpg");
+        pipeline.BindTexture(texture);
 
         CommandBuffer buffer;
         Swapchain    &swapchain = engine.GetSwapchain();
@@ -184,22 +186,24 @@ int main(int argc, char **argv)
             buffer.Begin();
             buffer.BeginRenderPass(swapchain);
             buffer.BindPipeline(&pipeline);
-            auto &ubo = pipeline.GetUniformBuffer(&swapchain, swapchain.GetActiveImageIndex());
 
             // ubo
+            // auto &ubo = pipeline.GetUniformBuffer(&swapchain, swapchain.GetActiveImageIndex());
             // buffer->BindUniformBuffer(0, 0, pipeline->GetUniformBuffer(swapchain.GetImageIndex()));
 
-            static auto startTime   = std::chrono::high_resolution_clock::now();
-            auto        currentTime = std::chrono::high_resolution_clock::now();
-            float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+            // static auto startTime   = std::chrono::high_resolution_clock::now();
+            // auto        currentTime = std::chrono::high_resolution_clock::now();
+            // float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-            auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            auto view  = glm::lookAt(CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            auto proj  = glm::perspective(glm::radians(45.0f), windowSize.x / (float)windowSize.y, 0.1f, 10.0f);
-            proj[1][1] *= -1;
+            // auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            // auto view  = glm::lookAt(CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            // auto proj  = glm::perspective(glm::radians(45.0f), windowSize.x / (float)windowSize.y, 0.1f, 10.0f);
+            // proj[1][1] *= -1;
 
-            auto mvp = proj * view * model;
-            ubo.Update(&mvp, sizeof(mvp));
+            // auto mvp = proj * view * model;
+            // ubo.Update(&mvp, sizeof(mvp));
+
+            // sampler
 
             buffer.SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
             buffer.SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
@@ -223,7 +227,7 @@ int main(int argc, char **argv)
     }
 
     ObjectBase::Clear();
-    google::ShutdownGoogleLogging();
+    // google::ShutdownGoogleLogging();
 
 #if defined(_DEBUG)
     // 这里的内存泄露是查的最准的，因为这里没有算加载glog和gflags的导致增加的内存

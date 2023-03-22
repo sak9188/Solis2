@@ -1,3 +1,24 @@
+project(stb LANGUAGES C)
+cmake_minimum_required(VERSION 3.0)
+
 add_library(stb INTERFACE)
 
-target_include_directories(stb INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(stb INTERFACE
+$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/>
+)
+
+install(TARGETS 
+stb EXPORT stb-targets
+INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT stb-targets
+FILE stb-config.cmake
+NAMESPACE stb::
+DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/stb
+)
+
+file(GLOB STB_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+
+install(FILES ${STB_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/stb)

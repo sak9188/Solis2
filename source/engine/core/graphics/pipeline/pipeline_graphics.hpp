@@ -11,6 +11,8 @@
 #include "core/graphics/buffer/buffer.hpp"
 
 namespace solis {
+
+class Texture;
 namespace graphics {
 
 class SOLIS_CORE_API PipelineGraphics : public Pipeline
@@ -62,6 +64,8 @@ public:
 
     virtual Buffer &GetUniformBuffer(const Swapchain *swapchain, size_t index) override;
 
+    virtual void BindTexture(Texture &texture);
+
 public:
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
 
@@ -73,6 +77,8 @@ public:
     VkPipeline          mPipeline          = VK_NULL_HANDLE;
     VkPipelineLayout    mPipelineLayout    = VK_NULL_HANDLE;
     VkPipelineBindPoint mPipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+    Texture *mTexture = nullptr;
 };
-}
-} // namespace solis::graphics
+} // namespace graphics
+} // namespace solis

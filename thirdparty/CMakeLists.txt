@@ -49,7 +49,7 @@ if(${BUILD_THIRDPARTY})
     # install_library(spdlog "")
  
     # # STB 这个得手写cmake
-    # # install_library(stb "")
+    install_library(stb "")
  
     # # VOLK
     # install_library(volk -DVOLK_INSTALL=ON)
@@ -101,8 +101,8 @@ if(${BUILD_THIRDPARTY})
     # 3级库(依赖2级库, 1级库)
     # =======================================================================
     # folly
-    install_library(folly_2023_02_13
-    "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
+    # install_library(folly_2023_02_13
+    # "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
 
     # FreeType
 
@@ -132,11 +132,10 @@ else()
     find_package(Boost CONFIG REQUIRED)
 
     # gflags
-    set(GFLAGS_USE_TARGET_NAMESPACE ON)
     find_package(gflags REQUIRED)
-    if(TARGET gflags)
-        set(GFLAGS_LIBRARIES gflags)
-    endif()
+
+    # stb
+    find_package(stb CONFIG REQUIRED)
 
     # folly
     find_package(folly CONFIG REQUIRED)

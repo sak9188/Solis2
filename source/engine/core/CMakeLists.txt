@@ -47,6 +47,7 @@ find_package(glm CONFIG REQUIRED)
 find_package(folly CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(glslang CONFIG REQUIRED)
+find_package(stb CONFIG REQUIRED)
 
 if(__WIN__)
     target_compile_definitions(
@@ -65,6 +66,7 @@ target_link_libraries(
         glm::glm # static
         Folly::folly # static
     PRIVATE
+        stb::stb # interface
         mimalloc-static # static
         glslang::glslang # static
         glslang::OGLCompiler # static
