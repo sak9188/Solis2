@@ -22,13 +22,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL CallbackDebug(VkDebugUtilsMessageSeverityFlagBits
                                              const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData)
 {
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-        Log::SWarning(pCallbackData->pMessage);
+        Log::SWarning("[VKL]>{}", pCallbackData->pMessage);
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
-        Log::SInfo(pCallbackData->pMessage);
+        Log::SInfo("[VKL]>{}", pCallbackData->pMessage);
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-        Log::SError(pCallbackData->pMessage);
+        Log::SError("[VKL]>{}", pCallbackData->pMessage);
     else
-        Log::SInfo(pCallbackData->pMessage);
+        Log::SInfo("[VKL]>{}", pCallbackData->pMessage);
 
     return VK_FALSE;
 }
@@ -173,6 +173,9 @@ void Instance::CreateInstance()
         debugUtilsMessengerCreateInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         debugUtilsMessengerCreateInfo.pfnUserCallback = &CallbackDebug;
         instanceCreateInfo.pNext                      = static_cast<VkDebugUtilsMessengerCreateInfoEXT *>(&debugUtilsMessengerCreateInfo);
+
+        instanceCreateInfo.enabledLayerCount   = static_cast<uint32_t>(ValidationLayers.size());
+        instanceCreateInfo.ppEnabledLayerNames = ValidationLayers.data();
     }
 
     Graphics::CheckVk(vkCreateInstance(&instanceCreateInfo, nullptr, &mInstance));
