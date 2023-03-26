@@ -152,11 +152,14 @@ int main(int argc, char **argv)
     shader.CreateShaderModule("./shaders/sponza/sponza.frag", Shader::Type::Fragment);
     pipeline.Build(renderPass);
 
-    // Model sponzamodel{"./gltfs/sponza/Sponza.gltf"};
     {
         Model   sponzamodel{"./gltfs/cube/cube.gltf"};
-        Texture texture("./gltfs/cube/test.jpg");
-        pipeline.BindTexture(texture);
+        Texture texture("./gltfs/cube/swap.jpg");
+        // pipeline.BindUniform(0);
+        // pipeline.BindTexture(texture, 1);
+        // pipeline.UpdateBinding();
+        pipeline.InitUniformBuffers(sizeof(UniformBufferObject));
+        pipeline.BindEverything(texture, 1);
 
         CommandBuffer buffer;
         Swapchain    &swapchain = engine.GetSwapchain();
@@ -188,21 +191,21 @@ int main(int argc, char **argv)
             buffer.BindPipeline(&pipeline);
 
             // ubo
-            // auto &ubo = pipeline.GetUniformBuffer(&swapchain, swapchain.GetActiveImageIndex());
             // buffer->BindUniformBuffer(0, 0, pipeline->GetUniformBuffer(swapchain.GetImageIndex()));
+            auto &ubo = pipeline.GetUniformBuffer(swapchain.GetActiveImageIndex());
 
-            // static auto startTime   = std::chrono::high_resolution_clock::now();
-            // auto        currentTime = std::chrono::high_resolution_clock::now();
-            // float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+            static auto startTime   = std::chrono::high_resolution_clock::now();
+            auto        currentTime = std::chrono::high_resolution_clock::now();
+            float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-            // auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            // auto view  = glm::lookAt(CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            // auto proj  = glm::perspective(glm::radians(45.0f), windowSize.x / (float)windowSize.y, 0.1f, 10.0f);
-            // proj[1][1] *= -1;
+            auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            auto view  = glm::lookAt(CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            auto proj  = glm::perspective(glm::radians(90.0f), windowSize.x / (float)windowSize.y, 0.1f, 10000.0f);
+            proj[1][1] *= -1;
 
-            // auto mvp = proj * view * model;
-            // ubo.Update(&mvp, sizeof(mvp));
-
+            auto mvp = proj * view * model;
+            // auto mvp = proj * view;
+            ubo.Update(&mvp, sizeof(mvp));
             // sampler
 
             buffer.SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});

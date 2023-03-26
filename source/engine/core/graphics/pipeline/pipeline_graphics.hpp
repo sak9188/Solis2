@@ -62,17 +62,17 @@ public:
         return mDescriptorSets;
     }
 
-    virtual Buffer &GetUniformBuffer(const Swapchain *swapchain, size_t index) override;
+    // virtual Buffer &GetUniformBuffer(const Swapchain *swapchain, size_t index) override;
+    // virtual void BindTexture(Texture &texture);
 
-    virtual void BindTexture(Texture &texture);
+    virtual void BindEverything(Texture &texture, size_t tetIndex);
 
 public:
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();
 
-    VkDescriptorSetLayout      mDescriptorSetLayout = VK_NULL_HANDLE;
-    VkDescriptorPool           mDescriptorPool      = VK_NULL_HANDLE;
-    vector<VkDescriptorSet>    mDescriptorSets;
-    std::unordered_set<size_t> mDirtyDescriptorSets;
+    VkDescriptorSetLayout   mDescriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorPool        mDescriptorPool      = VK_NULL_HANDLE;
+    vector<VkDescriptorSet> mDescriptorSets;
 
     VkPipeline          mPipeline          = VK_NULL_HANDLE;
     VkPipelineLayout    mPipelineLayout    = VK_NULL_HANDLE;

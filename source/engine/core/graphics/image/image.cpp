@@ -41,6 +41,37 @@ Image::Image(VkExtent2D extent, VkFormat format, VkSampleCountFlagBits samples, 
     allocInfo.memoryTypeIndex      = Buffer::FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     Graphics::CheckVk(vkAllocateMemory(*logicalDevice, &allocInfo, nullptr, &mMemory));
     Graphics::CheckVk(vkBindImageMemory(*logicalDevice, mImage, mMemory, 0));
+
+    // Image View
+    VkImageViewCreateInfo viewInfo           = {};
+    viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    viewInfo.image                           = mImage;
+    viewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format                          = mFormat;
+    viewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewInfo.subresourceRange.baseMipLevel   = 0;
+    viewInfo.subresourceRange.levelCount     = 1;
+    viewInfo.subresourceRange.baseArrayLayer = 0;
+    viewInfo.subresourceRange.layerCount     = 1;
+    Graphics::CheckVk(vkCreateImageView(*logicalDevice, &viewInfo, nullptr, &mView));
+
+    // Sampler
+    VkSamplerCreateInfo samplerInfo     = {};
+    samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter               = mFilter;
+    samplerInfo.minFilter               = mFilter;
+    samplerInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.anisotropyEnable        = VK_TRUE;
+    samplerInfo.maxAnisotropy           = Graphics::Get()->GetPhysicalDevice()->GetProperties().limits.maxSamplerAnisotropy;
+    samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable           = VK_FALSE;
+    samplerInfo.compareOp               = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+    Graphics::CheckVk(vkCreateSampler(*logicalDevice, &samplerInfo, nullptr, &mSampler));
 }
 Image::Image(VkExtent3D extent, VkFormat format, VkSampleCountFlagBits samples, VkImageTiling tiling, VkImageUsageFlags usage, VkFilter filter) :
     mExtent(extent), mFormat(format), mFilter(filter), mSamples(samples), mUsage(usage)
@@ -103,6 +134,12 @@ void Image::Update(const Buffer &buffer)
 
     CommandBuffer commandBuffer;
 
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
     VkBufferImageCopy region = {};
     region.bufferOffset      = 0;
     region.bufferRowLength   = 0;
@@ -118,36 +155,18 @@ void Image::Update(const Buffer &buffer)
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-    // Image View
-    VkImageViewCreateInfo viewInfo           = {};
-    viewInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image                           = mImage;
-    viewInfo.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format                          = mFormat;
-    viewInfo.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-    viewInfo.subresourceRange.baseMipLevel   = 0;
-    viewInfo.subresourceRange.levelCount     = 1;
-    viewInfo.subresourceRange.baseArrayLayer = 0;
-    viewInfo.subresourceRange.layerCount     = 1;
-    Graphics::CheckVk(vkCreateImageView(*logicalDevice, &viewInfo, nullptr, &mView));
+    vkEndCommandBuffer(commandBuffer);
 
-    // Sampler
-    VkSamplerCreateInfo samplerInfo     = {};
-    samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter               = mFilter;
-    samplerInfo.minFilter               = mFilter;
-    samplerInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable        = VK_TRUE;
-    samplerInfo.maxAnisotropy           = Graphics::Get()->GetPhysicalDevice()->GetProperties().limits.maxSamplerAnisotropy;
-    samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable           = VK_FALSE;
-    samplerInfo.compareOp               = VK_COMPARE_OP_ALWAYS;
-    samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &commandBuffer.GetCommandBuffer();
 
-    Graphics::CheckVk(vkCreateSampler(*logicalDevice, &samplerInfo, nullptr, &mSampler));
+    auto graphics      = Graphics::Get();
+    auto graphicsQueue = logicalDevice->GetGraphicsQueue();
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
 }
 
 void Image::TransitionLayout(VkImageLayout oldLayout, VkImageLayout newLayout,

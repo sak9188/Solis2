@@ -35,7 +35,7 @@ PipelineGraphics::PipelineGraphics()
 
     // sampler layout
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-    samplerLayoutBinding.binding            = 0;
+    samplerLayoutBinding.binding            = 1;
     samplerLayoutBinding.descriptorCount    = 1; // todo: 这里要根据shader的descriptor数量来设置
     samplerLayoutBinding.descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     samplerLayoutBinding.pImmutableSamplers = nullptr;
@@ -234,63 +234,43 @@ bool PipelineGraphics::Build(const RenderPass &renderPass, size_t subpassIndex)
     return true;
 }
 
-Buffer &PipelineGraphics::GetUniformBuffer(const Swapchain *swapchain, size_t index)
+// 暂时这么做， 以后再改
+void PipelineGraphics::BindEverything(Texture &texture, size_t index)
 {
-    auto &ubo = Pipeline::GetUniformBuffer(swapchain, index);
-
-    size_t hashUbo = std::hash<size_t>()(size_t(uintptr_t(ubo.GetBuffer()))) + index;
-
-    if (mDirtyDescriptorSets.find(hashUbo) == mDirtyDescriptorSets.end())
+    for (int i = 0; i < MaxFrameInFlight; i++)
     {
+        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+        auto &ubo = GetUniformBuffer(i);
+
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = ubo.GetBuffer();
         bufferInfo.offset = 0;
         bufferInfo.range  = ubo.GetSize();
 
-        VkWriteDescriptorSet descriptorWrite{};
-        descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet          = mDescriptorSets[index];
-        descriptorWrite.dstBinding      = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pBufferInfo     = &bufferInfo;
-
-        // 有些UnionBuffer
-        vkUpdateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), 1, &descriptorWrite, 0, nullptr);
-
-        // 加入hash中
-        mDirtyDescriptorSets.insert(hashUbo);
-    }
-
-    return ubo;
-}
-
-// 暂时这么做， 以后再改
-void PipelineGraphics::BindTexture(Texture &texture)
-{
-    if (mTexture != &texture)
-    {
-        mTexture = &texture;
+        descriptorWrites[0].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet          = mDescriptorSets[i];
+        descriptorWrites[0].dstBinding      = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pBufferInfo     = &bufferInfo;
 
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView   = texture.GetImage().GetView();
         imageInfo.sampler     = texture.GetImage().GetSampler();
 
-        for (auto &descriptorSet : mDescriptorSets)
-        {
-            VkWriteDescriptorSet descriptorWrite{};
-            descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrite.dstSet          = descriptorSet;
-            descriptorWrite.dstBinding      = 0;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pImageInfo      = &imageInfo;
+        descriptorWrites[1].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[1].dstSet          = mDescriptorSets[i];
+        descriptorWrites[1].dstBinding      = index;
+        descriptorWrites[1].dstArrayElement = 0;
+        descriptorWrites[1].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pImageInfo      = &imageInfo;
 
-            vkUpdateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), 1, &descriptorWrite, 0, nullptr);
-        }
+        // 有些UnionBuffer
+        vkUpdateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
     }
 }
 }

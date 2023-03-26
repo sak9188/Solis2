@@ -32,12 +32,15 @@ public:
     virtual const VkPipelineLayout        &GetPipelineLayout() const      = 0;
     virtual const VkPipelineBindPoint     &GetPipelineBindPoint() const   = 0;
 
-    void            InitUniformBuffers(const Swapchain *swapchain, size_t size, size_t count);
-    virtual Buffer &GetUniformBuffer(const Swapchain *swapchain, size_t index);
+    // 先不考虑swapchain
+    void            InitUniformBuffers(size_t size);
+    virtual Buffer &GetUniformBuffer(size_t index);
 
 private:
     // vector<Buffer> mUnionBuffers;
-    hash_map<size_t, vector<std::shared_ptr<Buffer>>> mUnionBufferMap{MaxSwapchain};
+    // hash_map<size_t, vector<std::shared_ptr<Buffer>>> mUnionBufferMap{MaxSwapchain};
+
+    vector<std::shared_ptr<Buffer>> mUnionBuffers;
 };
 }
 } // namespace solis::graphics

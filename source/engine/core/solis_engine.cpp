@@ -45,8 +45,7 @@ void Engine::Destroy()
     }
 
     IsDestroyEngine = true;
-
-    mSwapchain = nullptr;
+    mSwapchain      = nullptr;
 }
 
 int Engine::Run()

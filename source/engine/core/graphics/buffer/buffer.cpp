@@ -4,6 +4,8 @@
 #include "core/graphics/buffer/buffer.hpp"
 #include "core/graphics/command/command_buffer.hpp"
 
+#include "core/log/log.hpp"
+
 namespace solis {
 namespace graphics {
 
@@ -131,6 +133,8 @@ Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data) :
     {
         stageBuffer->CopyToBuffer(*this);
     }
+
+    Log::SDebug("Uniform Buffer created {}", (void *)this);
 }
 
 void Buffer::CopyToBuffer(Buffer &buffer)

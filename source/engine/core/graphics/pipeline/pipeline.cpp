@@ -16,47 +16,24 @@ Pipeline::~Pipeline()
 
 void Pipeline::Destroy()
 {
-    for (auto &pair : mUnionBufferMap)
+    for (auto &buffer : mUnionBuffers)
     {
-        for (auto &buffer : pair.second)
-        {
-            buffer->Destroy();
-        }
+        buffer->Destroy();
     }
-    mUnionBufferMap.clear();
+    mUnionBuffers.clear();
 }
 
-void Pipeline::InitUniformBuffers(const Swapchain *swapchain, size_t size, size_t count)
+void Pipeline::InitUniformBuffers(size_t size)
 {
-    auto it = mUnionBufferMap.find(size_t(uintptr_t(swapchain)));
-
-    if (it == mUnionBufferMap.end())
+    for (int i = 0; i < MaxFrameInFlight; ++i)
     {
-        auto pair = mUnionBufferMap.insert({size_t(uintptr_t(swapchain)), {}});
-        if (pair.second)
-        {
-            it = pair.first;
-        }
-
-        auto &unionBuffers = it->second;
-        unionBuffers.clear();
-        for (size_t i = 0; i < count; ++i)
-        {
-            unionBuffers.emplace_back(std::make_shared<Buffer>(Buffer::Type::Uniform, size));
-        }
+        mUnionBuffers.emplace_back(std::make_shared<Buffer>(Buffer::Type::Uniform, size));
     }
 }
 
-Buffer &Pipeline::GetUniformBuffer(const Swapchain *swapchain, size_t index)
+Buffer &Pipeline::GetUniformBuffer(size_t index)
 {
-    auto it = mUnionBufferMap.find(size_t(uintptr_t(swapchain)));
-
-    if (it == mUnionBufferMap.end())
-    {
-        return *(mUnionBufferMap.begin()->second[0]);
-    }
-
-    return *(it->second[index]);
+    return *mUnionBuffers[index];
 }
 }
 } // namespace solis::graphics

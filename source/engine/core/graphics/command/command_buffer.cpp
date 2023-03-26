@@ -86,8 +86,6 @@ void CommandBuffer::BindPipeline(Pipeline *pipeline)
         return;
 
     vkCmdBindPipeline(commandBuffer, pipeline->GetPipelineBindPoint(), pipeline->GetPipeline());
-
-    pipeline->InitUniformBuffers(mSwapchain, sizeof(UniformBufferObject), 1);
     mPipeline = pipeline;
 }
 
