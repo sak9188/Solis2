@@ -56,7 +56,7 @@ public:
     template <typename... Args>
     inline static void SInfo(const string &message, Args &&...args)
     {
-        static Log logger("Static", fg(fmt::color::white_smoke));
+        static Log logger("Static");
         logger.Info(message, std::forward<Args>(args)...);
     };
 
@@ -70,7 +70,7 @@ public:
     template <typename... Args>
     inline static void SError(const string &message, Args &&...args)
     {
-        static Log logger("Static", fg(fmt::color::red) | bg(fmt::color::black) | fmt::emphasis::bold);
+        static Log logger("Static", fg(fmt::color::red) | fmt::emphasis::bold);
         logger.Error(message, std::forward<Args>(args)...);
     };
 
