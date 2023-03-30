@@ -100,7 +100,7 @@ Buffer::Buffer(Type type, const VkDeviceSize &size, const void *data) :
     switch (type)
     {
     case Type::Vertex:
-        usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
         break;
     // TODO: 这里可能有问题

@@ -25,6 +25,7 @@ void Pipeline::Destroy()
 
 void Pipeline::InitUniformBuffers(size_t size)
 {
+    // TODO: Get from Graphics
     for (int i = 0; i < MaxFrameInFlight; ++i)
     {
         mUnionBuffers.emplace_back(std::make_shared<Buffer>(Buffer::Type::Uniform, size));

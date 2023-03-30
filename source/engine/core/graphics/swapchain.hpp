@@ -51,10 +51,12 @@ public:
     {
         return mExtent;
     }
-    uint32_t GetImageCount() const
+
+    uint32_t GetFramesCount() const
     {
-        return imageCount;
+        return mFrames;
     }
+
     VkSurfaceTransformFlagsKHR GetPreTransform() const
     {
         return preTransform;
@@ -103,7 +105,7 @@ public:
     }
     uint32_t GetActiveImageIndex() const
     {
-        return mCurrentFrame % imageCount;
+        return mFrames % mImageCount;
     }
 
     void SubmitCommandBuffer(CommandBuffer &commandBuffer);
@@ -127,8 +129,8 @@ private:
     // TODO: RenderPass
     RenderPass *mRenderPass = nullptr;
 
-    uint32_t imageCount    = 0;
-    size_t   mCurrentFrame = 0;
+    uint32_t mFrames     = 0;
+    uint32_t mImageCount = 0;
 
     vector<VkImage>       images;
     vector<VkImageView>   imageViews;

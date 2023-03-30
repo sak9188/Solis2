@@ -37,7 +37,7 @@ void RenderPass::Destroy()
 bool RenderPass::Build()
 {
     // TODO: 这里先写死，后面再改成可配置的
-    VkFormat swapChainImageFormat = VK_FORMAT_B8G8R8A8_SRGB;
+    VkFormat swapChainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
 
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format         = swapChainImageFormat;

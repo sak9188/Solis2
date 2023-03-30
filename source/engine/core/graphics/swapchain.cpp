@@ -30,11 +30,11 @@ Swapchain::Swapchain(const PhysicalDevice &physicalDevice, const LogicalDevice &
 {
     this->Create(oldSwapchain);
 
-    mWaitFences.resize(imageCount);
-    mImageAvailableSemaphores.resize(imageCount);
-    mRenderFinishedSemaphores.resize(imageCount);
+    mWaitFences.resize(mImageCount);
+    mImageAvailableSemaphores.resize(mImageCount);
+    mRenderFinishedSemaphores.resize(mImageCount);
 
-    for (uint32_t i = 0; i < imageCount; i++)
+    for (uint32_t i = 0; i < mImageCount; i++)
     {
         VkFenceCreateInfo fenceCreateInfo = {};
         fenceCreateInfo.sType             = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -135,7 +135,7 @@ void Swapchain::Create(const Swapchain *oldSwapchain)
         }
     }
 
-    auto desiredImageCount = surfaceCapabilities.minImageCount + 1;
+    auto desiredImageCount = MaxFrameInFlight;
 
     if (surfaceCapabilities.maxImageCount > 0 && desiredImageCount > surfaceCapabilities.maxImageCount)
     {
@@ -197,12 +197,12 @@ void Swapchain::Create(const Swapchain *oldSwapchain)
     // CreateImage
     Graphics::CheckVk(vkCreateSwapchainKHR(mLogicalDevice, &swapchainCreateInfo, nullptr, &mSwapchain));
 
-    Graphics::CheckVk(vkGetSwapchainImagesKHR(mLogicalDevice, mSwapchain, &imageCount, nullptr));
-    images.resize(imageCount);
-    imageViews.resize(imageCount);
-    Graphics::CheckVk(vkGetSwapchainImagesKHR(mLogicalDevice, mSwapchain, &imageCount, images.data()));
+    Graphics::CheckVk(vkGetSwapchainImagesKHR(mLogicalDevice, mSwapchain, &mImageCount, nullptr));
+    images.resize(mImageCount);
+    imageViews.resize(mImageCount);
+    Graphics::CheckVk(vkGetSwapchainImagesKHR(mLogicalDevice, mSwapchain, &mImageCount, images.data()));
 
-    for (uint32_t i = 0; i < imageCount; i++)
+    for (uint32_t i = 0; i < mImageCount; i++)
     {
         Image::CreateImageView(images.at(i), imageViews.at(i), VK_IMAGE_VIEW_TYPE_2D, surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, 1, 0, 1, 0);
     }
@@ -214,8 +214,8 @@ void Swapchain::Recreate(const VkExtent2D &extent)
     this->Clean();
     Create(nullptr);
 
-    mFrameBuffers.resize(imageCount);
-    for (uint32_t i = 0; i < imageCount; i++)
+    mFrameBuffers.resize(mImageCount);
+    for (uint32_t i = 0; i < mImageCount; i++)
     {
         VkImageView attachments[] = {
             imageViews[i]};
@@ -251,8 +251,8 @@ void Swapchain::SetRenderPass(RenderPass &renderPass)
         mFrameBuffers.clear();
     }
 
-    mFrameBuffers.resize(imageCount);
-    for (uint32_t i = 0; i < imageCount; i++)
+    mFrameBuffers.resize(mImageCount);
+    for (uint32_t i = 0; i < mImageCount; i++)
     {
         VkImageView attachments[] = {
             imageViews[i]};
@@ -297,7 +297,7 @@ VkResult Swapchain::AcquireNextImage()
     if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR)
     {
         this->Recreate();
-        imageCount += 1;
+        mFrames += 1;
         return VK_NOT_READY;
     }
 
@@ -318,7 +318,7 @@ VkResult Swapchain::QueuePresent()
     presentInfo.pSwapchains           = &mSwapchain;
     presentInfo.pImageIndices         = &activeImageIndex;
 
-    imageCount += 1;
+    mFrames += 1;
     return vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 

@@ -32,6 +32,7 @@ void CommandBuffer::Begin(VkCommandBufferUsageFlags usage)
 {
     if (running)
         return;
+
     vkResetCommandBuffer(commandBuffer, 0);
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -98,6 +99,30 @@ void CommandBuffer::BindPipelineDescriptorSet() const
                             0, 1, &(mPipeline->GetDescriptorSets()[mSwapchain->GetActiveImageIndex()]), 0, nullptr);
 }
 
+void CommandBuffer::Wait()
+{
+    // if (mSubmitSemaphore != VK_NULL_HANDLE)
+    // {
+    // VkSemaphoreWaitInfo waitInfo = {};
+    // waitInfo.sType               = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+    // waitInfo.pNext               = nullptr;
+    // waitInfo.flags               = VK_SEMAPHORE_WAIT_ANY_BIT;
+    // waitInfo.semaphoreCount      = 1;
+    // waitInfo.pSemaphores         = &mSubmitSemaphore;
+    // waitInfo.pValues             = nullptr;
+    // vkWaitSemaphores(*Graphics::Get()->GetLogicalDevice(), &waitInfo, UINT64_MAX);
+    // mSubmitSemaphore = VK_NULL_HANDLE;
+    // }
+
+    if (mSubmitFence != VK_NULL_HANDLE)
+    {
+        vkWaitForFences(*Graphics::Get()->GetLogicalDevice(), 1, &mSubmitFence, VK_TRUE, UINT64_MAX);
+        // 让Swaphain去Reset这个Fence
+        // vkResetFences(*Graphics::Get()->GetLogicalDevice(), 1, &mSubmitFence);
+        mSubmitFence = VK_NULL_HANDLE;
+    }
+}
+
 // void CommandBuffer::SubmitIdle()
 // {
 //     auto logicalDevice = Graphics::Get()->GetLogicalDevice();
@@ -153,10 +178,16 @@ void CommandBuffer::Submit(const VkSemaphore &waitSemaphore, const VkSemaphore &
     {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores    = &signalSemaphore;
+
+        // 记录提交的Semaphore
+        this->mSubmitSemaphore = signalSemaphore;
     }
 
     if (fence != VK_NULL_HANDLE)
+    {
         Graphics::CheckVk(vkResetFences(*logicalDevice, 1, &fence));
+        this->mSubmitFence = fence;
+    }
 
     Graphics::CheckVk(vkQueueSubmit(queueSelected, 1, &submitInfo, fence));
 }

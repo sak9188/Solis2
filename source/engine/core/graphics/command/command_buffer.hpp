@@ -36,6 +36,8 @@ public:
     void BindPipeline(Pipeline *pipeline);
     void BindPipelineDescriptorSet() const;
 
+    void Wait();
+
     void SetViewport(const VkViewport &viewport) const
     {
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
@@ -101,8 +103,10 @@ private:
     Pipeline  *mPipeline  = nullptr;
 
     VkQueueFlagBits queueType;
-    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-    bool            running       = false;
+    VkCommandBuffer commandBuffer    = VK_NULL_HANDLE;
+    VkSemaphore     mSubmitSemaphore = VK_NULL_HANDLE;
+    VkFence         mSubmitFence     = VK_NULL_HANDLE;
+    bool            running          = false;
 };
 }
 } // namespace solis::graphics

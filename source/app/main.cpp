@@ -186,6 +186,8 @@ int main(int argc, char **argv)
                 continue;
             }
 
+            // CommandBuffer &buffer = swapchain.GetCommandBuffer();
+            buffer.Wait();
             buffer.Begin();
             buffer.BeginRenderPass(swapchain);
             buffer.BindPipeline(&pipeline);
@@ -216,6 +218,8 @@ int main(int argc, char **argv)
             buffer.End();
             swapchain.SubmitCommandBuffer(buffer);
         }
+
+        buffer.Wait();
     }
 
     // 这儿还有问题， 不过问题不大
