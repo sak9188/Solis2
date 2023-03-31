@@ -24,6 +24,10 @@ CommandBuffer::CommandBuffer(VkQueueFlagBits queueType, VkCommandBufferLevel buf
 
 CommandBuffer::~CommandBuffer()
 {
+    // 如果上一次提交的命令还没执行完，这里需要等一下，否则会报错
+    // TODO: 不过这里也可能有问题，应该释放掉那种不需要等待的命令
+    Wait();
+
     auto logicalDevice = Graphics::Get()->GetLogicalDevice();
     vkFreeCommandBuffers(*logicalDevice, commandPool->GetCommandPool(), 1, &commandBuffer);
 }

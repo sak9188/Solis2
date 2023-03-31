@@ -89,13 +89,37 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
     }
 }
 
+void ProcessInput(GLFWwindow *window)
+{
+    // wasd
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        CameraPos.z -= 0.1f * CameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        CameraPos.z += 0.1f * CameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        CameraPos.x -= 0.1f * CameraSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        CameraPos.x += 0.1f * CameraSpeed;
+    }
+}
+
 void InitWindow()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     window = glfwCreateWindow(windowSize.x, windowSize.y, "Solis", nullptr, nullptr);
-    glfwSetKeyCallback(window, KeyCallback);
+    // glfwSetKeyCallback(window, KeyCallback);
 }
 
 void CleanupWindow()
@@ -176,6 +200,8 @@ int main(int argc, char **argv)
             }
             glfwPollEvents();
 
+            ProcessInput(window);
+
             if (!swapchain.IsSameExtent({(uint32_t)windowSize.x, (uint32_t)windowSize.y}))
             {
                 swapchain.Recreate({(uint32_t)windowSize.x, (uint32_t)windowSize.y});
@@ -218,8 +244,6 @@ int main(int argc, char **argv)
             buffer.End();
             swapchain.SubmitCommandBuffer(buffer);
         }
-
-        buffer.Wait();
     }
 
     // 这儿还有问题， 不过问题不大

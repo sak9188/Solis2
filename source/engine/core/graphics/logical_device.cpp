@@ -48,8 +48,8 @@ void LogicalDevice::CreateQueueIndices()
         }
 
         // Check for presentation support.
-        // VkBool32 presentSupport;
-        // vkGetPhysicalDeviceSurfaceSupportKHR(*physicalDevice, i, *surface, &presentSupport);
+        // VkBool32 presentSupport = VK_FALSE;
+        // vkGetPhysicalDeviceSurfaceSupportKHR(mPhysicalDevice, i, *surface, &presentSupport);
 
         if (deviceQueueFamilyProperties[i].queueCount > 0 /*&& presentSupport*/)
         {
