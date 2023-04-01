@@ -2,6 +2,7 @@
 #include "core/solis_engine.hpp"
 #include "core/base/using.hpp"
 #include "core/base/memory.hpp"
+#include "core/base/ecs.hpp"
 
 #include "core/log/log.hpp"
 #include "core/files/files.hpp"
@@ -256,7 +257,6 @@ int main(int argc, char **argv)
             Log::SError("Object Class Name: {} is leaked! pointer: {}", name, pointer);
         }
     }
-
     ObjectBase::Clear();
     // google::ShutdownGoogleLogging();
 

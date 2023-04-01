@@ -190,6 +190,8 @@ void CommandBuffer::Submit(const VkSemaphore &waitSemaphore, const VkSemaphore &
     if (fence != VK_NULL_HANDLE)
     {
         Graphics::CheckVk(vkResetFences(*logicalDevice, 1, &fence));
+
+        // 记录提交的Fence
         this->mSubmitFence = fence;
     }
 
