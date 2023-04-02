@@ -41,6 +41,7 @@
 #endif
 
 #include "folly/GLog.h"
+#include "folly/AtomicLinkedList.h"
 
 using namespace solis;
 
