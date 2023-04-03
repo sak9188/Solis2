@@ -86,8 +86,10 @@ public:
         mPoolIndex(poolIndex),
         mPool(pool)
     {
-        assert(mPoolIndex <= 0xFFFF);
-        mUint64 = ((uint32_t)mPool << 48) | (mPoolIndex << 32) | mIndex;
+        assert(pool <= 0xFFFF);
+        assert(poolIndex <= 0xFFFF);
+
+        mUint64 = (mPool << 48) | (mPoolIndex << 32) | mIndex;
     }
     ~EntityID() = default;
 

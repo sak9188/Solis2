@@ -9,6 +9,7 @@
 #include "core/base/module.hpp"
 
 #include "volk.h"
+#include "vk_mem_alloc.h"
 
 namespace solis {
 namespace graphics {
@@ -58,6 +59,12 @@ public:
         return mInstance.get();
     }
 
+    // GetAllocator
+    VmaAllocator GetAllocator() const
+    {
+        return mVmaAllocator;
+    }
+
     std::shared_ptr<CommandPool> GetCommandPool() const
     {
         return mCommandPool;
@@ -90,6 +97,10 @@ public:
     static void CheckVk(VkResult result);
 
 private:
+    void CreateAllocator();
+
+    VmaAllocator mVmaAllocator;
+
     std::unique_ptr<Instance>       mInstance;
     std::unique_ptr<PhysicalDevice> mPhysicalDevice;
     std::unique_ptr<LogicalDevice>  mLogicalDevice;

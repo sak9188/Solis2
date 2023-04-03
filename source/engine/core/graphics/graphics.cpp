@@ -18,6 +18,8 @@ Graphics::Graphics()
     mInstance       = std::make_unique<Instance>();
     mPhysicalDevice = std::make_unique<PhysicalDevice>(*mInstance);
     mLogicalDevice  = std::make_unique<LogicalDevice>(*mInstance, *mPhysicalDevice);
+
+    this->CreateAllocator();
 }
 
 Graphics::~Graphics()
@@ -41,6 +43,49 @@ Graphics::~Graphics()
     mLogicalDevice.reset();
     mSurfaces.clear();
     mInstance.reset();
+}
+
+void Graphics::CreateAllocator()
+{
+    VmaVulkanFunctions vulkanFunctions    = {};
+    vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr   = vkGetDeviceProcAddr;
+
+    vulkanFunctions.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+    vulkanFunctions.vkGetPhysicalDeviceMemoryProperties =
+        vkGetPhysicalDeviceMemoryProperties;
+    vulkanFunctions.vkGetDeviceBufferMemoryRequirements =
+        vkGetDeviceBufferMemoryRequirements;
+    vulkanFunctions.vkGetDeviceImageMemoryRequirements =
+        vkGetDeviceImageMemoryRequirements;
+
+    vulkanFunctions.vkGetBufferMemoryRequirements     = vkGetBufferMemoryRequirements;
+    vulkanFunctions.vkGetImageMemoryRequirements      = vkGetImageMemoryRequirements;
+    vulkanFunctions.vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2;
+    vulkanFunctions.vkGetImageMemoryRequirements2KHR  = vkGetImageMemoryRequirements2;
+
+    vulkanFunctions.vkCreateBuffer                 = vkCreateBuffer;
+    vulkanFunctions.vkDestroyBuffer                = vkDestroyBuffer;
+    vulkanFunctions.vkAllocateMemory               = vkAllocateMemory;
+    vulkanFunctions.vkFreeMemory                   = vkFreeMemory;
+    vulkanFunctions.vkMapMemory                    = vkMapMemory;
+    vulkanFunctions.vkUnmapMemory                  = vkUnmapMemory;
+    vulkanFunctions.vkFlushMappedMemoryRanges      = vkFlushMappedMemoryRanges;
+    vulkanFunctions.vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges;
+    vulkanFunctions.vkBindBufferMemory             = vkBindBufferMemory;
+    vulkanFunctions.vkBindImageMemory              = vkBindImageMemory;
+    vulkanFunctions.vkCreateImage                  = vkCreateImage;
+    vulkanFunctions.vkDestroyImage                 = vkDestroyImage;
+    vulkanFunctions.vkCmdCopyBuffer                = vkCmdCopyBuffer;
+
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice         = *mPhysicalDevice;
+    allocatorInfo.device                 = *mLogicalDevice;
+    allocatorInfo.instance               = *mInstance;
+    allocatorInfo.vulkanApiVersion       = VK_API_VERSION_1_3;
+    allocatorInfo.pVulkanFunctions       = &vulkanFunctions;
+
+    CheckVk(vmaCreateAllocator(&allocatorInfo, &mVmaAllocator));
 }
 
 void Graphics::Init()

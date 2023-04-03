@@ -49,7 +49,7 @@ if(${BUILD_THIRDPARTY})
     # install_library(spdlog "")
  
     # # STB 这个得手写cmake
-    install_library(stb "")
+    # install_library(stb "")
  
     # # VOLK
     # install_library(volk -DVOLK_INSTALL=ON)
@@ -58,7 +58,7 @@ if(${BUILD_THIRDPARTY})
     # find_package(Vulkan REQUIRED)
  
     # # VMA
-    # install_library(VulkanMemoryAllocator "")
+    # install_library(VulkanMemoryAllocator -DBUILD_SHARED_LIBS=OFF)
 
     # # fmt
     # install_library(fmt -DFMT_INSTALL=ON)
@@ -136,6 +136,9 @@ else()
 
     # stb
     find_package(stb CONFIG REQUIRED)
+
+    # VulkanMemoryAllocator
+    find_package(VulkanMemoryAllocator CONFIG REQUIRED)
 
     # folly
     find_package(folly CONFIG REQUIRED)

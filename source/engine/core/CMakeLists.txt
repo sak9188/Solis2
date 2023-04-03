@@ -46,8 +46,10 @@ find_package(mimalloc CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(folly CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
-find_package(glslang CONFIG REQUIRED)
-find_package(stb CONFIG REQUIRED)
+find_package(glslang REQUIRED)
+find_package(stb REQUIRED)
+find_package(VulkanMemoryAllocator REQUIRED)
+
 
 if(__WIN__)
     target_compile_definitions(
@@ -55,6 +57,15 @@ if(__WIN__)
         PUBLIC 
             VK_USE_PLATFORM_WIN32_KHR
             VK_KHR_win32_surface
+    )
+endif()
+
+
+if(VMA_ENABLE)
+    target_compile_definitions(
+        solis_core
+        PUBLIC 
+            VMA_ENABLE
     )
 endif()
 
@@ -75,6 +86,7 @@ target_link_libraries(
         # glslang::HLSL # static
         glslang::SPVRemapper # static
         glslang::glslang-default-resource-limits
+        VulkanMemoryAllocator::VulkanMemoryAllocator # static
 )
 
 # message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")

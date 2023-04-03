@@ -6,6 +6,7 @@
 #include "core/base/object.hpp"
 
 #include "volk.h"
+#include "vma/vk_mem_alloc.h"
 
 namespace solis {
 namespace graphics {
@@ -54,10 +55,9 @@ private:
 
     static void LogVulkanLayers(const vector<VkLayerProperties> &layerProperties);
 
-    bool mEnableValidationLayers = false;
-
-    VkInstance               mInstance       = VK_NULL_HANDLE;
-    VkDebugUtilsMessengerEXT mDebugMessenger = VK_NULL_HANDLE;
+    bool                     mEnableValidationLayers = false;
+    VkInstance               mInstance               = VK_NULL_HANDLE;
+    VkDebugUtilsMessengerEXT mDebugMessenger         = VK_NULL_HANDLE;
 };
 }
 } // namespace solis::graphics

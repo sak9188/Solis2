@@ -146,6 +146,9 @@ set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 # 设置第三方库
 add_subdirectory(${THIRD_PARTY_PATH})
 
+# USE_VMA
+set(VMA_ENABLE ON)
+
 # Source
 set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
 

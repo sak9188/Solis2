@@ -5,6 +5,7 @@
 #include "core/base/i_destroyable.hpp"
 
 #include "volk.h"
+#include "vk_mem_alloc.h"
 
 namespace solis {
 namespace graphics {
@@ -100,6 +101,7 @@ protected:
     VkBuffer              mBuffer           = VK_NULL_HANDLE;
     VkDeviceMemory        mBufferMemory     = VK_NULL_HANDLE;
     VkMemoryPropertyFlags mMemoryProperties = 0;
+    VmaAllocation         mAllocation       = VK_NULL_HANDLE;
 
 private:
     void Init(const VkDeviceSize &size, const VkBufferUsageFlags &usage, const VkMemoryPropertyFlags &properties, const void *data);

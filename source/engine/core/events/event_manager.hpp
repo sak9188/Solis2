@@ -27,7 +27,7 @@ Return MemberFunction(void *object, const Event &e)
 }
 
 // #define GRANITE_EVENT_TYPE_HASH(x) ::Util::compile_time_fnv1(#x)
-// using EventType = uint64_t;
+using EventType = uint64_t;
 
 // #define GRANITE_EVENT_TYPE_DECL(x)                              \
     // enum class EventTypeWrapper : ::Granite::EventType          \
@@ -56,7 +56,6 @@ public:
     }
 
 private:
-    // EventType type   = 0;
     uint64_t mCookie = 0;
 };
 
@@ -71,8 +70,8 @@ public:
     EventHandler()                       = default;
     ~EventHandler();
 
-    void add_manager_reference(EventManager *manager);
-    void release_manager_reference();
+    void AddManagerReference(EventManager *manager);
+    void ReleaseManagerReference();
 
 private:
     EventManager *mEventManager         = nullptr;
@@ -82,6 +81,7 @@ private:
 class EventManager : public Object<EventManager>
 {
 public:
+    EventManager() = default;
     ~EventManager();
 
     template <typename T, typename... P>
@@ -115,7 +115,21 @@ public:
     }
 
     void DequeueLatched(uint64_t cookie);
-    void DequeueAllLatched(EventType type);
+
+    template <typename EventType>
+    void DequeueAllLatched()
+    {
+        static constexpr auto type       = ctti::type_id<EventType>().hash();
+        auto                 &event_type = mLatchedEvents[type];
+        if (event_type.mEnqueueing)
+            throw std::logic_error("Dequeueing latched while queueing events.");
+
+        event_type.mEnqueueing = true;
+        for (auto &event : event_type.queued_events)
+            DispatchDownEvent(event_type, *event);
+        event_type.queued_events.clear();
+        event_type.mEnqueueing = false;
+    }
 
     template <typename T>
     std::enable_if_t<std::is_base_of_v<Event, T>, void>
@@ -138,8 +152,8 @@ public:
     template <typename T, typename EventType, bool (T::*mem_fn)(const EventType &)>
     void RegisterHandler(T *handler)
     {
-        handler->add_manager_reference(this);
-        static constexpr auto type_id = EventType::get_type_id();
+        handler->AddManagerReference(this);
+        static constexpr auto type_id = ctti::type_id<T>().hash();
         auto                 &l       = mEvents[type_id];
         if (l.mDispatching)
             l.mRecursiveHandlers.push_back({MemberFunction<bool, T, EventType, mem_fn>, handler, handler});
@@ -152,7 +166,7 @@ public:
     template <typename T, typename EventType, void (T::*up_fn)(const EventType &), void (T::*down_fn)(const EventType &)>
     void RegisterLatchHandler(T *handler)
     {
-        handler->add_manager_reference(this);
+        handler->AddManagerReference(this);
         LatchHandler h{
             MemberFunction<void, T, EventType, up_fn>,
             MemberFunction<void, T, EventType, down_fn>,

@@ -3,9 +3,7 @@
 #include "core/graphics/graphics.hpp"
 #include "core/graphics/logical_device.hpp"
 #include "core/graphics/physical_device.hpp"
-
 #include "core/graphics/buffer/buffer.hpp"
-
 #include "core/graphics/command/command_buffer.hpp"
 
 namespace solis {
@@ -30,8 +28,9 @@ Image::Image(VkExtent2D extent, VkFormat format, VkSampleCountFlagBits samples, 
     imageInfo.usage             = usage;
     imageInfo.samples           = samples;
     imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
-    Graphics::CheckVk(vkCreateImage(*logicalDevice, &imageInfo, nullptr, &mImage));
 
+#ifndef VMA_ENABLE
+    Graphics::CheckVk(vkCreateImage(*logicalDevice, &imageInfo, nullptr, &mImage));
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*logicalDevice, mImage, &memRequirements);
 
@@ -41,6 +40,12 @@ Image::Image(VkExtent2D extent, VkFormat format, VkSampleCountFlagBits samples, 
     allocInfo.memoryTypeIndex      = Buffer::FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     Graphics::CheckVk(vkAllocateMemory(*logicalDevice, &allocInfo, nullptr, &mMemory));
     Graphics::CheckVk(vkBindImageMemory(*logicalDevice, mImage, mMemory, 0));
+#else
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage                   = VMA_MEMORY_USAGE_GPU_ONLY;
+    allocInfo.requiredFlags           = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    Graphics::CheckVk(vmaCreateImage(Graphics::Get()->GetAllocator(), &imageInfo, &allocInfo, &mImage, &mVmaAllocation, nullptr));
+#endif
 
     // Image View
     VkImageViewCreateInfo viewInfo           = {};
@@ -90,8 +95,9 @@ Image::Image(VkExtent3D extent, VkFormat format, VkSampleCountFlagBits samples, 
     imageInfo.usage             = usage;
     imageInfo.samples           = samples;
     imageInfo.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
-    Graphics::CheckVk(vkCreateImage(*logicalDevice, &imageInfo, nullptr, &mImage));
 
+#ifndef VMA_ENABLE
+    Graphics::CheckVk(vkCreateImage(*logicalDevice, &imageInfo, nullptr, &mImage));
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(*logicalDevice, mImage, &memRequirements);
 
@@ -101,6 +107,12 @@ Image::Image(VkExtent3D extent, VkFormat format, VkSampleCountFlagBits samples, 
     allocInfo.memoryTypeIndex      = Buffer::FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     Graphics::CheckVk(vkAllocateMemory(*logicalDevice, &allocInfo, nullptr, &mMemory));
     Graphics::CheckVk(vkBindImageMemory(*logicalDevice, mImage, mMemory, 0));
+#else
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage                   = VMA_MEMORY_USAGE_GPU_ONLY;
+    allocInfo.requiredFlags           = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    Graphics::CheckVk(vmaCreateImage(Graphics::Get()->GetAllocator(), &imageInfo, &allocInfo, &mImage, &mVmaAllocation, nullptr));
+#endif
 }
 
 Image::~Image()
@@ -117,6 +129,7 @@ Image::~Image()
         vkDestroyImageView(*logicalDevice, mView, nullptr);
     }
 
+#ifndef VMA_ENABLE
     if (mImage != VK_NULL_HANDLE)
     {
         vkDestroyImage(*logicalDevice, mImage, nullptr);
@@ -126,6 +139,12 @@ Image::~Image()
     {
         vkFreeMemory(*logicalDevice, mMemory, nullptr);
     }
+#else
+    if (mImage != VK_NULL_HANDLE)
+    {
+        vmaDestroyImage(Graphics::Get()->GetAllocator(), mImage, mVmaAllocation);
+    }
+#endif
 }
 
 void Image::Update(const Buffer &buffer)
@@ -269,7 +288,6 @@ void Image::CreateImage(VkImage &image, VkDeviceMemory &memory, const VkExtent3D
     memoryAllocateInfo.allocationSize       = memoryRequirements.size;
     memoryAllocateInfo.memoryTypeIndex      = Buffer::FindMemoryType(memoryRequirements.memoryTypeBits, properties);
     Graphics::CheckVk(vkAllocateMemory(*logicalDevice, &memoryAllocateInfo, nullptr, &memory));
-
     Graphics::CheckVk(vkBindImageMemory(*logicalDevice, image, memory, 0));
 }
 

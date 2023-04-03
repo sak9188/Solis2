@@ -5,6 +5,7 @@
 #include "core/base/object.hpp"
 
 #include "volk.h"
+#include "vk_mem_alloc.h"
 
 namespace solis {
 namespace graphics {
@@ -53,10 +54,11 @@ protected:
     uint32_t              mMipLevels = 0;
     uint32_t              mArrayLayers;
 
-    VkImage        mImage   = VK_NULL_HANDLE;
-    VkDeviceMemory mMemory  = VK_NULL_HANDLE;
-    VkSampler      mSampler = VK_NULL_HANDLE;
-    VkImageView    mView    = VK_NULL_HANDLE;
+    VkImage        mImage         = VK_NULL_HANDLE;
+    VkDeviceMemory mMemory        = VK_NULL_HANDLE;
+    VkSampler      mSampler       = VK_NULL_HANDLE;
+    VkImageView    mView          = VK_NULL_HANDLE;
+    VmaAllocation  mVmaAllocation = VK_NULL_HANDLE;
 };
 }
 } // namespace solis::graphics
