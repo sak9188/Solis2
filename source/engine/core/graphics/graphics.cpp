@@ -38,6 +38,8 @@ Graphics::~Graphics()
         pipeline->Destroy();
     }
 
+    vmaDestroyAllocator(mVmaAllocator);
+
     mCommandPool.reset();
     mPhysicalDevice.reset();
     mLogicalDevice.reset();

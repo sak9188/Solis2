@@ -92,6 +92,7 @@ void Buffer::Destroy()
     {
         return;
     }
+
 #ifndef VMA_ENABLE
     vkDestroyBuffer(*Graphics::Get()->GetLogicalDevice(), mBuffer, nullptr);
     vkFreeMemory(*Graphics::Get()->GetLogicalDevice(), mBufferMemory, nullptr);
