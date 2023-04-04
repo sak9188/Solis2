@@ -1,15 +1,14 @@
 #pragma once
 
+#include <unordered_map>
+#include <map>
+
 #include "folly/FBString.h"
 #include "folly/FBVector.h"
 #include "folly/AtomicHashMap.h"
 #include "folly/AtomicLinkedList.h"
 
 #include "glm/glm.hpp"
-
-#include <unordered_map>
-#include <map>
-
 namespace solis {
 
 using string = folly::fbstring;

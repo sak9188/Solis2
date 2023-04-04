@@ -1,13 +1,13 @@
 #pragma once
 
-#include "core/solis_core.hpp"
-#include "core/base/object.hpp"
-#include "core/base/using.hpp"
-
 #include <iostream>
 #include <chrono>
 #include <iomanip>
 #include <ctime>
+
+#include "core/solis_core.hpp"
+#include "core/base/object.hpp"
+#include "core/base/using.hpp"
 
 namespace solis {
 namespace os {

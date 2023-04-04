@@ -1,14 +1,12 @@
+#include "core/graphics/instance.hpp"
+
 #include <iomanip>
 
 #include "core/solis_core.hpp"
-#include "core/base/const.hpp"
-
-#include "core/log/log.hpp"
-
-#include "core/graphics/instance.hpp"
-#include "core/graphics/graphics.hpp"
-
 #include "core/solis_engine.hpp"
+#include "core/base/const.hpp"
+#include "core/log/log.hpp"
+#include "core/graphics/graphics.hpp"
 
 #ifndef VK_EXT_DEBUG_UTILS_EXTENSION_NAME
 #define VK_EXT_DEBUG_UTILS_EXTENSION_NAME "VK_EXT_debug_utils"

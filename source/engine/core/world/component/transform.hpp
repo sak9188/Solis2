@@ -7,10 +7,12 @@
 #include "core/data/component.hpp"
 
 namespace solis {
-struct SOLIS_CORE_API TransformComponent : public Component
+namespace components {
+struct SOLIS_CORE_API Transform : public Component
 {
     math::vec3 mPosition;
     math::vec3 mRotation;
     math::vec3 mScale;
 };
-} // namespace solis
+}
+} // namespace solis::components

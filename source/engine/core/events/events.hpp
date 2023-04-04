@@ -1,6 +1,10 @@
 
 #pragma once
 
+#include <filesystem>
+#include <iostream>
+#include <tuple>
+
 #include "core/solis_core.hpp"
 
 #include "core/base/object.hpp"
@@ -8,10 +12,6 @@
 #include "core/base/module.hpp"
 
 #include "core/events/event_manager.hpp"
-
-#include <filesystem>
-#include <iostream>
-#include <tuple>
 
 #define EVENT_REG(clazz, member, event) \
     events::Events::Get()->RegisterHandler<clazz, event, &clazz::member>(this)

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+#include <stdexcept>
+#include <utility>
+
 #include "core/solis_core.hpp"
 
 #include "core/base/object.hpp"
@@ -7,10 +11,6 @@
 #include "core/base/module.hpp"
 
 #include "ctti/type_id.hpp"
-
-#include <memory>
-#include <stdexcept>
-#include <utility>
 
 namespace solis {
 class Event;

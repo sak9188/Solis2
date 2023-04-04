@@ -43,6 +43,8 @@
 #include "folly/GLog.h"
 #include "folly/AtomicLinkedList.h"
 
+#include "main_world.hpp"
+
 using namespace solis;
 
 GLFWwindow *window;
@@ -52,44 +54,6 @@ float      CameraSpeed{1.0f};
 math::vec3 CameraPos{2.0f, 2.0f, 2.0f};
 
 _CrtMemState s1, s2, s3;
-
-void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
-
-    if (key == GLFW_KEY_W && action == GLFW_PRESS)
-    {
-        CameraPos.z -= 0.1f * CameraSpeed;
-    }
-
-    if (key == GLFW_KEY_S && action == GLFW_PRESS)
-    {
-        CameraPos.z += 0.1f * CameraSpeed;
-    }
-
-    if (key == GLFW_KEY_A && action == GLFW_PRESS)
-    {
-        CameraPos.x -= 0.1f * CameraSpeed;
-    }
-
-    if (key == GLFW_KEY_D && action == GLFW_PRESS)
-    {
-        CameraPos.x += 0.1f * CameraSpeed;
-    }
-
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
-    {
-        CameraPos.y += 0.1f * CameraSpeed;
-    }
-
-    if (key == GLFW_KEY_E && action == GLFW_PRESS)
-    {
-        CameraPos.y -= 0.1f * CameraSpeed;
-    }
-}
 
 void ProcessInput(GLFWwindow *window)
 {
@@ -156,34 +120,36 @@ int main(int argc, char **argv)
     info.window     = glfwGetWin32Window(window);
     info.windowSize = windowSize;
 
+    // info.renderGraph = "default.graph"
+
     Engine engine(info);
+    engine.SetMainWorld(std::make_unique<MainWorld>());
 
-    using namespace graphics;
-    using namespace files;
+    // using namespace graphics;
+    // using namespace files;
 
-    RenderPass renderPass;
-    renderPass.Build();
+    // RenderPass renderPass;
+    // renderPass.Build();
 
-    PipelineGraphics pipeline;
-    auto            &shader = pipeline.GetShader();
-    // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
-    // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
-    shader.CreateShaderModule("./shaders/sponza/sponza.vert", Shader::Type::Vertex);
-    shader.CreateShaderModule("./shaders/sponza/sponza.frag", Shader::Type::Fragment);
-    pipeline.Build(renderPass);
-
+    // PipelineGraphics pipeline;
+    // auto            &shader = pipeline.GetShader();
+    // // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
+    // // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
+    // shader.CreateShaderModule("./shaders/sponza/sponza.vert", Shader::Type::Vertex);
+    // shader.CreateShaderModule("./shaders/sponza/sponza.frag", Shader::Type::Fragment);
+    // pipeline.Build(renderPass);
     {
-        Model   sponzamodel{"./gltfs/cube/cube.gltf"};
-        Texture texture("./gltfs/cube/swap.jpg");
-        // pipeline.BindUniform(0);
-        // pipeline.BindTexture(texture, 1);
-        // pipeline.UpdateBinding();
-        pipeline.InitUniformBuffers(sizeof(UniformBufferObject));
-        pipeline.BindEverything(texture, 1);
+        // Model   sponzamodel{"./gltfs/cube/cube.gltf"};
+        // Texture texture("./gltfs/cube/swap.jpg");
+        // // pipeline.BindUniform(0);
+        // // pipeline.BindTexture(texture, 1);
+        // // pipeline.UpdateBinding();
+        // pipeline.InitUniformBuffers(sizeof(UniformBufferObject));
+        // pipeline.BindEverything(texture, 1);
 
-        CommandBuffer buffer;
-        Swapchain    &swapchain = engine.GetSwapchain();
-        swapchain.SetRenderPass(renderPass);
+        // CommandBuffer buffer;
+        // Swapchain    &swapchain = engine.GetSwapchain();
+        // swapchain.SetRenderPass(renderPass);
 
         while (!glfwWindowShouldClose(window))
         {
@@ -195,50 +161,49 @@ int main(int argc, char **argv)
                 glfwWaitEvents();
             }
             glfwPollEvents();
-
             ProcessInput(window);
+            engine.Step();
+            // if (!swapchain.IsSameExtent({(uint32_t)windowSize.x, (uint32_t)windowSize.y}))
+            // {
+            // swapchain.Recreate({(uint32_t)windowSize.x, (uint32_t)windowSize.y});
+            // }
 
-            if (!swapchain.IsSameExtent({(uint32_t)windowSize.x, (uint32_t)windowSize.y}))
-            {
-                swapchain.Recreate({(uint32_t)windowSize.x, (uint32_t)windowSize.y});
-            }
+            // if (swapchain.AcquireNextImage() != VK_SUCCESS)
+            // {
+            // continue;
+            // }
 
-            if (swapchain.AcquireNextImage() != VK_SUCCESS)
-            {
-                continue;
-            }
+            // // CommandBuffer &buffer = swapchain.GetCommandBuffer();
+            // buffer.Wait();
+            // buffer.Begin();
+            // buffer.BeginRenderPass(swapchain);
+            // buffer.BindPipeline(&pipeline);
 
-            // CommandBuffer &buffer = swapchain.GetCommandBuffer();
-            buffer.Wait();
-            buffer.Begin();
-            buffer.BeginRenderPass(swapchain);
-            buffer.BindPipeline(&pipeline);
+            // // ubo
+            // // buffer->BindUniformBuffer(0, 0, pipeline->GetUniformBuffer(swapchain.GetImageIndex()));
+            // auto &ubo = pipeline.GetUniformBuffer(swapchain.GetActiveImageIndex());
 
-            // ubo
-            // buffer->BindUniformBuffer(0, 0, pipeline->GetUniformBuffer(swapchain.GetImageIndex()));
-            auto &ubo = pipeline.GetUniformBuffer(swapchain.GetActiveImageIndex());
+            // static auto startTime   = std::chrono::high_resolution_clock::now();
+            // auto        currentTime = std::chrono::high_resolution_clock::now();
+            // float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-            static auto startTime   = std::chrono::high_resolution_clock::now();
-            auto        currentTime = std::chrono::high_resolution_clock::now();
-            float       time        = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+            // auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            // auto view  = glm::lookAt(CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            // auto proj  = glm::perspective(glm::radians(90.0f), windowSize.x / (float)windowSize.y, 0.1f, 10000.0f);
+            // proj[1][1] *= -1;
 
-            auto model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            auto view  = glm::lookAt(CameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            auto proj  = glm::perspective(glm::radians(90.0f), windowSize.x / (float)windowSize.y, 0.1f, 10000.0f);
-            proj[1][1] *= -1;
+            // auto mvp = proj * view * model;
+            // // auto mvp = proj * view;
+            // ubo.Update(&mvp, sizeof(mvp));
+            // // sampler
 
-            auto mvp = proj * view * model;
-            // auto mvp = proj * view;
-            ubo.Update(&mvp, sizeof(mvp));
-            // sampler
-
-            buffer.SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
-            buffer.SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
-            // buffer->Draw(3, 1, 0, 0);
-            buffer.Draw(sponzamodel);
-            buffer.EndRenderPass();
-            buffer.End();
-            swapchain.SubmitCommandBuffer(buffer);
+            // buffer.SetViewport({0, 0, (float)windowSize.x, (float)windowSize.y, 0, 1});
+            // buffer.SetScissor({0, 0, (unsigned int)windowSize.x, (unsigned int)windowSize.y});
+            // // buffer->Draw(3, 1, 0, 0);
+            // buffer.Draw(sponzamodel);
+            // buffer.EndRenderPass();
+            // buffer.End();
+            // swapchain.SubmitCommandBuffer(buffer);
         }
     }
 

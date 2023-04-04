@@ -1,8 +1,9 @@
+#include "core/graphics/logical_device.hpp"
+
 #include <optional>
 
 #include "core/graphics/graphics.hpp"
 #include "core/graphics/instance.hpp"
-#include "core/graphics/logical_device.hpp"
 #include "core/graphics/physical_device.hpp"
 
 #include "core/log/log.hpp"

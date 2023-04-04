@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 #include "core/solis_core.hpp"
 #include "core/base/object.hpp"
 #include "core/base/using.hpp"
@@ -7,9 +9,7 @@
 #include "core/data/component.hpp"
 
 #include "core/log/log.hpp"
-
-#include <type_traits>
-#include <ctti/type_id.hpp>
+#include "ctti/type_id.hpp"
 
 namespace solis {
 class SOLIS_CORE_API GameObject : public Object<GameObject>

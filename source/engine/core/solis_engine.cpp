@@ -3,6 +3,7 @@
 #include "core/graphics/graphics.hpp"
 #include "core/events/events.hpp"
 #include "core/events/event_define.hpp"
+#include "core/world/world.hpp"
 
 namespace solis {
 static bool IsDestroyEngine = false;
@@ -105,5 +106,10 @@ void Engine::UpdateStage(Module::Stage stage)
     {
         mModules.find(typeIndex.hash())->second->Update();
     }
+}
+
+void Engine::SetMainWorld(std::unique_ptr<WorldBase> &&world)
+{
+    World::Get()->SetMainWorld(world);
 }
 } // namespace solis

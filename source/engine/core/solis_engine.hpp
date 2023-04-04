@@ -4,19 +4,22 @@
 
 #include "core/base/object.hpp"
 #include "core/base/i_noncopyable.hpp"
+#include "core/base/i_destroyable.hpp"
 
 #include "core/base/module.hpp"
 
 #include "ctti/type_id.hpp"
 
 namespace solis {
+
+class WorldBase;
 struct SOLIS_CORE_API EngineCreateInfo
 {
     math::vec2 windowSize;
 
     void *window = nullptr;
 
-    // 扩展
+    // Vulkan扩展
     vector<const char *> extensions;
 };
 
@@ -24,7 +27,7 @@ namespace graphics {
 class Swapchain;
 }
 
-class SOLIS_CORE_API Engine : public Object<Engine>, public INonCopyable
+class SOLIS_CORE_API Engine : public Object<Engine>, public INonCopyable, public IDestroyable
 {
 public:
     Engine(const EngineCreateInfo &info);
@@ -54,6 +57,8 @@ public:
     {
         return *mSwapchain;
     };
+
+    void SetMainWorld(std::unique_ptr<WorldBase> &&world);
 
 private:
     bool ParseEngineCfg(const string &filename);
