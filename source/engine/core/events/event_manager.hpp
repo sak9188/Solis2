@@ -12,11 +12,6 @@
 #include <stdexcept>
 #include <utility>
 
-// #define EVENT_MANAGER_REGISTER(clazz, member, event) \
-    // GRANITE_EVENT_MANAGER()->register_handler<clazz, event, &clazz::member>(this)
-// #define EVENT_MANAGER_REGISTER_LATCH(clazz, up_event, down_event, event) \
-    // GRANITE_EVENT_MANAGER()->register_latch_handler<clazz, event, &clazz::up_event, &clazz::down_event>(this)
-
 namespace solis {
 class Event;
 
@@ -39,7 +34,7 @@ using EventType = uint64_t;
         // return ::Granite::EventType(EventTypeWrapper::type_id); \
     // }
 
-class Event : public Object<Event>
+class SOLIS_CORE_API Event : public Object<Event>
 {
 public:
     Event()          = default;
@@ -62,7 +57,7 @@ private:
 class EventManager;
 
 // 需要在事件处理函数类中需要继承这个类，为了在析构时能够正确的释放EventManager的引用计数
-class EventHandler : public Object<EventHandler>
+class SOLIS_CORE_API EventHandler : public Object<EventHandler>
 {
 public:
     EventHandler(const EventHandler &)   = delete;
@@ -78,7 +73,7 @@ private:
     uint32_t      mEventManagerRefCount = 0;
 };
 
-class EventManager : public Object<EventManager>
+class SOLIS_CORE_API EventManager : public Object<EventManager>
 {
 public:
     EventManager() = default;
@@ -125,9 +120,9 @@ public:
             throw std::logic_error("Dequeueing latched while queueing events.");
 
         event_type.mEnqueueing = true;
-        for (auto &event : event_type.queued_events)
+        for (auto &event : event_type.mQueuedEvents)
             DispatchDownEvent(event_type, *event);
-        event_type.queued_events.clear();
+        event_type.mQueuedEvents.clear();
         event_type.mEnqueueing = false;
     }
 
@@ -137,20 +132,21 @@ public:
     {
         static constexpr auto type = ctti::type_id<T>().hash();
         auto                 &l    = mEvents[type];
-        DispatchEvent(l.mHandlers, t);
+        for (auto &[pri, h] : l.mHandlers)
+            DispatchEvent(h, t);
     }
 
-    // void DispatchInline(const Event &e)
-    // {
-    // assert(e.get_type_id() != 0);
-    // auto &l = events[e.get_type_id()];
-    // DispatchEvent(l.handlers, e);
-    // }
+    void DispatchInline(uint64_t type_id, const Event &e)
+    {
+        auto &l = mEvents[type_id];
+        for (auto &[pri, h] : l.mHandlers)
+            DispatchEvent(h, e);
+    }
 
     void Dispatch();
 
     template <typename T, typename EventType, bool (T::*mem_fn)(const EventType &)>
-    void RegisterHandler(T *handler)
+    void RegisterHandler(T *handler, uint32_t priority = 0)
     {
         handler->AddManagerReference(this);
         static constexpr auto type_id = ctti::type_id<T>().hash();
@@ -158,13 +154,15 @@ public:
         if (l.mDispatching)
             l.mRecursiveHandlers.push_back({MemberFunction<bool, T, EventType, mem_fn>, handler, handler});
         else
-            l.mHandlers.push_back({MemberFunction<bool, T, EventType, mem_fn>, handler, handler});
+        {
+            l.mHandlers[priority].push_back({MemberFunction<bool, T, EventType, mem_fn>, handler, handler});
+        }
     }
 
     void UnregisterHandler(EventHandler *handler);
 
     template <typename T, typename EventType, void (T::*up_fn)(const EventType &), void (T::*down_fn)(const EventType &)>
-    void RegisterLatchHandler(T *handler)
+    void RegisterLatchHandler(T *handler, uint32_t priority = 0)
     {
         handler->AddManagerReference(this);
         LatchHandler h{
@@ -180,7 +178,9 @@ public:
         if (l.mDispatching)
             l.mRecursiveHandlers.push_back(h);
         else
-            l.mHandlers.push_back(h);
+        {
+            l.mHandlers[priority].push_back(h);
+        }
     }
 
     void UnregisterLatchHandler(EventHandler *handler);
@@ -203,29 +203,29 @@ private:
 
     struct EventTypeData : public Object<EventTypeData>
     {
-        vector<std::unique_ptr<Event>> mQueuedEvents;
-        vector<Handler>                mHandlers;
-        vector<Handler>                mRecursiveHandlers;
-        bool                           mEnqueueing  = false;
-        bool                           mDispatching = false;
+        vector<Event *>                     mQueuedEvents;
+        sort_map<uint32_t, vector<Handler>> mHandlers;
+        vector<Handler>                     mRecursiveHandlers;
+        bool                                mEnqueueing  = false;
+        bool                                mDispatching = false;
 
         void FlushRecursiveHandlers();
     };
 
     struct LatchEventTypeData : public Object<LatchEventTypeData>
     {
-        vector<std::unique_ptr<Event>> mQueuedEvents;
-        vector<LatchHandler>           mHandlers;
-        vector<LatchHandler>           mRecursiveHandlers;
-        bool                           mEnqueueing  = false;
-        bool                           mDispatching = false;
+        vector<Event *>                          mQueuedEvents;
+        sort_map<uint32_t, vector<LatchHandler>> mHandlers;
+        vector<LatchHandler>                     mRecursiveHandlers;
+        bool                                     mEnqueueing  = false;
+        bool                                     mDispatching = false;
 
         void FlushRecursiveHandlers();
     };
 
     void DispatchEvent(vector<Handler> &handlers, const Event &e);
-    void DispatchUpEvents(vector<std::unique_ptr<Event>> &events, const LatchHandler &handler);
-    void DispatchDownEvents(vector<std::unique_ptr<Event>> &events, const LatchHandler &handler);
+    void DispatchUpEvents(vector<Event *> &events, const LatchHandler &handler);
+    void DispatchDownEvents(vector<Event *> &events, const LatchHandler &handler);
     void DispatchUpEvent(LatchEventTypeData &event_type, const Event &event);
     void DispatchDownEvent(LatchEventTypeData &event_type, const Event &event);
 

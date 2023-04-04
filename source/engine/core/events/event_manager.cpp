@@ -9,11 +9,14 @@ EventManager::~EventManager()
     Dispatch();
     for (auto &[eventType, eventData] : mLatchedEvents)
     {
-        for (auto &handler : eventData.mHandlers)
+        for (auto &[pri, handlers] : eventData.mHandlers)
         {
-            DispatchDownEvents(eventData.mQueuedEvents, handler);
-            // Before the event manager dies, make sure no stale EventHandler objects try to unregister themselves.
-            handler.mUnregisterKey->ReleaseManagerReference();
+            for (auto &handler : handlers)
+            {
+                DispatchDownEvents(eventData.mQueuedEvents, handler);
+                // Before the event manager dies, make sure no stale EventHandler objects try to unregister themselves.
+                handler.mUnregisterKey->ReleaseManagerReference();
+            }
         }
     }
 }
@@ -22,21 +25,22 @@ void EventManager::Dispatch()
 {
     for (auto &[eventType, eventData] : mEvents)
     {
-        auto &handlers      = eventData.mHandlers;
         auto &queued_events = eventData.mQueuedEvents;
-        auto  itr           = std::remove_if(begin(handlers), end(handlers), [&](const Handler &handler) {
-            for (auto &event : queued_events)
-            {
-                if (!handler.mem_fn(handler.mHandler, *event))
+        for (auto &[pri, handlers] : eventData.mHandlers)
+        {
+            auto itr = std::remove_if(begin(handlers), end(handlers), [&](const Handler &handler) {
+                for (auto &event : queued_events)
                 {
-                    handler.mUnregisterKey->ReleaseManagerReference();
-                    return true;
+                    if (!handler.mem_fn(handler.mHandler, *event))
+                    {
+                        handler.mUnregisterKey->ReleaseManagerReference();
+                        return true;
+                    }
                 }
-            }
-            return false;
-        });
-
-        handlers.erase(itr, end(handlers));
+                return false;
+            });
+            handlers.erase(itr, end(handlers));
+        }
         queued_events.clear();
     }
 }
@@ -53,13 +57,13 @@ void EventManager::DispatchEvent(vector<Handler> &handlers, const Event &e)
     handlers.erase(itr, end(handlers));
 }
 
-void EventManager::DispatchUpEvents(vector<std::unique_ptr<Event>> &up_events, const LatchHandler &handler)
+void EventManager::DispatchUpEvents(vector<Event *> &up_events, const LatchHandler &handler)
 {
     for (auto &event : up_events)
         handler.up_fn(handler.mHandler, *event);
 }
 
-void EventManager::DispatchDownEvents(vector<std::unique_ptr<Event>> &down_events, const LatchHandler &handler)
+void EventManager::DispatchDownEvents(vector<Event *> &down_events, const LatchHandler &handler)
 {
     for (auto &event : down_events)
         handler.down_fn(handler.mHandler, *event);
@@ -67,21 +71,24 @@ void EventManager::DispatchDownEvents(vector<std::unique_ptr<Event>> &down_event
 
 void EventManager::LatchEventTypeData::FlushRecursiveHandlers()
 {
-    mHandlers.insert(end(mHandlers), begin(mRecursiveHandlers), end(mRecursiveHandlers));
+    mHandlers[0].insert(end(mHandlers[0]), begin(mRecursiveHandlers), end(mRecursiveHandlers));
     mRecursiveHandlers.clear();
 }
 
 void EventManager::EventTypeData::FlushRecursiveHandlers()
 {
-    mHandlers.insert(end(mHandlers), begin(mRecursiveHandlers), end(mRecursiveHandlers));
+    mHandlers[0].insert(end(mHandlers[0]), begin(mRecursiveHandlers), end(mRecursiveHandlers));
     mRecursiveHandlers.clear();
 }
 
 void EventManager::DispatchUpEvent(LatchEventTypeData &event_type, const Event &event)
 {
     event_type.mDispatching = true;
-    for (auto &handler : event_type.mHandlers)
-        handler.up_fn(handler.mHandler, event);
+    for (auto &[pri, handlers] : event_type.mHandlers)
+    {
+        for (auto &handler : handlers)
+            handler.up_fn(handler.mHandler, event);
+    }
     event_type.FlushRecursiveHandlers();
     event_type.mDispatching = false;
 }
@@ -89,8 +96,11 @@ void EventManager::DispatchUpEvent(LatchEventTypeData &event_type, const Event &
 void EventManager::DispatchDownEvent(LatchEventTypeData &event_type, const Event &event)
 {
     event_type.mDispatching = true;
-    for (auto &handler : event_type.mHandlers)
-        handler.down_fn(handler.mHandler, event);
+    for (auto &[pri, handlers] : event_type.mHandlers)
+    {
+        for (auto &handler : handlers)
+            handler.down_fn(handler.mHandler, event);
+    }
     event_type.FlushRecursiveHandlers();
     event_type.mDispatching = false;
 }
@@ -99,18 +109,21 @@ void EventManager::UnregisterHandler(EventHandler *handler)
 {
     for (auto &[eventType, eventData] : mEvents)
     {
-        auto itr = std::remove_if(begin(eventData.mHandlers), end(eventData.mHandlers), [&](const Handler &h) -> bool {
-            bool to_remove = h.mUnregisterKey == handler;
-            if (to_remove)
-                h.mUnregisterKey->ReleaseManagerReference();
-            return to_remove;
-        });
+        for (auto &[pri, handlers] : eventData.mHandlers)
+        {
+            auto itr = std::remove_if(begin(handlers), end(handlers), [&](const Handler &h) -> bool {
+                bool to_remove = h.mUnregisterKey == handler;
+                if (to_remove)
+                    h.mUnregisterKey->ReleaseManagerReference();
+                return to_remove;
+            });
 
-        if (itr != end(eventData.mHandlers) && eventData.mDispatching)
-            throw std::logic_error("Unregistering handlers while dispatching events.");
+            if (itr != end(handlers) && eventData.mDispatching)
+                throw std::logic_error("Unregistering handlers while dispatching events.");
 
-        if (itr != end(eventData.mHandlers))
-            eventData.mHandlers.erase(itr, end(eventData.mHandlers));
+            if (itr != end(handlers))
+                handlers.erase(itr, end(handlers));
+        }
     }
 }
 
@@ -118,15 +131,18 @@ void EventManager::UnregisterLatchHandler(EventHandler *handler)
 {
     for (auto &[event_type, eventData] : mLatchedEvents)
     {
-        auto itr = std::remove_if(begin(eventData.mHandlers), end(eventData.mHandlers), [&](const LatchHandler &h) -> bool {
-            bool to_remove = h.mUnregisterKey == handler;
-            if (to_remove)
-                h.mUnregisterKey->ReleaseManagerReference();
-            return to_remove;
-        });
+        for (auto &[pri, handlers] : eventData.mHandlers)
+        {
+            auto itr = std::remove_if(begin(handlers), end(handlers), [&](const LatchHandler &h) -> bool {
+                bool to_remove = h.mUnregisterKey == handler;
+                if (to_remove)
+                    h.mUnregisterKey->ReleaseManagerReference();
+                return to_remove;
+            });
 
-        if (itr != end(eventData.mHandlers))
-            eventData.mHandlers.erase(itr, end(eventData.mHandlers));
+            if (itr != end(handlers))
+                handlers.erase(itr, end(handlers));
+        }
     }
 }
 
@@ -139,7 +155,7 @@ void EventManager::DequeueLatched(uint64_t cookie)
             throw std::logic_error("Dequeueing latched while queueing events.");
         eventData.mEnqueueing = true;
 
-        auto itr = std::remove_if(begin(queued_events), end(queued_events), [&](const std::unique_ptr<Event> &event) {
+        auto itr = std::remove_if(begin(queued_events), end(queued_events), [&](const Event *event) {
             bool signal = event->GetCookie() == cookie;
             if (signal)
                 DispatchDownEvent(eventData, *event);

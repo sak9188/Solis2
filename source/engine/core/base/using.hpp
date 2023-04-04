@@ -8,6 +8,7 @@
 #include "glm/glm.hpp"
 
 #include <unordered_map>
+#include <map>
 
 namespace solis {
 
@@ -26,6 +27,9 @@ using hash_map = folly::AtomicHashMap<K, V>;
 // 不确定数量下的hashmap
 template <typename K, typename V>
 using dict_map = std::unordered_map<K, V>;
+
+template <typename K, typename V>
+using sort_map = std::map<K, V>;
 
 namespace math = glm;
 

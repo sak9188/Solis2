@@ -1,6 +1,8 @@
 #include "core/solis_engine.hpp"
 
 #include "core/graphics/graphics.hpp"
+#include "core/events/events.hpp"
+#include "core/events/event_define.hpp"
 
 namespace solis {
 static bool IsDestroyEngine = false;
@@ -24,8 +26,8 @@ Engine::Engine(const EngineCreateInfo &info) :
     mSwapchain = Graphics::Get()->CreateSurfaceSwapchain(info.window, info.windowSize);
 
     // 下一帧触发
-    // EVENT_SEND(EngineInitEvent, EngineInitEvent());
-    // EVENT_POST(EngineInitPostEvent, EngineInitPostEvent());
+    EVENT_SEND(EngineInitEvent());
+    EVENT_POST(EngineInitPostEvent());
 }
 
 Engine::~Engine()
