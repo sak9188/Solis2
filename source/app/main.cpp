@@ -161,12 +161,6 @@ int main(int argc, char **argv)
     using namespace graphics;
     using namespace files;
 
-    Files::Get()->SetCurrentPath(Files::Get()->GetExecuteBinPath());
-
-    // Shader shader;
-    // shader.CreateShaderModule("./shaders/triangle/triangle.vert", Shader::Type::Vertex);
-    // shader.CreateShaderModule("./shaders/triangle/triangle.frag", Shader::Type::Fragment);
-
     RenderPass renderPass;
     renderPass.Build();
 

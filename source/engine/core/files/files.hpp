@@ -17,7 +17,11 @@ class SOLIS_CORE_API Files : public Object<Files>, public Module::Registrar<File
     inline static const bool Registered = Register(Stage::Never);
 
 public:
-    Files()          = default;
+    Files()
+    {
+        // 设置当前路径为可执行文件路径
+        Files::Get()->SetCurrentPath(Files::Get()->GetExecuteBinPath());
+    };
     virtual ~Files() = default;
 
     virtual void Update() override
