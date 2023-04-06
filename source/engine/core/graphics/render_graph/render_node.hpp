@@ -10,11 +10,28 @@
 
 namespace solis {
 namespace graphics {
-class SOLIS_CORE_API RenderNode : public Object<RenderNode>
+struct SOLIS_CORE_API RenderNode : public Object<RenderNode>
 {
-public:
     RenderNode()          = default;
     virtual ~RenderNode() = default;
+
+    string name;
 };
+
+struct SOLIS_CORE_API PassNode : public RenderNode
+{
+    PassNode()          = default;
+    virtual ~PassNode() = default;
+
+    vector<size_t> input;
+    vector<size_t> output;
+};
+
+struct SOLIS_CORE_API ResourceNode : public RenderNode
+{
+    ResourceNode()          = default;
+    virtual ~ResourceNode() = default;
+};
+
 }
 } // namespace solis::graphics

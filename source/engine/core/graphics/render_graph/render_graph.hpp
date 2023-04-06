@@ -19,6 +19,8 @@ public:
 
     void Compile();
 
+    void Execute();
+
     void AddNode(const RenderNode &node);
 
     void RemoveNode(const RenderNode &node);
@@ -26,7 +28,13 @@ public:
     void Clear();
 
 private:
-    vector<RenderNode> mNodes;
+    // vector<RenderNode> mNodes;
+
+    vector<PassNode>     mPassNodes;
+    vector<ResourceNode> mResourceNodes;
+
+    dict_map<string, size_t> mPassNodeMap;
+    dict_map<string, size_t> mResourceNodeMap;
 };
 }
 } // namespace solis::graphics
