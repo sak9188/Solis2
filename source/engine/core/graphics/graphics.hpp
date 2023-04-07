@@ -8,6 +8,8 @@
 #include "core/base/object.hpp"
 #include "core/base/module.hpp"
 
+#include "core/graphics/render_graph/render_node.hpp"
+
 #include "volk.h"
 #include "vk_mem_alloc.h"
 
@@ -70,13 +72,11 @@ public:
         return mCommandPool;
     }
 
-    // AddRenderPass
     void AddRenderPass(RenderPass *renderPass) noexcept
     {
         mRenderPasses.push_back(renderPass);
     }
 
-    // AddPipeline
     void AddPipeline(Pipeline *pipeline) noexcept
     {
         mPipelines.push_back(pipeline);
@@ -111,7 +111,8 @@ private:
 
     vector<RenderPass *> mRenderPasses;
     vector<Pipeline *>   mPipelines;
-    // vector<Buffer *>     mBuffers;
+
+    RenderGraphPipeline mRenderGraphPipeline;
 };
 }
 } // namespace solis::graphics

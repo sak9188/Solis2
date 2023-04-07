@@ -9,6 +9,7 @@
 #include "core/graphics/command/command_pool.hpp"
 #include "core/graphics/pipeline/pipeline.hpp"
 #include "core/graphics/render_pass.hpp"
+#include "core/graphics/render_graph/render_graph.hpp"
 
 namespace solis {
 namespace graphics {
@@ -19,7 +20,10 @@ Graphics::Graphics()
     mPhysicalDevice = std::make_unique<PhysicalDevice>(*mInstance);
     mLogicalDevice  = std::make_unique<LogicalDevice>(*mInstance, *mPhysicalDevice);
 
+    // VMA
     this->CreateAllocator();
+
+    // RenderGraph
 }
 
 Graphics::~Graphics()
