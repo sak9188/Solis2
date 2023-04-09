@@ -7,7 +7,7 @@ void RenderNode::Execute()
 {
 }
 
-void RenderGraphPipelin::Execute()
+void RenderGraphPipeline::Execute()
 {
     for (auto &renderNode : renderNodes)
     {
@@ -17,9 +17,16 @@ void RenderGraphPipelin::Execute()
     }
 }
 
-bool PassNode::CanMerge(const RenderGraph &graph, const PassNode &other)
+bool PassNode::CanMerge(const RenderGraph &graph)
 {
-    graph.GetResourceNode()
+    for (auto &[input, type] : inputs)
+    {
+        // 如果不是RenderTarget, 那么必然不能合批
+        if (type != ResourceNode::Type::RenderTarget)
+        {
+            return false;
+        }
+    }
 }
 
 } // namespace solis::graphics

@@ -47,31 +47,53 @@ struct SOLIS_CORE_API GraphNode : public Object<GraphNode>
     size_t index;
 };
 
-struct SOLIS_CORE_API PassNode : public GraphNode
-{
-    PassNode()          = default;
-    virtual ~PassNode() = default;
-
-    vector<size_t> inputs;
-    vector<size_t> outputs;
-
-    dict_map<Shader::Type, string> shaderModuleName;
-
-    bool IsValid()
-    {
-        return shaderModuleName[Shader::Type::Vertex] != "" && shaderModuleName[Shader::Type::Fragment] != "";
-    }
-
-    bool CanMerge(const RenderGraph &graph, const PassNode &other);
-};
-
+/**
+ * @brief 资源节点
+ * 如果资源节点，直接从一个PassNode的输出中获取
+ * 那么这个资源节点就是一个RenderTarget
+ *
+ * 如果这个资源节点，是从另一个资源节点中
+ */
 struct SOLIS_CORE_API ResourceNode : public GraphNode
 {
+    enum class Type
+    {
+        RenderTarget,
+        Texture,
+    };
+
     ResourceNode()          = default;
     virtual ~ResourceNode() = default;
 
     VkFormat   format;
     math::vec2 size;
+};
+
+struct SOLIS_CORE_API PassNode : public GraphNode
+{
+    PassNode()          = default;
+    virtual ~PassNode() = default;
+
+    vector<std::tuple<size_t, ResourceNode::Type>> inputs;
+    vector<size_t>                                 outputs;
+
+    void AddInput(size_t index, ResourceNode::Type type)
+    {
+        inputs.emplace_back(index, type);
+    }
+
+    // 实际上是Shader引用PassNode, 这里做了解耦
+    // dict_map<Shader::Type, string> shaderModuleName;
+    bool IsValid()
+    {
+        // 输入可以默认为空， 但是输出不能为空
+        if (inputs.empty() && outputs.empty())
+            return false;
+
+        return true;
+    }
+
+    bool CanMerge(const RenderGraph &graph);
 };
 
 }

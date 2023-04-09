@@ -6,6 +6,8 @@ struct CompileRenderPass
 {
     // 合并的render pass
     vector<PassNode *> passNodes;
+    // 合并的render pass需要最大RenderTarget的数量
+    uint32_t maxRenderTargetCount = 0;
 };
 
 RenderGraph::RenderGraph()
@@ -15,7 +17,7 @@ RenderGraph::RenderGraph()
 
     // 这里是最后的Present节点
     this->AddBuildInPassNode("present")
-        .inputs.push_back(backbuffer.index);
+        .inputs.push_back({backbuffer.index, ResourceNode::Type::Texture});
 }
 
 RenderGraphPipeline RenderGraph::Compile()
@@ -52,8 +54,8 @@ RenderGraphPipeline RenderGraph::Compile()
         }
 
         // 如果是中间节点，需要判断是否可以合并
-        auto &lastPassNode = combinePassNodes.back().passNodes.back();
-        if (lastPassNode->CanMerge(*this, *passNode))
+        // auto &lastPassNode = combinePassNodes.back().passNodes.back();
+        if (passNode->CanMerge(*this))
         {
             combinePassNodes.back().passNodes.push_back(passNode);
         }
@@ -67,6 +69,11 @@ RenderGraphPipeline RenderGraph::Compile()
     // 把Present节点单独放在最后
     auto combineNode = combinePassNodes.emplace_back();
     combineNode.passNodes.push_back(mPassNodeMap.find("@present")->second);
+
+    // TODO: 这里最后需要计算到底需要多少个Image去渲染
+    for (auto &passNode : combinePassNodes)
+    {
+    }
 
     // 这里拿到已经合并好的PassNode
     // 开始编译成真正的RenderNode和Pipeline

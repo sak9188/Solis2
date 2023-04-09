@@ -3,3 +3,4 @@ install
 *.obj
 *.log
 *.rar
+.VSCodeCounter
