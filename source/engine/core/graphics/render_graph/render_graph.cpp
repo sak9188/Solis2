@@ -15,12 +15,21 @@ struct less<solis::graphics::PassNode *>
 
 namespace solis::graphics {
 
-struct CompileRenderPass
+struct CompiledResourceNode
 {
-    // 合并的render pass
-    vector<std::set<PassNode *>> passNodes;
-    // RenderTarget
-    vector<ResourceNode *> renderTargets;
+    ResourceNode *resourceNode = nullptr;             // 原始的资源节点，如果是alias那么就是别名的资源节点
+    bool          isAlias      = false;               // 是否是别名
+    VkFormat      targetFormat = VK_FORMAT_UNDEFINED; // 如果是别名，那么目标格式是什么
+    math::vec2    targetSize   = math::vec2(0.0f);    // 如果是别名，那么目标大小是什么
+    math::vec4    targetClear  = math::vec4(0.0f);    // 如果是别名，那么目标清除颜色是什么
+};
+
+struct CompilePassNode
+{
+    // 优先级
+    size_t                                 priproty;
+    PassNode                              *passNode = nullptr;
+    dict_map<string, CompiledResourceNode> resourceNodes;
 };
 
 RenderGraph::RenderGraph()
@@ -29,8 +38,7 @@ RenderGraph::RenderGraph()
     auto backbuffer = this->AddBuildInResourceNode("backbuffer");
 
     // 这里是最后的Present节点
-    this->AddBuildInPassNode("present")
-        .inputs.push_back({backbuffer.index, ResourceNode::Type::Texture});
+    this->AddBuildInPassNode("present").AddOuput(backbuffer.index);
 }
 
 void RenderGraph::SortPassNodes(vector<std::set<PassNode *>> &layerdNodes, vector<PassNode *> &passNodes, int layers)
@@ -44,9 +52,9 @@ void RenderGraph::SortPassNodes(vector<std::set<PassNode *>> &layerdNodes, vecto
 
         vector<PassNode *> tempPassNodes;
         // 找到输入的资源节点
-        for (auto &[input, type] : passNode->inputs)
+        for (auto &output : passNode->outputs)
         {
-            auto resourceNode = GetResourceNode(input);
+            auto resourceNode = GetResourceNode(output);
             for (auto &passIndex : resourceNode->inputPasses)
             {
                 auto &nextPassNode = mPassNodes[passIndex];
@@ -95,18 +103,38 @@ RenderGraphPipeline RenderGraph::Compile()
     SortPassNodes(layerdNodes, tempLayerNodes);
 
     // 这里最后需要计算到底需要多少个Image去渲染
-    for (auto &layerNodes : layerdNodes)
+    vector<ResourceNode *>           renderTragets;
+    dict_map<size_t, vector<size_t>> renderTargetIndex;
+    for (int i = 0; i < layerdNodes.size(); ++i)
     {
+        auto &layerNodes = layerdNodes[i];
         for (auto &passNode : layerNodes)
         {
-            for (auto &[intput, type] : passNode->inputs)
+            for (auto &output : passNode->outputs)
             {
-                if (type == ResourceNode::Type::RenderTarget)
+                auto outputNode = GetResourceNode(output);
+                if (i < 2)
                 {
-                    auto resourceNode = GetResourceNode(intput);
-                    if (resourceNode->renderTarget)
+                    if (!outputNode->inputPasses.empty())
                     {
-                        compileResult.renderTargets.push_back(resourceNode);
+                        // 说明这个节点在下下层有可能会被使用到
+                        renderTargetIndex[(size_t)i].push_back(outputNode->index);
+                    }
+
+                    renderTragets.push_back(outputNode);
+
+                    continue;
+                }
+
+                // 找到上上层已经创建好的节点
+                auto &lastLayerNodes = renderTargetIndex[i - 2];
+                for (auto &lastLayerNode : lastLayerNodes)
+                {
+                    auto lastLayerNodePtr = GetResourceNode(lastLayerNode);
+                    if (lastLayerNodePtr->CanAlias(*outputNode))
+                    {
+                        // 说明这个节点在下下层有可能会被使用到
+                        renderTargetIndex[(size_t)i].push_back(lastLayerNodePtr->index);
                     }
                 }
             }

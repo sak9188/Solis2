@@ -19,20 +19,37 @@ class RenderGraph;
 class SOLIS_CORE_API RenderNode : public Object<RenderNode>
 {
 public:
-    RenderNode()          = default;
-    virtual ~RenderNode() = default;
+    RenderNode() = default;
+    virtual ~RenderNode()
+    {
+        if (executor)
+        {
+            delete executor;
+        }
+    };
 
     class RenderNodeExecutor : public Object<RenderNodeExecutor>
     {
-        VkRenderPass                                              renderPass = VK_NULL_HANDLE; // brow ref
-        vector<Pipeline *>                                        pipelines;                   // brow ref
+        VkRenderPass       renderPass  = VK_NULL_HANDLE; // brow ref
+        VkFramebuffer      framebuffer = VK_NULL_HANDLE;
+        vector<Pipeline *> pipelines; // brow ref
+
         vector<std::function<void(CommandBuffer &commandbuffer)>> callbacks;
     };
 
+    // 节点索引
+    size_t index = 0;
+
+    // 节点名称
     string name;
+
+    // 节点执行器
+    RenderNodeExecutor *executor = nullptr;
 
     // 节点执行的时候需要的资源
     void RequireImage();
+
+    void Build();
 
     void Execute()
     {
@@ -84,13 +101,19 @@ struct SOLIS_CORE_API ResourceNode : public GraphNode
     ResourceNode()          = default;
     virtual ~ResourceNode() = default;
 
-    VkFormat   format;
-    math::vec2 size;
+    VkFormat   format = VK_FORMAT_B8G8R8A8_SRGB;
+    math::vec2 size   = {1.0f, 1.0f};
 
     // 作为Pass节点的输入
     vector<size_t> inputPasses;
     // 作为Pass节点的输出
     vector<size_t> outputResPasses;
+
+    bool CanAlias(const ResourceNode &other) const
+    {
+        // TODO: 判断other节点所需要的内存是否是当前节点的内存range的子集
+        return true;
+    }
 };
 
 struct SOLIS_CORE_API PassNode : public GraphNode
@@ -98,12 +121,13 @@ struct SOLIS_CORE_API PassNode : public GraphNode
     PassNode()          = default;
     virtual ~PassNode() = default;
 
-    vector<std::tuple<size_t, ResourceNode::Type>> inputs;
-    vector<size_t>                                 outputs;
+    vector<size_t> inputs;  // 作为资源节点的输入
+    vector<size_t> outputs; // 作为资源节点的输出
     // 默认情况下是-1, 代表没有被分配到layer
     int layer = -1;
 
-    void AddInput(size_t index, ResourceNode::Type type);
+    void AddInput(size_t index);
+    void AddOuput(size_t index);
 
     // 实际上是Shader引用PassNode, 这里做了解耦
     // dict_map<Shader::Type, string> shaderModuleName;

@@ -19,27 +19,28 @@ void RenderGraphPipeline::Execute()
 
 bool PassNode::CanMerge(const RenderGraph &graph)
 {
-    for (auto &[input, type] : inputs)
-    {
-        // 如果不是RenderTarget, 那么必然不能合批
-        if (type != ResourceNode::Type::RenderTarget)
-        {
-            return false;
-        }
-    }
+    // for (auto &[input, type] : inputs)
+    // {
+    // // 如果不是RenderTarget, 那么必然不能合批
+    // if (type != ResourceNode::Type::RenderTarget)
+    // {
+    // return false;
+    // }
+    // }
 }
 
-void PassNode::AddInput(size_t index, ResourceNode::Type type)
+void PassNode::AddInput(size_t index)
 {
-    inputs.emplace_back(index, type);
+    inputs.emplace_back(index);
     auto resourceNode = renderGraph->GetResourceNode(index);
     resourceNode->inputPasses.push_back(this->index);
+}
 
-    if (type == ResourceNode::Type::RenderTarget)
-    {
-        resourceNode->outputResPasses.push_back(this->index);
-        this->outputs.push_back(index);
-    }
+void PassNode::AddOuput(size_t index)
+{
+    outputs.emplace_back(index);
+    auto resourceNode = renderGraph->GetResourceNode(index);
+    resourceNode->outputResPasses.push_back(this->index);
 }
 
 } // namespace solis::graphics
