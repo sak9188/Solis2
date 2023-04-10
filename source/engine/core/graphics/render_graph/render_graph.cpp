@@ -1,13 +1,26 @@
 #include "core/graphics/render_graph/render_graph.hpp"
 
+#include <set>
+
+namespace std {
+template <>
+struct less<solis::graphics::PassNode *>
+{
+    constexpr bool operator()(const solis::graphics::PassNode *lhs, const solis::graphics::PassNode *rhs) const
+    {
+        return lhs->index < rhs->index;
+    }
+};
+} // namespace std
+
 namespace solis::graphics {
 
 struct CompileRenderPass
 {
     // 合并的render pass
-    vector<PassNode *> passNodes;
-    // 合并的render pass需要最大RenderTarget的数量
-    uint32_t maxRenderTargetCount = 0;
+    vector<std::set<PassNode *>> passNodes;
+    // RenderTarget
+    vector<ResourceNode *> renderTargets;
 };
 
 RenderGraph::RenderGraph()
@@ -20,10 +33,42 @@ RenderGraph::RenderGraph()
         .inputs.push_back({backbuffer.index, ResourceNode::Type::Texture});
 }
 
+void RenderGraph::SortPassNodes(vector<std::set<PassNode *>> &layerdNodes, vector<PassNode *> &passNodes, int layers)
+{
+    // 最大层数为32，超过就算循环依赖了
+    assert(layers < 32 && "RenderGraph::SortPassNodes: node loop");
+
+    for (int i = 0; i < passNodes.size(); ++i)
+    {
+        auto &passNode = passNodes[i];
+
+        vector<PassNode *> tempPassNodes;
+        // 找到输入的资源节点
+        for (auto &[input, type] : passNode->inputs)
+        {
+            auto resourceNode = GetResourceNode(input);
+            for (auto &passIndex : resourceNode->inputPasses)
+            {
+                auto &nextPassNode = mPassNodes[passIndex];
+                nextPassNode.layer = std::max(nextPassNode.layer, passNode->layer + 1);
+                tempPassNodes.push_back(&nextPassNode);
+                if (layerdNodes.size() <= nextPassNode.layer)
+                {
+                    layerdNodes.resize(nextPassNode.layer + 1);
+                }
+                layerdNodes[nextPassNode.layer].insert(&nextPassNode);
+            }
+        }
+        SortPassNodes(layerdNodes, tempPassNodes, layers + 1);
+    }
+}
+
 RenderGraphPipeline RenderGraph::Compile()
 {
     // 先检查一遍索引是否有改动
-    vector<PassNode *> validPassNode;
+    dict_map<size_t, PassNode *> validPassNode;
+    vector<PassNode *>           tempLayerNodes;
+    vector<std::set<PassNode *>> layerdNodes;
     for (size_t i = 0; i < mPassNodes.size(); ++i)
     {
         auto &passNode = mPassNodes[i];
@@ -34,46 +79,43 @@ RenderGraphPipeline RenderGraph::Compile()
 
         if (passNode.IsValid())
         {
-            validPassNode.push_back(&passNode);
+            validPassNode.insert(std::make_pair(passNode.index, &passNode));
+        }
+
+        if (passNode.inputs.empty())
+        {
+            passNode.layer = 0;
+            tempLayerNodes.push_back(&passNode);
         }
     }
 
     RenderGraphPipeline compileResult;
 
-    // TODO: 这里对多个连续的PassNode进行Subpass合并
-    vector<CompileRenderPass> combinePassNodes;
-    for (size_t i = 0; i < validPassNode.size(); i++)
-    {
-        auto &passNode    = validPassNode[i];
-        auto  combineNode = combinePassNodes.emplace_back();
-        // 如果是第一个节点，直接添加
-        if (combinePassNodes.empty())
-        {
-            combineNode.passNodes.push_back(passNode);
-            continue;
-        }
+    // 这里把所有的PassNode按照依赖关系进行分层
+    SortPassNodes(layerdNodes, tempLayerNodes);
 
-        // 如果是中间节点，需要判断是否可以合并
-        // auto &lastPassNode = combinePassNodes.back().passNodes.back();
-        if (passNode->CanMerge(*this))
+    // 这里最后需要计算到底需要多少个Image去渲染
+    for (auto &layerNodes : layerdNodes)
+    {
+        for (auto &passNode : layerNodes)
         {
-            combinePassNodes.back().passNodes.push_back(passNode);
-        }
-        else
-        {
-            combinePassNodes.emplace_back();
-            combinePassNodes.back().passNodes.push_back(passNode);
+            for (auto &[intput, type] : passNode->inputs)
+            {
+                if (type == ResourceNode::Type::RenderTarget)
+                {
+                    auto resourceNode = GetResourceNode(intput);
+                    if (resourceNode->renderTarget)
+                    {
+                        compileResult.renderTargets.push_back(resourceNode);
+                    }
+                }
+            }
         }
     }
 
     // 把Present节点单独放在最后
     auto combineNode = combinePassNodes.emplace_back();
     combineNode.passNodes.push_back(mPassNodeMap.find("@present")->second);
-
-    // TODO: 这里最后需要计算到底需要多少个Image去渲染
-    for (auto &passNode : combinePassNodes)
-    {
-    }
 
     // 这里拿到已经合并好的PassNode
     // 开始编译成真正的RenderNode和Pipeline
@@ -103,6 +145,7 @@ PassNode &RenderGraph::AddPassNode(const string &name)
     auto &node         = mPassNodes.back();
     node.name          = name;
     node.index         = mPassNodes.size() - 1;
+    node.renderGraph   = this;
     mPassNodeMap[name] = &node;
     return node;
 }
@@ -118,6 +161,7 @@ PassNode &RenderGraph::AddBuildInPassNode(const string &name)
     auto &node         = mBuildInPassNodes.back();
     node.name          = "@" + name;
     node.index         = mBuildInPassNodes.size() - 1;
+    node.renderGraph   = this;
     mPassNodeMap[name] = &node;
     return node;
 }
@@ -133,6 +177,7 @@ ResourceNode &RenderGraph::AddResourceNode(const string &name)
     auto &node             = mResourceNodes.back();
     node.name              = name;
     node.index             = mResourceNodes.size() - 1;
+    node.renderGraph       = this;
     mResourceNodeMap[name] = &node;
     return node;
 }
@@ -148,6 +193,7 @@ ResourceNode &RenderGraph::AddBuildInResourceNode(const string &name)
     auto &node             = mBuildInResourceNodes.back();
     node.name              = "@" + name;
     node.index             = mBuildInResourceNodes.size() - 1;
+    node.renderGraph       = this;
     mResourceNodeMap[name] = &node;
     return node;
 }

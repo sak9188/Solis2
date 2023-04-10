@@ -32,9 +32,21 @@ public:
 
     PassNode *GetPassNode(const string &name);
 
+    PassNode *GetPassNode(size_t index)
+    {
+        return &mPassNodes[index];
+    }
+
     ResourceNode *GetResourceNode(const string &name);
 
+    ResourceNode *GetResourceNode(size_t index)
+    {
+        return &mResourceNodes[index];
+    }
+
 private:
+    void SortPassNodes(vector<std::set<PassNode *>> &layerdNodes, vector<PassNode *> &passNodes, int layers = 0);
+
     // 添加内部的节点
     PassNode     &AddBuildInPassNode(const string &name);
     ResourceNode &AddBuildInResourceNode(const string &name);

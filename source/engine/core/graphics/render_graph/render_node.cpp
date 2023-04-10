@@ -29,4 +29,17 @@ bool PassNode::CanMerge(const RenderGraph &graph)
     }
 }
 
+void PassNode::AddInput(size_t index, ResourceNode::Type type)
+{
+    inputs.emplace_back(index, type);
+    auto resourceNode = renderGraph->GetResourceNode(index);
+    resourceNode->inputPasses.push_back(this->index);
+
+    if (type == ResourceNode::Type::RenderTarget)
+    {
+        resourceNode->outputResPasses.push_back(this->index);
+        this->outputs.push_back(index);
+    }
+}
+
 } // namespace solis::graphics
