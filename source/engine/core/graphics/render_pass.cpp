@@ -32,6 +32,8 @@ void RenderPass::Destroy()
     }
 
     mDestroyed = true;
+
+    // TODO: 从Graphics中移除
 }
 
 bool RenderPass::Build()

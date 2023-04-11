@@ -102,60 +102,67 @@ RenderGraphPipeline RenderGraph::Compile()
     // 这里把所有的PassNode按照依赖关系进行分层
     SortPassNodes(layerdNodes, tempLayerNodes);
 
-    // 这里最后需要计算到底需要多少个Image去渲染
-    vector<ResourceNode *>           renderTragets;
-    dict_map<size_t, vector<size_t>> renderTargetIndex;
-    for (int i = 0; i < layerdNodes.size(); ++i)
-    {
-        auto &layerNodes = layerdNodes[i];
-        for (auto &passNode : layerNodes)
-        {
-            for (auto &output : passNode->outputs)
-            {
-                auto outputNode = GetResourceNode(output);
-                if (i < 2)
-                {
-                    if (!outputNode->inputPasses.empty())
-                    {
-                        // 说明这个节点在下下层有可能会被使用到
-                        renderTargetIndex[(size_t)i].push_back(outputNode->index);
-                    }
+    // TODO:
+    // 1. 这里也可以不用去计算，在运行时去找到一个合适的Image
+    // 2. 在编译时计算
+    // vector<ResourceNode *>           renderTragets;
+    // dict_map<size_t, vector<size_t>> renderTargetIndex;
+    // for (int i = 0; i < layerdNodes.size(); ++i)
+    // {
+    // auto &layerNodes = layerdNodes[i];
+    // for (auto &passNode : layerNodes)
+    // {
+    // for (auto &output : passNode->outputs)
+    // {
+    // auto outputNode = GetResourceNode(output);
+    // if (i < 2)
+    // {
+    // if (!outputNode->inputPasses.empty())
+    // {
+    // // 说明这个节点在下下层有可能会被使用到
+    // renderTargetIndex[(size_t)i].push_back(outputNode->index);
+    // }
 
-                    renderTragets.push_back(outputNode);
+    // renderTragets.push_back(outputNode);
 
-                    continue;
-                }
+    // continue;
+    // }
 
-                // 找到上上层已经创建好的节点
-                auto &lastLayerNodes = renderTargetIndex[i - 2];
-                for (auto &lastLayerNode : lastLayerNodes)
-                {
-                    auto lastLayerNodePtr = GetResourceNode(lastLayerNode);
-                    if (lastLayerNodePtr->CanAlias(*outputNode))
-                    {
-                        // 说明这个节点在下下层有可能会被使用到
-                        renderTargetIndex[(size_t)i].push_back(lastLayerNodePtr->index);
-                    }
-                }
-            }
-        }
-    }
-
-    // 把Present节点单独放在最后
-    auto combineNode = combinePassNodes.emplace_back();
-    combineNode.passNodes.push_back(mPassNodeMap.find("@present")->second);
+    // // 这里不应该提前做好判断
+    // auto &lastLayerNodes = renderTargetIndex[i - 2];
+    // for (auto &lastLayerNode : lastLayerNodes)
+    // {
+    // auto lastLayerNodePtr = GetResourceNode(lastLayerNode);
+    // if (lastLayerNodePtr->CanAlias(*outputNode))
+    // {
+    // // 说明这个节点在下下层有可能会被使用到
+    // renderTargetIndex[(size_t)i].push_back(lastLayerNodePtr->index);
+    // }
+    // else
+    // {
+    // // 说明需要创建这个节点
+    // renderTargetIndex[(size_t)i].push_back(outputNode->index);
+    // }
+    // }
+    // }
+    // }
+    // }
 
     // 这里拿到已经合并好的PassNode
     // 开始编译成真正的RenderNode和Pipeline
-    for (auto &passNode : combinePassNodes)
+    size_t passIndex = 0;
+    for (auto &layerNodes : layerdNodes)
     {
-        compileResult.renderNodes.emplace_back();
-        auto &renderNode = compileResult.renderNodes.back();
-        for (auto &passNode : passNode.passNodes)
+        for (auto &passNode : layerNodes)
         {
-            renderNode.name       = passNode->name;
-            renderNode.renderPass = passNode->renderPass;
-            renderNode.pipelines  = passNode->pipelines;
+            compileResult.renderNodes.emplace_back();
+            auto &renderNode = compileResult.renderNodes.back();
+            renderNode.index = passIndex++;
+            renderNode.name  = passNode->name;
+            // renderNode.renderPass = passNode->renderPass;
+            // renderNode.pipelines  = passNode->pipelines;
+
+            renderNode.Build();
         }
     }
 

@@ -17,17 +17,17 @@ void RenderGraphPipeline::Execute()
     }
 }
 
-bool PassNode::CanMerge(const RenderGraph &graph)
-{
-    // for (auto &[input, type] : inputs)
-    // {
-    // // 如果不是RenderTarget, 那么必然不能合批
-    // if (type != ResourceNode::Type::RenderTarget)
-    // {
-    // return false;
-    // }
-    // }
-}
+// bool PassNode::CanMerge(const RenderGraph &graph)
+// {
+// // for (auto &[input, type] : inputs)
+// // {
+// // // 如果不是RenderTarget, 那么必然不能合批
+// // if (type != ResourceNode::Type::RenderTarget)
+// // {
+// // return false;
+// // }
+// // }
+// }
 
 void PassNode::AddInput(size_t index)
 {

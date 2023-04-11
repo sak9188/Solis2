@@ -35,6 +35,23 @@ public:
         vector<Pipeline *> pipelines; // brow ref
 
         vector<std::function<void(CommandBuffer &commandbuffer)>> callbacks;
+
+    public:
+        RenderNodeExecutor()          = default;
+        virtual ~RenderNodeExecutor() = default;
+
+        void AddCallback(const std::function<void(CommandBuffer &commandbuffer)> &callback)
+        {
+            callbacks.push_back(callback);
+        }
+
+        void Execute(CommandBuffer &commandbuffer)
+        {
+            for (auto &callback : callbacks)
+            {
+                callback(commandbuffer);
+            }
+        }
     };
 
     // 节点索引
@@ -42,6 +59,14 @@ public:
 
     // 节点名称
     string name;
+
+    // VkRenderPass
+    vector<VkAttachmentDescription> attachments;
+    vector<VkSubpassDescription>    subpasses;
+    vector<VkSubpassDependency>     dependencies;
+
+    // RenderPass
+    RenderPass *renderPass = nullptr;
 
     // 节点执行器
     RenderNodeExecutor *executor = nullptr;
@@ -67,10 +92,19 @@ public:
 class SOLIS_CORE_API RenderGraphPipeline : public Object<RenderGraphPipeline>
 {
 public:
-    vector<std::set<RenderNode>> renderNodes;
+    // layerd nodes
+    vector<vector<RenderNode>> renderNodes;
+
+    dict_map<string, RenderNode *> renderNodeMap;
+
+    // Add Pipeline
+    void AddPipeline(const string &name, const Pipeline *pipeline)
+    {
+    }
 
     // TODO: 这里需要任一个多线程组
-    void Execute();
+    void
+    Execute();
 };
 
 struct SOLIS_CORE_API GraphNode : public Object<GraphNode>
@@ -109,11 +143,11 @@ struct SOLIS_CORE_API ResourceNode : public GraphNode
     // 作为Pass节点的输出
     vector<size_t> outputResPasses;
 
-    bool CanAlias(const ResourceNode &other) const
-    {
-        // TODO: 判断other节点所需要的内存是否是当前节点的内存range的子集
-        return true;
-    }
+    // bool CanAlias(const ResourceNode &other) const
+    // {
+    //     // TODO: 判断other节点所需要的内存是否是当前节点的内存range的子集
+    //     return true;
+    // }
 };
 
 struct SOLIS_CORE_API PassNode : public GraphNode
@@ -125,6 +159,9 @@ struct SOLIS_CORE_API PassNode : public GraphNode
     vector<size_t> outputs; // 作为资源节点的输出
     // 默认情况下是-1, 代表没有被分配到layer
     int layer = -1;
+    // is SubPass
+    bool   multipass    = false;
+    size_t subPassIndex = 0;
 
     void AddInput(size_t index);
     void AddOuput(size_t index);
@@ -139,8 +176,7 @@ struct SOLIS_CORE_API PassNode : public GraphNode
 
         return true;
     }
-
-    bool CanMerge(const RenderGraph &graph);
+    // bool CanMerge(const RenderGraph &graph);
 };
 
 }
