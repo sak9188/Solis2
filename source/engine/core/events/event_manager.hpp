@@ -186,14 +186,14 @@ public:
     void UnregisterLatchHandler(EventHandler *handler);
 
 private:
-    struct Handler : public Object<Handler>
+    struct Handler
     {
         bool (*mem_fn)(void *object, const Event &event);
         void         *mHandler;
         EventHandler *mUnregisterKey;
     };
 
-    struct LatchHandler : public Object<LatchHandler>
+    struct LatchHandler
     {
         void (*up_fn)(void *object, const Event &event);
         void (*down_fn)(void *object, const Event &event);
@@ -201,7 +201,7 @@ private:
         EventHandler *mUnregisterKey;
     };
 
-    struct EventTypeData : public Object<EventTypeData>
+    struct EventTypeData
     {
         vector<Event *>                     mQueuedEvents;
         sort_map<uint32_t, vector<Handler>> mHandlers;
@@ -212,7 +212,7 @@ private:
         void FlushRecursiveHandlers();
     };
 
-    struct LatchEventTypeData : public Object<LatchEventTypeData>
+    struct LatchEventTypeData
     {
         vector<Event *>                          mQueuedEvents;
         sort_map<uint32_t, vector<LatchHandler>> mHandlers;
