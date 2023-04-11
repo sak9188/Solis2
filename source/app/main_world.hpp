@@ -6,7 +6,7 @@
 
 #include "core/world/world_base.hpp"
 
-class MainWorld : public Object<MainWorld>, public solis::WorldBase
+class MainWorld : public solis::Object<MainWorld>, public solis::WorldBase
 {
 public:
     OBJECT_NEW_DELETE(MainWorld)

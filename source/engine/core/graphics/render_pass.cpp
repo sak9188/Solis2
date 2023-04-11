@@ -38,18 +38,12 @@ void RenderPass::Destroy()
 
 bool RenderPass::Build()
 {
-    vector<VkSubpassDescription> subpasses(mSubpasses.size());
-    for (size_t i = 0; i < mSubpasses.size(); ++i)
-    {
-        subpasses[i] = mSubpasses[i].GetDescription();
-    }
-
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = mAttachments.size();
     renderPassInfo.pAttachments    = mAttachments.data();
-    renderPassInfo.subpassCount    = subpasses.size();
-    renderPassInfo.pSubpasses      = subpasses.data();
+    renderPassInfo.subpassCount    = mSubpasses.size();
+    renderPassInfo.pSubpasses      = mSubpasses.data();
     renderPassInfo.dependencyCount = mDependencies.size();
     renderPassInfo.pDependencies   = mDependencies.data();
 

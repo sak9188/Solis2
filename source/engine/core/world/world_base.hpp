@@ -12,7 +12,7 @@ public:
     WorldBase()          = default;
     virtual ~WorldBase() = default;
 
-    virtual void Start() override{};
-    virtual void Update() override{};
+    virtual void Start(){};
+    virtual void Update(){};
 };
 } // namespace solis

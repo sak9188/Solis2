@@ -15,18 +15,14 @@ namespace solis {
 namespace graphics {
 
 class RenderGraph;
+class RenderPass;
+class Pipeline;
 
 class SOLIS_CORE_API RenderNode : public Object<RenderNode>
 {
 public:
-    RenderNode() = default;
-    virtual ~RenderNode()
-    {
-        if (executor)
-        {
-            delete executor;
-        }
-    };
+    RenderNode()          = default;
+    virtual ~RenderNode() = default;
 
     class RenderNodeExecutor : public Object<RenderNodeExecutor>
     {
@@ -34,24 +30,24 @@ public:
         VkFramebuffer      framebuffer = VK_NULL_HANDLE;
         vector<Pipeline *> pipelines; // brow ref
 
-        vector<std::function<void(CommandBuffer &commandbuffer)>> callbacks;
+        // vector<std::function<void(CommandBuffer &commandbuffer)>> callbacks;
 
     public:
         RenderNodeExecutor()          = default;
         virtual ~RenderNodeExecutor() = default;
 
-        void AddCallback(const std::function<void(CommandBuffer &commandbuffer)> &callback)
-        {
-            callbacks.push_back(callback);
-        }
+        // void AddCallback(const std::function<void(CommandBuffer &commandbuffer)> &callback)
+        // {
+        // callbacks.push_back(callback);
+        // }
 
-        void Execute(CommandBuffer &commandbuffer)
-        {
-            for (auto &callback : callbacks)
-            {
-                callback(commandbuffer);
-            }
-        }
+        // void Execute(CommandBuffer &commandbuffer)
+        // {
+        // for (auto &callback : callbacks)
+        // {
+        // callback(commandbuffer);
+        // }
+        // }
     };
 
     // 节点索引
@@ -61,24 +57,24 @@ public:
     string name;
 
     // VkRenderPass
-    vector<VkAttachmentDescription> attachments;
-    vector<VkSubpassDescription>    subpasses;
-    vector<VkSubpassDependency>     dependencies;
+    vector<VkAttachmentDescription>                 attachments;
+    dict_map<string, vector<VkAttachmentReference>> attachmentReferences;
+    vector<VkSubpassDescription>                    subpasses;
+    vector<VkSubpassDependency>                     dependencies;
 
     // RenderPass
+    // TODO: 后续需把这个RenderPass序列化
     RenderPass *renderPass = nullptr;
 
     // 节点执行器
-    RenderNodeExecutor *executor = nullptr;
+    RenderNodeExecutor executor;
 
     // 节点执行的时候需要的资源
     void RequireImage();
 
     void Build();
 
-    void Execute()
-    {
-    }
+    void Execute();
 };
 
 class SOLIS_CORE_API RenderTargetNode : public Object<RenderTargetNode>
@@ -135,8 +131,16 @@ struct SOLIS_CORE_API ResourceNode : public GraphNode
     ResourceNode()          = default;
     virtual ~ResourceNode() = default;
 
-    VkFormat   format = VK_FORMAT_B8G8R8A8_SRGB;
-    math::vec2 size   = {1.0f, 1.0f};
+    bool                  isDepth       = false;
+    VkFormat              format        = VK_FORMAT_B8G8R8A8_SRGB;
+    math::vec2            size          = {1.0f, 1.0f};
+    VkSampleCountFlagBits samples       = VK_SAMPLE_COUNT_1_BIT;
+    VkAttachmentLoadOp    load          = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    VkAttachmentStoreOp   store         = VK_ATTACHMENT_STORE_OP_STORE;
+    VkAttachmentLoadOp    stencilLoad   = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    VkAttachmentStoreOp   stencilStore  = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    VkImageLayout         initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkImageLayout         finalLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     // 作为Pass节点的输入
     vector<size_t> inputPasses;

@@ -5,6 +5,8 @@
 #include "core/base/object.hpp"
 #include "core/base/using.hpp"
 
+#include "core/world/world_base.hpp"
+
 namespace solis {
 class SOLIS_CORE_API World : public Object<World>, public Module::Registrar<World>
 {

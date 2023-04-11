@@ -1,6 +1,6 @@
 #include "main_world.hpp"
 
-MainWorld::Start()
+void MainWorld::Start()
 {
     // Create GameObject
     /**
@@ -18,6 +18,6 @@ MainWorld::Start()
      */
 }
 
-MainWorld::Update()
+void MainWorld::Update()
 {
 }

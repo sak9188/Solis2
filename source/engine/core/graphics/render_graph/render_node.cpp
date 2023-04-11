@@ -1,10 +1,33 @@
 #include "core/graphics/render_graph/render_node.hpp"
 #include "core/graphics/render_graph/render_graph.hpp"
 
+#include "core/graphics/render_pass.hpp"
+
 namespace solis::graphics {
 
 void RenderNode::Execute()
 {
+}
+
+void RenderNode::Build()
+{
+    renderPass = new RenderPass();
+    for (auto &attachment : attachments)
+    {
+        renderPass->AddAttachment(attachment);
+    }
+
+    for (auto &subpass : subpasses)
+    {
+        renderPass->AddSubpass(subpass);
+    }
+
+    for (auto &dependency : dependencies)
+    {
+        renderPass->AddDependency(dependency);
+    }
+
+    renderPass->Build();
 }
 
 void RenderGraphPipeline::Execute()
@@ -13,7 +36,7 @@ void RenderGraphPipeline::Execute()
     {
         // 每一个节点执行之前 这个节点所依赖的节点都已经提交完毕
         // 因为是在单Queue下所以不会发生冲突
-        renderNode.Execute();
+        // renderNode.Execute();
     }
 }
 

@@ -110,6 +110,6 @@ void Engine::UpdateStage(Module::Stage stage)
 
 void Engine::SetMainWorld(std::unique_ptr<WorldBase> &&world)
 {
-    World::Get()->SetMainWorld(world);
+    World::Get()->SetMainWorld(std::move(world));
 }
 } // namespace solis

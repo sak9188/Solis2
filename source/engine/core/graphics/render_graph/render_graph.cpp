@@ -102,70 +102,102 @@ RenderGraphPipeline RenderGraph::Compile()
     // 这里把所有的PassNode按照依赖关系进行分层
     SortPassNodes(layerdNodes, tempLayerNodes);
 
-    // TODO:
-    // 1. 这里也可以不用去计算，在运行时去找到一个合适的Image
-    // 2. 在编译时计算
-    // vector<ResourceNode *>           renderTragets;
-    // dict_map<size_t, vector<size_t>> renderTargetIndex;
-    // for (int i = 0; i < layerdNodes.size(); ++i)
-    // {
-    // auto &layerNodes = layerdNodes[i];
-    // for (auto &passNode : layerNodes)
-    // {
-    // for (auto &output : passNode->outputs)
-    // {
-    // auto outputNode = GetResourceNode(output);
-    // if (i < 2)
-    // {
-    // if (!outputNode->inputPasses.empty())
-    // {
-    // // 说明这个节点在下下层有可能会被使用到
-    // renderTargetIndex[(size_t)i].push_back(outputNode->index);
-    // }
-
-    // renderTragets.push_back(outputNode);
-
-    // continue;
-    // }
-
-    // // 这里不应该提前做好判断
-    // auto &lastLayerNodes = renderTargetIndex[i - 2];
-    // for (auto &lastLayerNode : lastLayerNodes)
-    // {
-    // auto lastLayerNodePtr = GetResourceNode(lastLayerNode);
-    // if (lastLayerNodePtr->CanAlias(*outputNode))
-    // {
-    // // 说明这个节点在下下层有可能会被使用到
-    // renderTargetIndex[(size_t)i].push_back(lastLayerNodePtr->index);
-    // }
-    // else
-    // {
-    // // 说明需要创建这个节点
-    // renderTargetIndex[(size_t)i].push_back(outputNode->index);
-    // }
-    // }
-    // }
-    // }
-    // }
-
     // 这里拿到已经合并好的PassNode
     // 开始编译成真正的RenderNode和Pipeline
     size_t passIndex = 0;
     for (auto &layerNodes : layerdNodes)
     {
+        compileResult.renderNodes.emplace_back();
+        auto &renderNodes = compileResult.renderNodes.back();
         for (auto &passNode : layerNodes)
         {
-            compileResult.renderNodes.emplace_back();
-            auto &renderNode = compileResult.renderNodes.back();
+            renderNodes.emplace_back();
+            auto &renderNode = renderNodes.back();
+
             renderNode.index = passIndex++;
             renderNode.name  = passNode->name;
-            // renderNode.renderPass = passNode->renderPass;
-            // renderNode.pipelines  = passNode->pipelines;
 
+            renderNode.subpasses.emplace_back();
+            auto &subpass = renderNode.subpasses.back();
+
+            subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+            // TODO: 这里只考虑了单Pass的情况， 如果是多个Pass可能需要修改一下
+            // 不过后面再说吧，这个多Subpass只在ARM芯片上有优化
+            auto &colorAttachmentRefrences = renderNode.attachmentReferences["color"];
+            auto &depthAttachmentRefrences = renderNode.attachmentReferences["depth"];
+
+            for (auto &output : passNode->outputs)
+            {
+                auto resourceNode = GetResourceNode(output);
+
+                renderNode.attachments.emplace_back();
+                auto &attachment = renderNode.attachments.back();
+
+                attachment.format         = resourceNode->format;
+                attachment.samples        = resourceNode->samples;
+                attachment.initialLayout  = resourceNode->initialLayout;
+                attachment.finalLayout    = resourceNode->finalLayout;
+                attachment.loadOp         = resourceNode->load;
+                attachment.storeOp        = resourceNode->store;
+                attachment.stencilLoadOp  = resourceNode->stencilLoad;
+                attachment.stencilStoreOp = resourceNode->stencilStore;
+
+                if (!resourceNode->isDepth)
+                {
+                    colorAttachmentRefrences.emplace_back();
+                    auto &colorAttachment      = colorAttachmentRefrences.back();
+                    colorAttachment.attachment = renderNode.attachments.size() - 1;
+                    colorAttachment.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                }
+                else
+                {
+                    assert(renderNode.attachmentReferences["depth"].empty() && "RenderGraph::Compile: depth attachment only one");
+
+                    renderNode.attachmentReferences["depth"].emplace_back();
+                    auto &depthAttachment      = depthAttachmentRefrences.back();
+                    depthAttachment.attachment = renderNode.attachments.size() - 1;
+                    depthAttachment.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+                }
+            }
+
+            subpass.colorAttachmentCount    = colorAttachmentRefrences.size();
+            subpass.pColorAttachments       = colorAttachmentRefrences.data();
+            subpass.pDepthStencilAttachment = depthAttachmentRefrences.data();
+
+            if (passNode->multipass)
+            {
+                assert(false && "RenderGraph::Compile: multipass not support yet");
+                // renderNode.depenencies = passNode->dependencies;
+            }
+            else
+            {
+                static VkSubpassDependency single{
+                    VK_SUBPASS_EXTERNAL,
+                    0,
+                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    VK_DEPENDENCY_BY_REGION_BIT,
+                };
+                VkSubpassDependency copy = single;
+
+                if (!depthAttachmentRefrences.empty())
+                {
+                    copy.srcStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+                    copy.dstStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+                    copy.srcAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                    copy.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                }
+
+                renderNode.dependencies.push_back(copy);
+            }
+
+            // 此时已经构建出来RenderNode, 和实际的Subpass
             renderNode.Build();
         }
     }
-
     return std::move(compileResult);
 }
 
