@@ -10,9 +10,9 @@ namespace solis {
 namespace components {
 struct SOLIS_CORE_API Transform : public Component
 {
-    math::vec3 mPosition;
-    math::vec3 mRotation;
-    math::vec3 mScale;
+    math::vec3 position{0.0f, 0.0f, 0.0f};
+    math::vec3 rotation{0.0f, 0.0f, 0.0f};
+    math::vec3 scale{1.0f, 1.0f, 1.0f};
 };
 }
 } // namespace solis::components
