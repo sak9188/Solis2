@@ -9,7 +9,7 @@
 
 namespace solis {
 namespace components {
-struct SOLIS_CORE_API Material : public Component
+struct SOLIS_CORE_API Material : public Component<Material>
 {
     // std::unique_ptr<m>
 };

@@ -23,6 +23,7 @@ void MainWorld::Start()
      * Light->AddComponent(new Light());
      */
 
+    // TODO: 这里没有释放内存
     GameObject *gameObject = new GameObject();
 
     auto transform    = gameObject->AddComponent<components::Transform>();

@@ -8,8 +8,10 @@
 
 namespace solis {
 namespace components {
-struct SOLIS_CORE_API MeshRenderer : public Component
+struct SOLIS_CORE_API MeshRenderer : public Component<MeshRenderer>
 {
+
+
 };
 }
 } // namespace solis::components

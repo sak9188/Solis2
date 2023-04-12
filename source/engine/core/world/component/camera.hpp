@@ -8,7 +8,7 @@
 #include "core/data/component.hpp"
 
 namespace solis {
-struct SOLIS_CORE_API CameraComponent : public Component
+struct SOLIS_CORE_API Camera : public Component<Camera>
 {
 };
 } // namespace solis

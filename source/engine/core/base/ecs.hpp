@@ -113,6 +113,17 @@ public:
         return mUint64;
     }
 
+    bool Empty()
+    {
+        return mUint64 == 0;
+    }
+
+    // operator ==
+    bool operator==(const EntityID &other) const
+    {
+        return mUint64 == other.mUint64;
+    }
+
 private:
     // mPool(16) | mPoolIndex(16) | mIndex(32)
     uint64_t mUint64 = 0;
@@ -165,6 +176,7 @@ public:
         return &node.GetEntity(0);
     }
 
+    // TODO: 这里需要做成那种可缩放的
     void FreeEntity(EntityID &id)
     {
         auto pool = id.GetPool();
