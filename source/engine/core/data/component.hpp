@@ -23,7 +23,10 @@ public:
     Component() = default;
     virtual ~Component()
     {
-        GetPool().FreeEntity(entityId);
+        if (mInternalAlloc)
+        {
+            GetPool().FreeEntity(entityId);
+        }
     };
 
     EntityID entityId;
@@ -50,6 +53,9 @@ public:
     {
         return ctti::type_id<T>().hash();
     }
+
+private:
+    bool mInternalAlloc = false;
 };
 
 using ComponentMap = dict_map<uint64_t, ComponentBase *>;

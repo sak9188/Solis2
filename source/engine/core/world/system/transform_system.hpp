@@ -11,7 +11,7 @@
 #include "core/world/component/transform.hpp"
 
 namespace solis {
-class SOLIS_CORE_API TransformSystem : public System<TransformSystem>
+class SOLIS_CORE_API TransformSystem : public System<TransformSystem>, public EventHandler
 {
 public:
     virtual ~TransformSystem() = default;
@@ -24,6 +24,22 @@ public:
      * @param transform
      */
     void Watch(components::Transform &transform);
+
+    /**
+     * @brief 取消观察一个transform
+     *
+     * @param transform
+     */
+    void UnWatch(components::Transform &transform);
+
+    /**
+     * @brief 判断一个transform是否被观察
+     *
+     * @param transform
+     * @return true
+     * @return false
+     */
+    bool IsWatched(components::Transform &transform);
 
     /**
      * @brief Set the Parent object, 如果parent被释放了
@@ -39,7 +55,7 @@ public:
      * @brief Get the Parent object
      *
      * @param base
-     * @return components::Transform*
+     * @return components::Transform*, return nullptr if not found
      */
     components::Transform *GetParent(components::Transform &base);
 
@@ -51,6 +67,12 @@ private:
         std::list<TransformNode *> children;
     };
 
+    /**
+     * @brief Get the Transform Node object
+     *
+     * @param transform
+     * @return TransformNode&
+     */
     TransformNode &GetTransformNode(components::Transform &transform);
 
     /**
@@ -58,13 +80,17 @@ private:
      *
      * @param transform
      */
-    void
-    OnTransformExpired(components::Transform &transform);
+    void OnTransformExpired(const TransformExpiredEvent &event);
 
-    // TODO:(这里需要使用对象池，且对象池的增长策列为，线性增加)
-    // 这里是线性内存(缓存并且拷贝std::list中的transform, 如果数量以及层级关系不变，那么这里就不会发生拷贝)
-    // 这里由每帧的更新触发维护
-    vector<components::Transform>                      mTransformCache;
+    /**
+     * @brief 这里使用事件去触发
+     *
+     * @param transform
+     */
+    void OnTransformChanged(const TransformChangedEvent &event);
+
+    // TODO: 这里可以做线性优化，不过预计需要花很多时间，先用list把
+    TransformNode                                      mRoot;
     std::list<TransformNode>                           mTransformNodes;
     dict_map<components::Transform *, TransformNode *> mTransformNodeMap;
 };

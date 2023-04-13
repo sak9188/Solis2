@@ -3,6 +3,7 @@
 #include "core/data/game_object.hpp"
 
 #include "core/world/component.hpp"
+#include "core/world/system.hpp"
 
 using namespace solis;
 
@@ -29,6 +30,8 @@ void MainWorld::Start()
     auto transform    = gameObject->AddComponent<components::Transform>();
     auto meshRenderer = gameObject->AddComponent<components::MeshRenderer>();
     auto material     = gameObject->AddComponent<components::Material>();
+
+    TransformSystem::Get()->Watch(*transform);
 }
 
 void MainWorld::Update()

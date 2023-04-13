@@ -19,7 +19,7 @@ public:
     virtual void Start(){};
     virtual void Update(){};
 
-    inline static T &GetInstance()
+    inline static T *Get()
     {
         static T instance;
         return &instance;

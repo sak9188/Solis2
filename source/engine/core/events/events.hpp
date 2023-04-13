@@ -51,6 +51,12 @@ public:
             delete event;
         }
         mNextFrameEvents.clear();
+
+        for (auto &[pair, event] : mPostOnceEvents)
+        {
+            EventManager::DispatchInline(std::get<0>(pair), *event);
+            delete event;
+        }
     }
 
     // SENT_EVENT
@@ -70,8 +76,20 @@ public:
         mNextFrameEvents.emplace_back(std::make_tuple(ctti::type_id<T>().hash(), eptr));
     }
 
+    // 多次POST只会记录最后一次
+    template <typename T>
+    std::enable_if_t<std::is_base_of_v<Event, T>, void>
+    PostOnceEvent(const void *sender, const T &e)
+    {
+        uint64_t type = ctti::type_id<T>().hash();
+        Event   *eptr = new T(e);
+        auto     pair = std::make_tuple(type, sender);
+        mPostOnceEvents.emplace(pair, eptr);
+    }
+
 private:
-    vector<std::tuple<uint64_t, Event *>> mNextFrameEvents;
+    vector<std::tuple<uint64_t, Event *>>                 mNextFrameEvents;
+    dict_map<std::tuple<uint64_t, const void *>, Event *> mPostOnceEvents;
 };
 }
 } // namespace solis::events
