@@ -139,6 +139,12 @@ template <typename T>
 class ObjectPool : public Object<ObjectPool<T>>
 {
 public:
+    enum class IncreaseType
+    {
+        Linear,      // 线性增长
+        Exponential, // 指数增长
+    };
+
     ObjectPool()
     {
         auto node = ObjectPoolNode<T>(mSize);
@@ -163,7 +169,8 @@ public:
             nodeIndex++;
         }
 
-        mSize *= ObjectPoolStepTimesSize;
+        if ()
+            mSize *= ObjectPoolStepTimesSize;
 
         auto node = ObjectPoolNode<T>(mSize);
         node.AllocEntity(success);
@@ -194,6 +201,28 @@ private:
 
     std::list<ObjectPoolNode<T>> mNodes;
     vector<NodeIterator>         mCache;
+
+    IncreaseType mIncreaseType = IncreaseType::Exponential;
+    uint32_t     mSize         = ObjectPoolInitSize;
+};
+
+template <typename T>
+class ObjectPoolVector : public Object<ObjectPoolVector<T>>
+{
+public:
+    ObjectPoolVector()
+    {
+        auto node = ObjectPoolNode<T>(mSize);
+        mNodes.insert(node);
+        mCache.push_back(--mNodes.end());
+    };
+    ~ObjectPoolVector() = default;
+
+private:
+    using NodeIterator = typename std::list<ObjectPoolNode<T>>::iterator;
+
+    std::list<ObjectPoolNode<T>> mNodes;
+    vector<size_t>               mCache;
     uint32_t                     mSize = ObjectPoolInitSize;
 };
 } // namespace solis
