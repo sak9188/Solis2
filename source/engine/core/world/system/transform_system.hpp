@@ -11,9 +11,11 @@
 #include "core/world/component/transform.hpp"
 
 namespace solis {
-class SOLIS_CORE_API TransformSystem : public System<TransformSystem>, public EventHandler
+class SOLIS_CORE_API TransformSystem : public System<TransformSystem>, public EventHandler, public Object<TransformSystem>
 {
 public:
+    OBJECT_NEW_DELETE(TransformSystem)
+
     virtual ~TransformSystem() = default;
 
     virtual void Update() override;
@@ -65,6 +67,11 @@ private:
         components::Transform     *transform = nullptr;
         TransformNode             *parent    = nullptr;
         std::list<TransformNode *> children;
+
+        bool operator==(const TransformNode &other) const
+        {
+            return transform == other.transform && parent == other.parent && children == other.children;
+        }
     };
 
     /**
@@ -80,14 +87,14 @@ private:
      *
      * @param transform
      */
-    void OnTransformExpired(const TransformExpiredEvent &event);
+    bool OnTransformExpired(const TransformExpiredEvent &event);
 
     /**
      * @brief 这里使用事件去触发
      *
      * @param transform
      */
-    void OnTransformChanged(const TransformChangedEvent &event);
+    bool OnTransformChanged(const TransformChangedEvent &event);
 
     // TODO: 这里可以做线性优化，不过预计需要花很多时间，先用list把
     TransformNode                                      mRoot;

@@ -32,6 +32,11 @@
     events::Events::Get()->PostEvent(event)
 
 namespace solis {
+
+class SOLIS_CORE_API UpdateEvent : public Event
+{
+};
+
 namespace events {
 
 class SOLIS_CORE_API Events : public Object<Events>, public EventManager, public Module::Registrar<Events>
@@ -91,5 +96,5 @@ private:
     vector<std::tuple<uint64_t, Event *>>                 mNextFrameEvents;
     dict_map<std::tuple<uint64_t, const void *>, Event *> mPostOnceEvents;
 };
-}
-} // namespace solis::events
+} // namespace events
+} // namespace solis

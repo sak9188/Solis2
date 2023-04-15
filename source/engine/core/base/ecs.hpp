@@ -89,6 +89,7 @@ private:
 class EntityID : public Object<EntityID>
 {
 public:
+    EntityID() = default;
     EntityID(uint32_t index, uint32_t poolIndex, uint64_t pool) :
         mIndex(index),
         mPoolIndex(poolIndex),
@@ -121,9 +122,9 @@ public:
         return mUint64;
     }
 
-    bool Empty()
+    bool IsValid()
     {
-        return mUint64 == 0;
+        return mUint64 != 0;
     }
 
     // operator ==
@@ -143,21 +144,20 @@ private:
     uint64_t mPool = 0;
 };
 
+enum class ObjectPoolIncreaseType
+{
+    Linear,      // 线性增长
+    Exponential, // 指数增长
+};
+
 template <typename T>
 class ObjectPool : public Object<ObjectPool<T>>, public INonCopyable
 {
 public:
-    enum class IncreaseType
-    {
-        Linear,      // 线性增长
-        Exponential, // 指数增长
-    };
-
-    ObjectPool(IncreaseType type = IncreaseType::Exponential, size_t size = ObjectPoolInitSize) :
+    ObjectPool(ObjectPoolIncreaseType type = ObjectPoolIncreaseType::Exponential, size_t size = ObjectPoolInitSize) :
         mIncreaseType(type), mSize(size)
     {
-        auto node = ObjectPoolNode<T>(mSize);
-        mNodes.insert(node);
+        mNodes.emplace_back(mSize);
         mCache.push_back(--mNodes.end());
     };
     virtual ~ObjectPool() = default;
@@ -181,10 +181,10 @@ public:
         // 一些简单的增长策略
         switch (mIncreaseType)
         {
-        case IncreaseType::Linear:
+        case ObjectPoolIncreaseType::Linear:
             mSize += ObjectPoolStepTimesSize;
             break;
-        case IncreaseType::Exponential:
+        case ObjectPoolIncreaseType::Exponential:
             mSize *= ObjectPoolStepTimesSize;
             break;
 
@@ -193,10 +193,11 @@ public:
             break;
         }
 
-        auto node = ObjectPoolNode<T>(mSize);
+        mNodes.emplace_back(mSize);
+
+        auto &node = mNodes.back();
         node.AllocEntity(success);
 
-        mNodes.insert(node);
         mCache.push_back(--mNodes.end());
 
         assert(success);
@@ -256,8 +257,8 @@ private:
     std::list<ObjectPoolNode<T>> mNodes;
     vector<NodeIterator>         mCache;
 
-    IncreaseType mIncreaseType = IncreaseType::Exponential;
-    uint32_t     mSize         = ObjectPoolInitSize;
+    ObjectPoolIncreaseType mIncreaseType = IncreaseType::Exponential;
+    uint32_t               mSize         = ObjectPoolInitSize;
 };
 
 /**
@@ -266,11 +267,12 @@ private:
  * @tparam T
  */
 template <typename T>
-class ObjectPoolVector : public ObjectPool<T>
+class ObjectPoolVector : public ObjectPool<ObjectPoolVector<T>>
 {
 public:
+    using Pool = ObjectPool<ObjectPoolVector<T>>;
     ObjectPoolVector() :
-        ObjectPool(ObjectPool::IncreaseType::Linear);
+        Pool(ObjectPoolIncreaseType::Linear){};
     virtual ~ObjectPoolVector() = default;
 
     void Pushback(const T &ele)
@@ -278,7 +280,7 @@ public:
         EntityID id;
 
         // 这里不存储id
-        T *ele = AllocEntity(&id);
+        T *ele = Pool::AllocEntity(&id);
         *ele   = ele;
 
         mVectorSize++;
@@ -293,7 +295,7 @@ public:
     T &operator[](size_t index)
     {
         assert(index < mVectorSize);
-        return *GetEntity(index);
+        return *Pool::GetEntity(index);
     }
 
 private:

@@ -25,6 +25,7 @@ public:
     bool Start(const EngineInitEvent &event)
     {
         mMainWorld->Start();
+
         // 只会被调用一次
         return false;
     }

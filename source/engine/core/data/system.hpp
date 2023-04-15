@@ -8,7 +8,7 @@
 namespace solis {
 
 template <typename T>
-class SOLIS_CORE_API System : public Object<System<T>>
+class System : public Object<System<T>>
 {
 public:
     virtual ~System() = default;
@@ -25,7 +25,7 @@ public:
         return &instance;
     }
 
-private:
+protected:
     System() = default;
 };
 } // namespace solis

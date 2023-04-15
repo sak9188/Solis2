@@ -5,57 +5,70 @@
 #include "core/base/using.hpp"
 
 #include "core/base/ecs.hpp"
+#include "core/log/log.hpp"
+
+#include "ctti/type_id.hpp"
 
 namespace solis {
 
-struct SOLIS_CORE_API ComponentBase : public Object<ComponentBase>
+class SOLIS_CORE_API ComponentBase : public Object<ComponentBase>
 {
 public:
+    ComponentBase()          = default;
     virtual ~ComponentBase() = default;
 
     virtual uint64_t GetTypeId() = 0;
 };
 
 template <typename T>
-struct SOLIS_CORE_API Component : public ComponentBase
+class Component : public ComponentBase
 {
+    friend class ObjectPool<T>;
+
 public:
     Component() = default;
-    virtual ~Component()
-    {
-        if (mInternalAlloc)
-        {
-            GetPool().FreeEntity(entityId);
-        }
-    };
 
-    EntityID entityId;
+    bool IsValid()
+    {
+        return mEntityID.IsValid();
+    }
+
+    virtual void OnDestroy(){};
+
+    void Destroy()
+    {
+        if (!IsValid())
+        {
+            Log::SWarning("Component already destroyed: {}", ctti::type_id<T>().name().str());
+            return;
+        }
+        OnDestroy();
+        GetPool().FreeEntity(mEntityID);
+    }
 
     virtual uint64_t GetTypeId() override
     {
-        return GetTypeId();
+        return ctti::type_id<T>().hash();
     }
 
-    inline static std::enable_if_t<std::is_base_of_v<Component, T>, ObjectPool<T> &>
-    GetPool()
+    inline static ObjectPool<T> &GetPool()
     {
         static ObjectPool<T> pool;
         return pool;
     }
 
-    inline static std::enable_if_t<std::is_base_of_v<Component, T>, T *>
-    Get()
+    inline static T *Get()
     {
-        return GetPool().AllocEntity(&entityId);
+        EntityID id;
+        auto     entity   = GetPool().AllocEntity(&id);
+        entity->mEntityID = id;
+        return entity;
     }
 
-    inline static uint64_t GetTypeId()
-    {
-        return ctti::type_id<T>().hash();
-    }
+    EntityID mEntityID;
 
-private:
-    bool mInternalAlloc = false;
+protected:
+    virtual ~Component() = default;
 };
 
 using ComponentMap = dict_map<uint64_t, ComponentBase *>;

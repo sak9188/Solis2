@@ -5,11 +5,11 @@
 #include "core/base/using.hpp"
 
 #include "core/events/event_define.hpp"
+#include "core/events/event_property.hpp"
 
 #include "core/data/component.hpp"
 
 namespace solis {
-
 // forward declare
 namespace components {
 class Transform;
@@ -17,11 +17,20 @@ class Transform;
 
 struct TransformExpiredEvent : public Event
 {
+    TransformExpiredEvent(const components::Transform *transform) :
+        transform(transform)
+    {
+    }
     const components::Transform *transform;
 };
 
 struct TransformChangedEvent : public Event
 {
+    TransformChangedEvent(const components::Transform *transform) :
+        transform(transform)
+    {
+    }
+
     const components::Transform *transform;
 };
 
@@ -29,8 +38,14 @@ namespace components {
 class SOLIS_CORE_API Transform : public Component<Transform>
 {
 public:
-    Transform()  = default;
-    ~Transform() = default;
+    Transform() = default;
+
+    virtual void OnDestroy() override
+    {
+        OnExpired.PostInvoke({this});
+
+        OnExpired.Clear();
+    }
 
     const math::vec3 &GetPosition() const
     {
@@ -50,19 +65,27 @@ public:
     void SetPosition(const math::vec3 &position)
     {
         mPosition = position;
+
+        OnChanged.PostInvoke({this});
     }
 
     void SetRotation(const math::vec3 &rotation)
     {
         mRotation = rotation;
+
+        OnChanged.PostInvoke({this});
     }
 
     void SetScale(const math::vec3 &scale)
     {
         mScale = scale;
+
+        OnChanged.PostInvoke({this});
     }
 
-    // OnChanged +=
+    EventProperty<TransformExpiredEvent> OnExpired;
+
+    EventProperty<TransformChangedEvent> OnChanged;
 
 private:
     math::vec3 mPosition{0.0f, 0.0f, 0.0f};

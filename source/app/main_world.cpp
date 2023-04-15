@@ -28,8 +28,8 @@ void MainWorld::Start()
     GameObject *gameObject = new GameObject();
 
     auto transform    = gameObject->AddComponent<components::Transform>();
-    auto meshRenderer = gameObject->AddComponent<components::MeshRenderer>();
-    auto material     = gameObject->AddComponent<components::Material>();
+    // auto meshRenderer = gameObject->AddComponent<components::MeshRenderer>();
+    // auto material     = gameObject->AddComponent<components::Material>();
 
     TransformSystem::Get()->Watch(*transform);
 }

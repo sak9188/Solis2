@@ -35,7 +35,7 @@ public:
     {
         if (HasComponent<T>())
         {
-            Log::SWarn("GameObject add component already exists: {}", ctti::type_id<T>().name());
+            Log::SWarning("GameObject add component already exists: {}", ctti::type_id<T>().name().str());
         }
         mCommponents[ctti::type_id<T>().hash()] = component;
     }
@@ -54,7 +54,7 @@ public:
     {
         if (HasComponent<T>())
         {
-            Log::SWarn("GameObject add component already exists: {}", ctti::type_id<T>().name());
+            Log::SWarning("GameObject add component already exists: {}", ctti::type_id<T>().name().str());
         }
         auto component                          = T::Get();
         mCommponents[ctti::type_id<T>().hash()] = component;

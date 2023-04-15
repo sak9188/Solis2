@@ -20,6 +20,14 @@ void TransformSystem::Watch(components::Transform &transform)
     mTransformNodeMap[&transform]    = &mTransformNodes.back();
 
     mRoot.children.emplace_back(&mTransformNodes.back());
+
+    transform.OnChanged += [this](const TransformChangedEvent &event) -> bool {
+        return this->OnTransformChanged(event);
+    };
+
+    transform.OnExpired += [this](const TransformExpiredEvent &event) -> bool {
+        return this->OnTransformExpired(event);
+    };
 }
 
 void TransformSystem::UnWatch(components::Transform &transform)
@@ -88,16 +96,20 @@ TransformSystem::TransformNode &TransformSystem::GetTransformNode(components::Tr
     return node;
 }
 
-void TransformSystem::OnTransformExpired(const TransformExpiredEvent &event)
+bool TransformSystem::OnTransformExpired(const TransformExpiredEvent &event)
 {
     UnWatch(*const_cast<components::Transform *>(event.transform));
+
+    return false;
 }
 
-void TransformSystem::OnTransformChanged(const TransformChangedEvent &event)
+bool TransformSystem::OnTransformChanged(const TransformChangedEvent &event)
 {
     if (!IsWatched(*const_cast<components::Transform *>(event.transform)))
     {
-        return;
+        return false;
     }
+
+    return false;
 }
 } // namespace solis
