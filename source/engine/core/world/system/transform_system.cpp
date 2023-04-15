@@ -41,7 +41,7 @@ void TransformSystem::UnWatch(components::Transform &transform)
         }
         for (auto &child : node.children)
         {
-            // 这里可能就变成了游离节点了
+            // TODO: 这里可能就变成了游离节点了
             // 或许这里可以做一个小小优化
             child->parent = nullptr;
         }

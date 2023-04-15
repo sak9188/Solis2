@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "core/solis_core.hpp"
@@ -6,24 +7,20 @@
 
 #include "core/data/component.hpp"
 
-#include "core/graphics/pipeline/material.hpp"
-
 namespace solis {
 namespace components {
-class SOLIS_CORE_API MeshRenderer : public Renderable
+class SOLIS_CORE_API Mesh : public Renderable
 {
 public:
     virtual void OnAdd(GameObject *gameObject) override
     {
-        // TODO: 从gameObject中获取mesh
+        // TODO: 从gameObject中获取meshRenderer
     }
 
     virtual void OnRemove(GameObject *gameObject) override
     {
-        // TODO: 从gameObject中获取mesh
+        // TODO: 从gameObject中获取meshRenderer
     }
-
-    Material material;
 };
 }
 } // namespace solis::components

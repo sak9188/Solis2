@@ -27,11 +27,19 @@ void MainWorld::Start()
     // TODO: 这里没有释放内存
     GameObject *gameObject = new GameObject();
 
-    auto transform    = gameObject->AddComponent<components::Transform>();
+    // auto transform    = gameObject->AddComponent<components::Transform>();
     // auto meshRenderer = gameObject->AddComponent<components::MeshRenderer>();
     // auto material     = gameObject->AddComponent<components::Material>();
 
-    TransformSystem::Get()->Watch(*transform);
+    // PhysicsSystem::Get()->AllocRigidBody();
+
+    auto transfrom = TransformSystem::Get()->AllocTransform();
+    gameObject->AddComponent(transfrom);
+
+    // CameraSystem::Get()->AllocCamera();
+
+    auto meshRenderer = RenderSystem::Get()->AllocRenderable();
+    gameObject->AddComponent(meshRenderer);
 }
 
 void MainWorld::Update()

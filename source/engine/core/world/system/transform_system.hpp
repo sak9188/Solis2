@@ -21,6 +21,18 @@ public:
     virtual void Update() override;
 
     /**
+     * @brief 分配一个transform，这个transform将会被加入到整个系统中，如果不手动释放，那么将会在整个系统中被持续观察
+     *
+     * @return components::Transform*
+     */
+    components::Transform *AllocTransform()
+    {
+        auto tran = components::Transform::Get();
+        Watch(*tran);
+        return tran;
+    }
+
+    /**
      * @brief 观察一个transform，如果transform被释放了，那么这个transform将会被移除
      *
      * @param transform

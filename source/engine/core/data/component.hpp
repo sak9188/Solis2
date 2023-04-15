@@ -20,6 +20,8 @@ public:
     virtual uint64_t GetTypeId() = 0;
 };
 
+class GameObject;
+
 template <typename T>
 class Component : public ComponentBase
 {
@@ -32,8 +34,6 @@ public:
     {
         return mEntityID.IsValid();
     }
-
-    virtual void OnDestroy(){};
 
     void Destroy()
     {
@@ -69,6 +69,25 @@ public:
 
 protected:
     virtual ~Component() = default;
+
+    /**
+     * @brief 因为组件不能被显示delete, 所以需要提供一个虚函数来实现析构
+     *
+     */
+    virtual void OnDestroy(){};
+
+    /**
+     * @brief 当组件被添加到GameObject时调用
+     *
+     * @param gameObject
+     */
+    virtual void OnAdd(GameObject *gameObject){};
+
+    /**
+     * @brief 当组件从GameObject移除时调用
+     *
+     */
+    virtual void OnRemove(GameObject *gameObject){};
 };
 
 using ComponentMap = dict_map<uint64_t, ComponentBase *>;
