@@ -8,7 +8,14 @@
 #include "core/base/module.hpp"
 
 namespace solis {
+
+namespace files {
+class Files;
+}
+
 namespace assets {
+
+class Asset;
 
 /**
  * @brief 手搓的资源不要放在Assets里面，放在自己的模块里面
@@ -33,13 +40,7 @@ public:
      * @param path
      * @return std::unique_ptr<Asset>
      */
-    std::unique_ptr<Asset> Load(const string &path)
-    {
-        auto asset     = std::make_unique<Asset>();
-        asset->mData   = LoadFile(path);
-        asset->mLoaded = true;
-        return asset;
-    }
+    std::unique_ptr<Asset> Load(const string &path);
 
     /**
      * @brief 异步加载资源，返回一个空的Asset，当资源加载完成后，会将资源数据填充到Asset中
@@ -47,13 +48,7 @@ public:
      * @param path
      * @return std::unique_ptr<Asset>
      */
-    std::unique_ptr<Asset> AsyncLoad(const string &path)
-    {
-        auto asset     = std::make_unique<Asset>();
-        asset->mData   = LoadFile(path);
-        asset->mLoaded = true;
-        return asset;
-    }
+    std::unique_ptr<Asset> AsyncLoad(const string &path);
 };
-}
-} // namespace solis::assets
+} // namespace assets
+} // namespace solis

@@ -3,6 +3,7 @@
 #include "core/solis_core.hpp"
 #include "core/base/object.hpp"
 #include "core/base/using.hpp"
+#include "core/base/i_destroyable.hpp"
 
 #include "volk.h"
 
@@ -10,10 +11,14 @@ namespace solis::graphics {
 class SOLIS_CORE_API Material : public Object<Material>, public IDestroyable
 {
 public:
-    Material(const string &vs, const string &ps) = default;
-    virtual ~Material()                          = default;
+    Material(const string &vs, const string &ps){};
+    virtual ~Material() = default;
 
-    // 设置所依赖的PassNode
+    /**
+     * @brief Set the Pass Node object
+     *
+     * @param nodeName
+     */
     void SetPassNode(string nodeName)
     {
     }

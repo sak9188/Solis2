@@ -23,7 +23,7 @@ public:
         // TODO: 从gameObject中获取mesh
     }
 
-    Material material;
+    // Material material;
 };
 }
 } // namespace solis::components
