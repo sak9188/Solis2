@@ -13,6 +13,8 @@ namespace solis {
 
 using string = folly::fbstring;
 
+using string_view = std::string_view;
+
 template <typename T>
 using vector = folly::fbvector<T>;
 

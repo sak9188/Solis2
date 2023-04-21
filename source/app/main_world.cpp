@@ -5,6 +5,8 @@
 #include "core/world/component.hpp"
 #include "core/world/system.hpp"
 
+#include "core/assets/assets.hpp"
+
 using namespace solis;
 
 void MainWorld::Start()
@@ -27,10 +29,6 @@ void MainWorld::Start()
     // TODO: 这里没有释放内存
     GameObject *gameObject = new GameObject();
 
-    // auto transform    = gameObject->AddComponent<components::Transform>();
-    // auto meshRenderer = gameObject->AddComponent<components::MeshRenderer>();
-    // auto material     = gameObject->AddComponent<components::Material>();
-
     // PhysicsSystem::Get()->AllocRigidBody();
 
     auto transfrom = TransformSystem::Get()->AllocTransform();
@@ -40,6 +38,14 @@ void MainWorld::Start()
 
     auto meshRenderer = RenderSystem::Get()->AllocRenderable();
     gameObject->AddComponent(meshRenderer);
+
+    // 载入模型资源
+    std::unique_ptr<Model> asset = Assets::Get()->Load<Model>("gltfs/cube/cube.gltf");
+    meshRenderer->SetMesh(asset->Get<Mesh>());
+
+    // std::unique_ptr<Asset> asset2 = AssetsSystem::Get()->Load("assets/material/");
+    std::unique_ptr<Material> material = std::make_unique<Material>("shaders/sponza");
+    MeshRenderer->SetMaterial(material);
 }
 
 void MainWorld::Update()
