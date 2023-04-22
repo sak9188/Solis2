@@ -139,7 +139,26 @@ public:
         return true;
     };
 
+    /**
+     * @brief 这里不做类型安全检查
+     *
+     * @tparam T
+     * @return void*
+     */
+    template <typename T>
+    void T *Data()
+    {
+        return static_cast<T *>(Data());
+    }
+
     virtual void *Data() = 0;
+
+    /**
+     * @brief 使用此方法，相当于把资源移动到了外部，资源管理器不再管理这个资源
+     *
+     * @return std::shared_ptr<void *>
+     */
+    virtual std::shared_ptr<void> FetchData() = 0;
 
     /**
      * @brief 计算资源的Hash值，用于资源的比较
@@ -163,7 +182,8 @@ protected:
 template <typename T>
 class ClassAsset : public Asset
 {
-    static_assert(std::is_base_of_v<ClassAssetBase, T>, "T must be derived from IAsset");
+    // 这里暂时先不这样设计
+    // static_assert(std::is_base_of_v<ClassAssetBase, T>, "T must be derived from IAsset");
 
 public:
     template <typename... Args>
@@ -207,6 +227,13 @@ public:
         return static_cast<void *>(mData.get());
     }
 
+    virtual std::shared_ptr<void> FetchData() override
+    {
+        auto ret std::make_shared<T>(std::move(*mData.get()));
+        mData.reset();
+        return ret;
+    }
+
 private:
     ctti::type_id_t    mType = ctti::type_id<T>(); // 资源类型
     std::unique_ptr<T> mData = nullptr;            // 资源数据
@@ -239,6 +266,13 @@ public:
     virtual void *Data() override
     {
         return mData.data();
+    }
+
+    virtual std::shared_ptr<void> FetchData() override
+    {
+        auto ret = std::make_shared<vector<uint8_t>>(std::move(mData));
+        mData.clear();
+        return ret;
     }
 
     size_t GetDataSize() const noexcept

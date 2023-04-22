@@ -11,10 +11,7 @@ std::shared_ptr<Asset> Assets::Load(const string &path)
     if (mAssets.find(path) != mAssets.end())
     {
         auto asset = mAssets[path];
-        if (asset.lock())
-        {
-            return asset.lock();
-        }
+        return asset.lock();
     }
 
     files::FileInfo fi{path};
@@ -23,7 +20,9 @@ std::shared_ptr<Asset> Assets::Load(const string &path)
         return nullptr;
     }
 
-    auto asset = std::make_shared<FileAsset>(fi.ReadBytes(), path);
+    auto asset    = std::make_shared<FileAsset>(fi.ReadBytes(), path);
+    mAssets[path] = asset;
+
     return asset;
 }
 

@@ -10,9 +10,4 @@
 #include "core/world/base/i_renderable.hpp"
 
 namespace solis {
-namespace components {
-class SOLIS_CORE_API Renderable : public Component<Renderable>
-{
-};
-}
-} // namespace solis::components
+} // namespace solis

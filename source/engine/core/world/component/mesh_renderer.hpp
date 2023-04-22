@@ -10,7 +10,7 @@
 
 namespace solis {
 namespace components {
-class SOLIS_CORE_API MeshRenderer : public Renderable
+class SOLIS_CORE_API MeshRenderer : Component<MeshRenderer>
 {
 public:
     virtual void OnAdd(GameObject *gameObject) override

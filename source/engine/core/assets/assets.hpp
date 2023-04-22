@@ -24,13 +24,15 @@ namespace assets {
 /**
  * @brief 手搓的资源不要放在Assets里面，放在自己的模块里面
  * 这里的资源主要是针对类(继承了IAsset)的资源,比如Mesh,Texture,Material等
- *
+ * 23/4/22：资产系统可能需要大改，主要是为了解决资源依赖问题
  */
-class SOLIS_CORE_API Assets : public Object<Assets>, public Module::Registrar<Assets>
+class SOLIS_CORE_API Assets : public Object<Assets>, public Module::Registrar<Assets>, public EventHandler
 {
     inline static const bool Registered = Register(Stage::Pre, Requires<files::Files>());
 
 public:
+    OBJECT_NEW_DELETE(Assets);
+
     Assets()          = default;
     virtual ~Assets() = default;
 
@@ -107,7 +109,7 @@ public:
         {
             return;
         }
-        ReleaseAsset(asset);
+        mAssetRefs.erase(asset);
     }
 
     /**
@@ -137,6 +139,21 @@ public:
     std::shared_ptr<Asset> LoadObject(Args &&...args)
     {
         return std::shared_ptr<ClassAsset<T>>(std::forward<Args>(args)...);
+    }
+
+    /**
+     * @brief 异步载入类资源
+     *
+     * @tparam T
+     * @tparam Args
+     * @param args
+     * @return std::shared_ptr<Asset>
+     */
+    template <typename T, typename... Args>
+    std::shared_ptr<Asset> AsyncLoadObject(Args &&...args)
+    {
+        // TODO: 这里需要结合线程组来写
+        throw std::runtime_error("not implemented");
     }
 
     /**

@@ -6,11 +6,13 @@
 #include "core/world/system.hpp"
 
 #include "core/assets/assets.hpp"
+#include "core/data/model.hpp"
 
 using namespace solis;
 
 void MainWorld::Start()
 {
+    using namespace assets;
     // Create GameObject
     /**
      * GameObject* gameObject = new GameObject();
@@ -36,16 +38,25 @@ void MainWorld::Start()
 
     // CameraSystem::Get()->AllocCamera();
 
-    auto meshRenderer = RenderSystem::Get()->AllocRenderable();
-    gameObject->AddComponent(meshRenderer);
+    // RenderSystem 只接受主动提交过来的数据
+    // 不接受监视创建的数据
+    // auto meshRenderer = RenderSystem::Get()->AllocRenderable();
 
     // 载入模型资源
-    std::unique_ptr<Model> asset = Assets::Get()->Load<Model>("gltfs/cube/cube.gltf");
-    meshRenderer->SetMesh(asset->Get<Mesh>());
+    auto cube         = Assets::Get()->LoadObject<Model>("gltfs/cube/cube.gltf");
+    auto cubeData     = cube->Data<Model>();
+    auto meshRenderer = components::Mesh::Get();
+    meshRenderer->SetMeshs(cubeData->GetMeshs());
+    gameObject->AddComponent(meshRenderer);
 
+    auto cube         = Assets::Get()->LoadObject<Model>("gltfs/cube/cube.gltf");
+    auto cubeData     = cube->Data<Model>();
+    auto meshRenderer = components::Mesh::Get();
+    meshRenderer->SetMeshs(cubeData->GetMeshs());
+    gameObject->AddComponent(meshRenderer);
     // std::unique_ptr<Asset> asset2 = AssetsSystem::Get()->Load("assets/material/");
-    std::unique_ptr<Material> material = std::make_unique<Material>("shaders/sponza");
-    MeshRenderer->SetMaterial(material);
+    // std::unique_ptr<Material> material = std::make_unique<Material>("shaders/sponza");
+    // MeshRenderer->SetMaterial(material);
 }
 
 void MainWorld::Update()

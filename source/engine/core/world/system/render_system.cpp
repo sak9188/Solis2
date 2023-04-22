@@ -1,0 +1,1 @@
+#include "core/world/system/render_system.hpp"

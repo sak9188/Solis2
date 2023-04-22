@@ -14,7 +14,8 @@ namespace solis {
 class SOLIS_CORE_API Model : public Object<Model>
 {
 public:
-    Model(const string &file_name);
+    Model(const string &fileName);
+    Model(const vector<uint8_t> &fileData);
     ~Model();
 
     const vector<std::shared_ptr<Mesh>> &GetMeshes() const
