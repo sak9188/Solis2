@@ -42,21 +42,20 @@ void MainWorld::Start()
     // 不接受监视创建的数据
     // auto meshRenderer = RenderSystem::Get()->AllocRenderable();
 
-    // 载入模型资源
-    auto cube         = Assets::Get()->LoadObject<Model>("gltfs/cube/cube.gltf");
-    auto cubeData     = cube->Data<Model>();
-    auto meshRenderer = components::Mesh::Get();
-    meshRenderer->SetMeshs(cubeData->GetMeshs());
-    gameObject->AddComponent(meshRenderer);
+    // TODO: AssetBundle = LoadAssetBundle("filePath", bool 是否挂载在Files里, uint32_t pri 载入优先级) 设置资产包，然后在资产包中加载资源
 
-    auto cube         = Assets::Get()->LoadObject<Model>("gltfs/cube/cube.gltf");
-    auto cubeData     = cube->Data<Model>();
-    auto meshRenderer = components::Mesh::Get();
-    meshRenderer->SetMeshs(cubeData->GetMeshs());
-    gameObject->AddComponent(meshRenderer);
-    // std::unique_ptr<Asset> asset2 = AssetsSystem::Get()->Load("assets/material/");
-    // std::unique_ptr<Material> material = std::make_unique<Material>("shaders/sponza");
-    // MeshRenderer->SetMaterial(material);
+    // 载入模型资源
+    auto cube     = Assets::Get()->LoadObject<Model>("gltfs/cube/cube.gltf");
+    auto cubeData = cube->Data<Model>();
+    auto meshCom  = components::Mesh::Get();
+    meshCom->SetMeshs(cubeData->GetMeshes());
+    gameObject->AddComponent(meshCom);
+
+    // 载入材质资源
+    // std::unique_ptr<Asset>              asset2       = Asset::Get()->LoadObject<graphics::Material>("assets/material/");
+    std::unique_ptr<graphics::Material> material     = std::make_unique<graphics::Material>("shaders/sponza");
+    auto                                meshRenderer = components::MeshRenderer::Get();
+    meshRenderer->SetMaterials({material});
 }
 
 void MainWorld::Update()

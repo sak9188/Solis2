@@ -146,7 +146,7 @@ public:
      * @return void*
      */
     template <typename T>
-    void T *Data()
+    T *Data()
     {
         return static_cast<T *>(Data());
     }
@@ -229,7 +229,7 @@ public:
 
     virtual std::shared_ptr<void> FetchData() override
     {
-        auto ret std::make_shared<T>(std::move(*mData.get()));
+        auto ret = std::make_shared<T>(std::move(*mData.get()));
         mData.reset();
         return ret;
     }

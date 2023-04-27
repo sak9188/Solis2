@@ -138,7 +138,7 @@ public:
     template <typename T, typename... Args>
     std::shared_ptr<Asset> LoadObject(Args &&...args)
     {
-        return std::shared_ptr<ClassAsset<T>>(std::forward<Args>(args)...);
+        return std::make_shared<ClassAsset<T>>(std::forward<Args>(args)...);
     }
 
     /**

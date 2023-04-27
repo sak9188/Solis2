@@ -6,6 +6,7 @@
 #include "core/base/i_destroyable.hpp"
 
 #include "core/data/texture.hpp"
+#include "core/graphics/pipeline/pipeline.hpp"
 
 #include "volk.h"
 
@@ -13,8 +14,21 @@ namespace solis::graphics {
 class SOLIS_CORE_API Material : public Object<Material>, public IDestroyable
 {
 public:
-    Material(const string &shaderDirPath){};
-    Material(const string &vs, const string &ps){};
+    /**
+     * @brief Construct a new Material object
+     *
+     * @param shaderDirPath
+     */
+    Material(const string &shaderDirPath);
+
+    /**
+     * @brief Construct a new Material object
+     *
+     * @param vs
+     * @param ps
+     */
+    Material(const string &vs, const string &ps);
+
     virtual ~Material() = default;
 
     /**
@@ -37,5 +51,7 @@ public:
 
 private:
     string mPassNodeName = "";
+    // 目前不存在Compute管线
+    std::unique_ptr<Pipeline> mPipeline = nullptr;
 };
 } // namespace solis::graphics

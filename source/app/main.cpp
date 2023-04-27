@@ -1,4 +1,3 @@
-
 #include "core/solis_engine.hpp"
 #include "core/base/using.hpp"
 #include "core/base/memory.hpp"

@@ -23,7 +23,13 @@ public:
         // TODO: 从gameObject中获取mesh
     }
 
-    // Material material;
+    void SetMaterials(vector<std::shared_ptr<graphics::Material>> &materials)
+    {
+        mMaterials = materials;
+    }
+
+private:
+    vector<std::shared_ptr<graphics::Material>> mMaterials;
 };
 }
 } // namespace solis::components
