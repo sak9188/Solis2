@@ -8,6 +8,8 @@
 
 namespace solis {
 namespace graphics {
+// TODO:: ShaderVariant
+
 class SOLIS_CORE_API Shader : public Object<Shader>
 {
 public:

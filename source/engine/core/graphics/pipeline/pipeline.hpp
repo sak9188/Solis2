@@ -20,10 +20,38 @@ public:
     Pipeline();
     virtual ~Pipeline();
 
+    /**
+     * @brief  Destroy the Pipeline object
+     *
+     */
     virtual void Destroy() override;
 
-    virtual bool    Build(const RenderPass &renderPass, size_t subpassIndex = 0) = 0;
-    virtual Shader &GetShader() const                                            = 0;
+    /**
+     * @brief 指定一个render graph中的pass的name来构建pipeline
+     *
+     * @param passname 如果是空那么就是默认的主要光照pass
+     * @return true
+     * @return false
+     */
+    virtual bool Build(const string &passname = "") = 0;
+
+    /**
+     * @brief 主动构建一个pipeline
+     *
+     * @param renderPass
+     * @param subpassIndex
+     * @return true
+     * @return false
+     */
+    virtual bool Build(const RenderPass &renderPass, size_t subpassIndex = 0) = 0;
+
+    /**
+     * @brief Get the Shader object
+     *
+     * @return Shader&
+     */
+    virtual Shader &GetShader() const = 0;
+
     // virtual bool IsPushDescriptors() const = 0;
     virtual const VkDescriptorSetLayout   &GetDescriptorSetLayout() const = 0;
     virtual const VkDescriptorPool        &GetDescriptorPool() const      = 0;

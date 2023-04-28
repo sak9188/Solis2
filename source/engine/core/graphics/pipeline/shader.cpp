@@ -133,7 +133,7 @@ void Shader::CreateShaderModule(const string &codePath, Type type)
         return;
     }
 
-    if (fileInfo.GetExtension() == ".vert" || fileInfo.GetExtension() == ".frag" || fileInfo.GetExtension() == ".comp")
+    if (fileInfo.GetExtension() == ".vert" || fileInfo.GetExtension() == ".frag" || fileInfo.GetExtension() == ".comp" || fileInfo.GetExtension() == ".tesc" || fileInfo.GetExtension() == ".tese" || fileInfo.GetExtension() == ".geom" || fileInfo.GetExtension() == ".glsl")
     {
         vector<uint8_t> source = fileInfo.ReadBytes();
         code                   = CompileShaderSource(source, type);

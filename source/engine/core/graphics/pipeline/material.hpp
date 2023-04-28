@@ -19,7 +19,7 @@ public:
      *
      * @param shaderDirPath
      */
-    Material(const string &shaderDirPath);
+    Material(const string &shaderDirPath, const string &passName = "");
 
     /**
      * @brief Construct a new Material object
@@ -27,7 +27,7 @@ public:
      * @param vs
      * @param ps
      */
-    Material(const string &vs, const string &ps);
+    Material(const string &vs, const string &ps, const string &passName = "");
 
     virtual ~Material() = default;
 

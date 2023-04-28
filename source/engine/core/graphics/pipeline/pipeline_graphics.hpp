@@ -25,6 +25,8 @@ public:
 
     virtual void Destroy() override;
 
+    virtual bool Build(const string &passname = "") override;
+
     virtual bool Build(const RenderPass &, size_t subpassIndex = 0) override;
 
     virtual Shader &GetShader() const override

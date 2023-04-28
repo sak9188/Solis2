@@ -38,6 +38,14 @@ public:
         fs::current_path(path.toStdString());
     }
 
+    vector<string> ReadTextFile(const string &path)
+    {
+    }
+
+    vector<uint8_t> ReadFile(const string &path)
+    {
+    }
+
     string GetExecuteBinPath()
     {
 #ifdef __WIN__

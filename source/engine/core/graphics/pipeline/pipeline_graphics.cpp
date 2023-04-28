@@ -107,6 +107,12 @@ void PipelineGraphics::Destroy()
     mDestroyed = true;
 }
 
+bool PipelineGraphics::Build(const string &passname)
+{
+    // 找到render graph
+    return true;
+}
+
 bool PipelineGraphics::Build(const RenderPass &renderPass, size_t subpassIndex)
 {
     VkVertexInputBindingDescription bindingDescription{};
