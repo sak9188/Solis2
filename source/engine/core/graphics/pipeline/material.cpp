@@ -30,11 +30,15 @@ Material::Material(const string &shaderDirPath, const string &passName) :
 Material::Material(const string &vs, const string &ps, const string &passName) :
     mPassNodeName(passName)
 {
+    auto fs  = files::Files::Get();
+    auto vss = fs->ReadFile(vs);
+    auto pss = fs->ReadFile(ps);
+
     mPipeline    = std::make_unique<PipelineGraphics>();
     auto &shader = mPipeline->GetShader();
 
-    shader.CreateShaderModule(vs, Shader::Type::Vertex);
-    shader.CreateShaderModule(ps, Shader::Type::Fragment);
+    shader.CreateShaderModule(vss Shader::Type::Vertex);
+    shader.CreateShaderModule(pss, Shader::Type::Fragment);
 
     mPipeline->Build(passName);
 }

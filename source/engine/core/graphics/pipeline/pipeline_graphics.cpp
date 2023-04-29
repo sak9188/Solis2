@@ -110,6 +110,11 @@ void PipelineGraphics::Destroy()
 bool PipelineGraphics::Build(const string &passname)
 {
     // 找到render graph
+    auto gh         = Graphics::Get();
+    auto rg         = gh->GetRenderGraph();
+    auto renderPass = rg->GetPass(passname);
+
+    this->Build(renderPass);
     return true;
 }
 
