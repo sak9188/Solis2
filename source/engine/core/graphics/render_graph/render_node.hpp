@@ -30,24 +30,17 @@ public:
         VkFramebuffer      framebuffer = VK_NULL_HANDLE;
         vector<Pipeline *> pipelines;                    // brow ref
 
-        // vector<std::function<void(CommandBuffer &commandbuffer)>> callbacks;
-
     public:
         RenderNodeExecutor()          = default;
         virtual ~RenderNodeExecutor() = default;
 
-        // void AddCallback(const std::function<void(CommandBuffer &commandbuffer)> &callback)
-        // {
-        // callbacks.push_back(callback);
-        // }
-
-        // void Execute(CommandBuffer &commandbuffer)
-        // {
-        // for (auto &callback : callbacks)
-        // {
-        // callback(commandbuffer);
-        // }
-        // }
+        void Execute(CommandBuffer &commandbuffer)
+        {
+            for (auto pipeline : pipelines)
+            {
+                pipeline->Execute(commandbuffer);
+            }
+        }
     };
 
     // 节点索引

@@ -51,6 +51,12 @@ Graphics::~Graphics()
     mInstance.reset();
 }
 
+void Graphics::Update()
+{
+    // 执行RenderGraph
+    mRenderGraphPipeline.Execute();
+}
+
 void Graphics::CreateAllocator()
 {
     VmaVulkanFunctions vulkanFunctions    = {};

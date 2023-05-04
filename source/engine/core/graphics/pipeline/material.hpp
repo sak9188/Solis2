@@ -59,13 +59,22 @@ public:
     {
     }
 
-    void SetSampler(const string &name, const Texture *sampler)
+    /**
+     * @brief Set the Texture object
+     *
+     * @param name
+     * @param sampler
+     */
+    void SetTexture(const string &name, const std::shared_ptr<Texture> sampler)
     {
+        mTextures[name] = sampler;
     }
 
 private:
     string mPassNodeName = "";
     // 目前不存在Compute管线
     std::unique_ptr<Pipeline> mPipeline = nullptr;
+
+    dict_map<string, std::shared_ptr<Texture>> mTextures;
 };
 } // namespace solis::graphics

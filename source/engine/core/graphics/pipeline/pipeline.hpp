@@ -14,7 +14,17 @@ namespace solis {
 namespace graphics {
 class Buffer;
 class Swapchain;
-class SOLIS_CORE_API Pipeline : public Object<Pipeline>, public IDestroyable
+
+/**
+ * @brief 这个类主要是记录了各种RenderData
+ *
+ */
+class SOLIS_CORE_API RenderData : public Object<RenderData>
+{
+};
+
+class SOLIS_CORE_API Pipeline : public Object<Pipeline>,
+                                public IDestroyable
 {
 public:
     Pipeline();
@@ -64,11 +74,19 @@ public:
     void            InitUniformBuffers(size_t size);
     virtual Buffer &GetUniformBuffer(size_t index);
 
+    void Execute(CommandBuffer &commanderbuffer)
+    {
+        for (auto &data : mRenderDatas)
+        {
+            data.Execute(commanderbuffer);
+        }
+    }
+
 private:
     // vector<Buffer> mUnionBuffers;
     // hash_map<size_t, vector<std::shared_ptr<Buffer>>> mUnionBufferMap{MaxSwapchain};
-
     vector<std::shared_ptr<Buffer>> mUnionBuffers;
+    vector<RenderData>              mRenderDatas;
 };
 }
 } // namespace solis::graphics

@@ -32,11 +32,14 @@ void RenderNode::Build()
 
 void RenderGraphPipeline::Execute()
 {
-    for (auto &renderNode : renderNodes)
+    for (auto &layerdRenderNodes : renderNodes)
     {
         // 每一个节点执行之前 这个节点所依赖的节点都已经提交完毕
         // 因为是在单Queue下所以不会发生冲突
-        // renderNode.Execute();
+        for (auto &renderNode : layerdRenderNodes)
+        {
+            renderNode.Execute();
+        }
     }
 }
 

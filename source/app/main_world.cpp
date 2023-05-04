@@ -7,6 +7,7 @@
 
 #include "core/assets/assets.hpp"
 #include "core/data/model.hpp"
+#include "core/data/texture.hpp"
 
 using namespace solis;
 
@@ -53,10 +54,12 @@ void MainWorld::Start()
 
     // 载入材质资源
     // std::unique_ptr<Asset> asset2 = Asset::Get()->LoadObject<graphics::Material>("assets/material/");
-    std::shared_ptr<graphics::Material> material = std::make_shared<graphics::Material>("shaders/sponza");
-
+    auto material     = std::make_shared<graphics::Material>("shaders/sponza");
     auto meshRenderer = components::MeshRenderer::Get();
     meshRenderer->SetMaterials({material});
+
+    auto texture = std::make_shared<Texture>("gltfs/cube/swap.jpg");
+    material->SetTexture("texSampler", texture);
 }
 
 void MainWorld::Update()
