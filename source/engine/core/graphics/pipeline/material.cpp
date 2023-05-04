@@ -18,11 +18,30 @@ Material::Material(const string &shaderDirPath, const string &passName) :
     mPipeline    = std::make_unique<PipelineGraphics>();
     auto &shader = mPipeline->GetShader();
 
-    shader.CreateShaderModule(vs, Shader::Type::Vertex);
-    shader.CreateShaderModule(tsc, Shader::Type::TessellationControl);
-    shader.CreateShaderModule(tse, Shader::Type::TessellationEvaluation);
-    shader.CreateShaderModule(gs, Shader::Type::Geometry);
-    shader.CreateShaderModule(ps, Shader::Type::Fragment);
+    if (!vs.empty())
+    {
+        shader.CreateShaderModule(vs, Shader::Type::Vertex);
+    }
+
+    if (!tsc.empty())
+    {
+        shader.CreateShaderModule(tsc, Shader::Type::TessellationControl);
+    }
+
+    if (!tse.empty())
+    {
+        shader.CreateShaderModule(tse, Shader::Type::TessellationEvaluation);
+    }
+
+    if (!gs.empty())
+    {
+        shader.CreateShaderModule(gs, Shader::Type::Geometry);
+    }
+
+    if (!ps.empty())
+    {
+        shader.CreateShaderModule(ps, Shader::Type::Fragment);
+    }
 
     mPipeline->Build(passName);
 }
@@ -37,7 +56,7 @@ Material::Material(const string &vs, const string &ps, const string &passName) :
     mPipeline    = std::make_unique<PipelineGraphics>();
     auto &shader = mPipeline->GetShader();
 
-    shader.CreateShaderModule(vss Shader::Type::Vertex);
+    shader.CreateShaderModule(vss, Shader::Type::Vertex);
     shader.CreateShaderModule(pss, Shader::Type::Fragment);
 
     mPipeline->Build(passName);

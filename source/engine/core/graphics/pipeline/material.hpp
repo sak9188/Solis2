@@ -29,11 +29,25 @@ public:
      */
     Material(const string &vs, const string &ps, const string &passName = "");
 
-    virtual ~Material() = default;
+    virtual ~Material()
+    {
+        Destroy();
+    };
+
+    virtual void Destroy() override
+    {
+        if (mDestroyed)
+            return;
+
+        mPipeline->Destroy();
+        mDestroyed = true;
+    }
 
     /**
      * @brief Set the Pass Node object
      * 如果默认是空，则默认走Graph提供好的主要光照Pass
+     * 如果不为空，则走自定义的Pass
+     * 且下一帧发生改变
      * @param nodeName
      */
     void SetPassNode(string nodeName)

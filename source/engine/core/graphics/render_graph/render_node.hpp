@@ -28,7 +28,7 @@ public:
     {
         VkRenderPass       renderPass  = VK_NULL_HANDLE; // brow ref
         VkFramebuffer      framebuffer = VK_NULL_HANDLE;
-        vector<Pipeline *> pipelines; // brow ref
+        vector<Pipeline *> pipelines;                    // brow ref
 
         // vector<std::function<void(CommandBuffer &commandbuffer)>> callbacks;
 
@@ -93,9 +93,25 @@ public:
 
     dict_map<string, RenderNode *> renderNodeMap;
 
-    // Add Pipeline
+    /**
+     * @brief Add a Pipeline object
+     *
+     * @param name
+     * @param pipeline
+     */
     void AddPipeline(const string &name, const Pipeline *pipeline)
     {
+    }
+
+    /**
+     * @brief Get the Pass object
+     *
+     * @param name
+     * @return RenderNode*
+     */
+    RenderNode *GetPassNode(const string &name)
+    {
+        return renderNodeMap[name];
     }
 
     // TODO: 这里需要任一个多线程组

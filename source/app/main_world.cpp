@@ -53,8 +53,9 @@ void MainWorld::Start()
 
     // 载入材质资源
     // std::unique_ptr<Asset> asset2 = Asset::Get()->LoadObject<graphics::Material>("assets/material/");
-    std::unique_ptr<graphics::Material> material     = std::make_unique<graphics::Material>("shaders/sponza");
-    auto                                meshRenderer = components::MeshRenderer::Get();
+    std::shared_ptr<graphics::Material> material = std::make_shared<graphics::Material>("shaders/sponza");
+
+    auto meshRenderer = components::MeshRenderer::Get();
     meshRenderer->SetMaterials({material});
 }
 

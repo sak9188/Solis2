@@ -1,13 +1,15 @@
 #pragma once
 
+#include <filesystem>
+#include <iostream>
+
 #include "core/solis_core.hpp"
 
 #include "core/base/object.hpp"
 #include "core/base/using.hpp"
 #include "core/base/module.hpp"
 
-#include <filesystem>
-#include <iostream>
+#include "core/files/file_info.hpp"
 
 namespace solis {
 namespace files {
@@ -40,10 +42,22 @@ public:
 
     vector<string> ReadTextFile(const string &path)
     {
+        files::FileInfo fileInfo(path);
+        if (!fileInfo.Exist())
+        {
+            return {};
+        }
+        return fileInfo.Read();
     }
 
     vector<uint8_t> ReadFile(const string &path)
     {
+        files::FileInfo fileInfo(path);
+        if (!fileInfo.Exist())
+        {
+            return {};
+        }
+        return fileInfo.ReadBytes();
     }
 
     string GetExecuteBinPath()

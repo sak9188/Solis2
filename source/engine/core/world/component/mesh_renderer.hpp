@@ -10,7 +10,7 @@
 
 namespace solis {
 namespace components {
-class SOLIS_CORE_API MeshRenderer : Component<MeshRenderer>
+class SOLIS_CORE_API MeshRenderer : public Component<MeshRenderer>
 {
 public:
     virtual void OnAdd(GameObject *gameObject) override
@@ -24,6 +24,11 @@ public:
     }
 
     void SetMaterials(vector<std::shared_ptr<graphics::Material>> &materials)
+    {
+        mMaterials = materials;
+    }
+
+    void SetMaterials(vector<std::shared_ptr<graphics::Material>> &&materials)
     {
         mMaterials = materials;
     }

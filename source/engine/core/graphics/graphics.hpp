@@ -72,6 +72,11 @@ public:
         return mCommandPool;
     }
 
+    RenderGraphPipeline &GetRenderGraphPipeline()
+    {
+        return mRenderGraphPipeline;
+    }
+
     void AddRenderPass(RenderPass *renderPass) noexcept
     {
         mRenderPasses.push_back(renderPass);

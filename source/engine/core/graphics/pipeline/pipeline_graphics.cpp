@@ -110,11 +110,15 @@ void PipelineGraphics::Destroy()
 bool PipelineGraphics::Build(const string &passname)
 {
     // 找到render graph
-    auto gh         = Graphics::Get();
-    auto rg         = gh->GetRenderGraph();
-    auto renderPass = rg->GetPass(passname);
+    auto  gh         = Graphics::Get();
+    auto &rg         = gh->GetRenderGraphPipeline();
+    auto  passNode   = rg.GetPassNode(passname);
+    auto  renderPass = passNode->renderPass;
 
-    this->Build(renderPass);
+    assert(renderPass != nullptr && "render pass is null");
+
+    // TODO: add subpass support
+    this->Build(*renderPass, 0);
     return true;
 }
 
