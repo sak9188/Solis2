@@ -14,7 +14,7 @@ DescriptorPool::DescriptorPool(const vector<VkDescriptorPoolSize> &sizes, uint32
     poolInfo.pPoolSizes                 = mSizes.data();
     poolInfo.maxSets                    = mMaxSets;
 
-    if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mPool) != VK_SUCCESS)
+    if (vkCreateDescriptorPool(*mDevice, &poolInfo, nullptr, &mPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool!");
     }
@@ -22,7 +22,7 @@ DescriptorPool::DescriptorPool(const vector<VkDescriptorPoolSize> &sizes, uint32
 
 DescriptorPool::~DescriptorPool()
 {
-    vkDestroyDescriptorPool(mDevice, mPool, nullptr);
+    vkDestroyDescriptorPool(*mDevice, mPool, nullptr);
 };
 
 VkDescriptorSet DescriptorPool::Allocate(const VkDescriptorSetLayout &layout)
@@ -34,7 +34,7 @@ VkDescriptorSet DescriptorPool::Allocate(const VkDescriptorSetLayout &layout)
     allocInfo.pSetLayouts                 = &layout;
 
     VkDescriptorSet descriptorSet;
-    if (vkAllocateDescriptorSets(mDevice, &allocInfo, &descriptorSet) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(*mDevice, &allocInfo, &descriptorSet) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor set!");
     }

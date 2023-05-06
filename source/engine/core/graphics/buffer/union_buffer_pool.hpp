@@ -9,7 +9,19 @@
 
 namespace solis {
 namespace graphics {
-class SOLIS_CORE_API UnionBufferPool : public Object<UnionBufferPool>, public IDestroyable
+
+/**
+ * @brief 这个类主要是一个Shell
+ */
+class SOLIS_CORE_API UinonBuffer : public Object<UinonBuffer>, public IDestroyable
+{
+};
+
+/**
+ * @brief 主要是分配和管理UnionBuffer
+ */
+class SOLIS_CORE_API UnionBufferPool : public Object<UnionBufferPool>,
+                                       public IDestroyable
 {
 };
 }

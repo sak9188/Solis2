@@ -23,8 +23,10 @@ class CommandBuffer;
  */
 struct SOLIS_CORE_API RenderData : public Object<RenderData>
 {
-    VkViewport viewport;
-    VkRect2D   scissor;
+    std::unique_ptr<VkViewport> viewport = nullptr;
+    std::unique_ptr<VkRect2D>   scissor  = nullptr;
+    vector<VkDescriptorSet>     descriptorSets;
+    vector<Mesh>                meshes;
 };
 
 class SOLIS_CORE_API Pipeline : public Object<Pipeline>,
