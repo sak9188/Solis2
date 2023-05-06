@@ -53,6 +53,27 @@ public:
         vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
     }
 
+    void Draw(vector<Mesh> &meshes)
+    {
+        BindPipelineDescriptorSet();
+        for (auto &mesh : meshes)
+        {
+            auto vertexBuffer = mesh.GetVertexBuffer();
+            assert(vertexBuffer && "Vertex buffer is null");
+            // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
+            VkBuffer     vertexBuffers[] = {vertexBuffer->GetBuffer()};
+            VkDeviceSize offsets[]       = {0};
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+            // vkCmdDraw(commandBuffer, 12, 1, 0, 0);
+
+            auto indexBuffer = mesh.GetIndexBuffer();
+            assert(indexBuffer && "Index buffer is null");
+            // 这里默认偏移量就是0, 目前还不清楚是否应该支持偏移量
+            vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+            vkCmdDrawIndexed(commandBuffer, mesh.IndicesCount(), 1, 0, 0, 0);
+        }
+    }
+
     void Draw(const Model &model) const
     {
         BindPipelineDescriptorSet();
@@ -92,7 +113,7 @@ public:
     }
     bool IsRunning() const
     {
-        return running;
+        return mRunning;
     }
 
 private:
@@ -106,7 +127,7 @@ private:
     VkCommandBuffer commandBuffer    = VK_NULL_HANDLE;
     VkSemaphore     mSubmitSemaphore = VK_NULL_HANDLE;
     VkFence         mSubmitFence     = VK_NULL_HANDLE;
-    bool            running          = false;
+    bool            mRunning         = false;
 };
 }
 } // namespace solis::graphics

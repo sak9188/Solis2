@@ -17,6 +17,7 @@ namespace graphics {
 class RenderGraph;
 class RenderPass;
 class Pipeline;
+class CommandBuffer;
 
 class SOLIS_CORE_API RenderNode : public Object<RenderNode>
 {
@@ -34,13 +35,7 @@ public:
         RenderNodeExecutor()          = default;
         virtual ~RenderNodeExecutor() = default;
 
-        void Execute(CommandBuffer &commandbuffer)
-        {
-            for (auto pipeline : pipelines)
-            {
-                pipeline->Execute(commandbuffer);
-            }
-        }
+        void Execute(CommandBuffer &commandbuffer);
     };
 
     // 节点索引

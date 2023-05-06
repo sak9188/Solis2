@@ -34,7 +34,7 @@ CommandBuffer::~CommandBuffer()
 
 void CommandBuffer::Begin(VkCommandBufferUsageFlags usage)
 {
-    if (running)
+    if (mRunning)
         return;
 
     vkResetCommandBuffer(commandBuffer, 0);
@@ -42,21 +42,21 @@ void CommandBuffer::Begin(VkCommandBufferUsageFlags usage)
     beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     // beginInfo.flags = usage;
     Graphics::CheckVk(vkBeginCommandBuffer(commandBuffer, &beginInfo));
-    running = true;
+    mRunning = true;
 }
 
 void CommandBuffer::End()
 {
-    if (!running)
+    if (!mRunning)
         return;
 
     Graphics::CheckVk(vkEndCommandBuffer(commandBuffer));
-    running = false;
+    mRunning = false;
 }
 
 void CommandBuffer::BeginRenderPass(Swapchain &swapchain)
 {
-    if (!running)
+    if (!mRunning)
         return;
 
     VkRenderPassBeginInfo renderPassBeginInfo = {};
@@ -77,7 +77,7 @@ void CommandBuffer::BeginRenderPass(Swapchain &swapchain)
 
 void CommandBuffer::EndRenderPass()
 {
-    if (!running)
+    if (!mRunning)
         return;
 
     vkCmdEndRenderPass(commandBuffer);
@@ -87,7 +87,7 @@ void CommandBuffer::BindPipeline(Pipeline *pipeline)
 {
     assert(mSwapchain && "Swapchain must be set before binding pipeline");
 
-    if (!running)
+    if (!mRunning)
         return;
 
     vkCmdBindPipeline(commandBuffer, pipeline->GetPipelineBindPoint(), pipeline->GetPipeline());
@@ -160,7 +160,7 @@ void CommandBuffer::Submit(const VkSemaphore &waitSemaphore, const VkSemaphore &
     auto logicalDevice = Graphics::Get()->GetLogicalDevice();
     auto queueSelected = GetQueue();
 
-    if (running)
+    if (mRunning)
         End();
 
     VkSubmitInfo submitInfo       = {};

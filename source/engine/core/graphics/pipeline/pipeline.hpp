@@ -12,15 +12,19 @@
 
 namespace solis {
 namespace graphics {
+
 class Buffer;
 class Swapchain;
+class CommandBuffer;
 
 /**
  * @brief 这个类主要是记录了各种RenderData
  *
  */
-class SOLIS_CORE_API RenderData : public Object<RenderData>
+struct SOLIS_CORE_API RenderData : public Object<RenderData>
 {
+    VkViewport viewport;
+    VkRect2D   scissor;
 };
 
 class SOLIS_CORE_API Pipeline : public Object<Pipeline>,
@@ -74,19 +78,15 @@ public:
     void            InitUniformBuffers(size_t size);
     virtual Buffer &GetUniformBuffer(size_t index);
 
-    void Execute(CommandBuffer &commanderbuffer)
-    {
-        for (auto &data : mRenderDatas)
-        {
-            data.Execute(commanderbuffer);
-        }
-    }
+    void Execute(CommandBuffer &commanderbuffer);
 
 private:
     // vector<Buffer> mUnionBuffers;
     // hash_map<size_t, vector<std::shared_ptr<Buffer>>> mUnionBufferMap{MaxSwapchain};
     vector<std::shared_ptr<Buffer>> mUnionBuffers;
-    vector<RenderData>              mRenderDatas;
+
+    // TODO: 这里可以改成ObjectPool
+    vector<RenderData> mRenderDatas;
 };
 }
 } // namespace solis::graphics

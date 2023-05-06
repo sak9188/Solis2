@@ -1,9 +1,17 @@
 #include "core/graphics/render_graph/render_node.hpp"
 #include "core/graphics/render_graph/render_graph.hpp"
-
+#include "core/graphics/command/command_buffer.hpp"
 #include "core/graphics/render_pass.hpp"
 
 namespace solis::graphics {
+
+void RenderNode::RenderNodeExecutor::Execute(CommandBuffer &commandbuffer)
+{
+    for (auto pipeline : pipelines)
+    {
+        pipeline->Execute(commandbuffer);
+    }
+}
 
 void RenderNode::Execute()
 {
