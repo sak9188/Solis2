@@ -4,6 +4,8 @@
 #include "core/base/object.hpp"
 #include "core/base/using.hpp"
 
+#include "core/math/mat.hpp"
+
 #include "core/events/event_define.hpp"
 #include "core/events/event_property.hpp"
 
@@ -83,6 +85,13 @@ public:
         OnChanged.PostInvoke({this});
     }
 
+    void LookAt(const math::vec3 &target, const math::vec3 &up = math::vec3(0.0f, 1.0f, 0.0f))
+    {
+        mViewMatrix = math::lookAt(mPosition, target, up);
+
+        OnChanged.PostInvoke({this});
+    }
+
     EventProperty<TransformExpiredEvent> OnExpired;
 
     EventProperty<TransformChangedEvent> OnChanged;
@@ -91,6 +100,8 @@ private:
     math::vec3 mPosition{0.0f, 0.0f, 0.0f};
     math::vec3 mRotation{0.0f, 0.0f, 0.0f};
     math::vec3 mScale{1.0f, 1.0f, 1.0f};
+
+    math::mat4 mViewMatrix;
 };
 } // namespace components
 } // namespace solis

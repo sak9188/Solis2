@@ -1,5 +1,6 @@
 #include "core/graphics/pipeline/descriptor_pool.hpp"
 #include "core/graphics/logical_device.hpp"
+#include "core/graphics/graphics.hpp"
 
 namespace solis {
 namespace graphics {

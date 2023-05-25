@@ -32,19 +32,10 @@ void MainWorld::Start()
     // TODO: 这里没有释放内存
     GameObject *gameObject = new GameObject();
 
-    // PhysicsSystem::Get()->AllocRigidBody();
-
     auto transfrom = TransformSystem::Get()->AllocTransform();
     gameObject->AddComponent(transfrom);
 
-    // CameraSystem::Get()->AllocCamera();
-
-    // RenderSystem 只接受主动提交过来的数据
-    // 不接受监视创建的数据
-    // auto meshRenderer = RenderSystem::Get()->AllocRenderable();
-
     // TODO: AssetBundle = LoadAssetBundle("filePath", bool 是否挂载在Files里, uint32_t pri 载入优先级) 设置资产包，然后在资产包中加载资源
-
     // 载入模型资源
     auto cube     = Assets::Get()->LoadObject<Model>("gltfs/cube/cube.gltf");
     auto cubeData = cube->Data<Model>();
@@ -60,6 +51,14 @@ void MainWorld::Start()
 
     auto texture = std::make_shared<Texture>("gltfs/cube/swap.jpg");
     material->SetTexture("texSampler", texture);
+
+    // Camera Object
+    GameObject *camera          = new GameObject();
+    auto        cameraTransfrom = TransformSystem::Get()->AllocTransform();
+    camera->AddComponent(cameraTransfrom);
+
+    auto cameraCom = components::Camera::Get();
+    camera->AddComponent(cameraCom);
 }
 
 void MainWorld::Update()

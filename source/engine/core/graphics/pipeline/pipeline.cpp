@@ -1,6 +1,6 @@
 #include "core/graphics/graphics.hpp"
 #include "core/graphics/pipeline/pipeline.hpp"
-#include "core/graphics/command_buffer.hpp"
+#include "core/graphics/command/command_buffer.hpp"
 
 namespace solis {
 namespace graphics {
@@ -35,19 +35,21 @@ void Pipeline::Destroy()
 
 void Pipeline::Execute(CommandBuffer &cb)
 {
-    cb.BindPipeline(*this);
+    cb.BindPipeline(this);
     for (auto &renderdata : mRenderDatas)
     {
-        if (renderdata->viewport)
+        if (renderdata.viewport)
         {
-            cb.SetViewport(*renderdata->viewport);
+            cb.SetViewport(*renderdata.viewport);
         }
 
-        if (renderdata->scissor)
+        if (renderdata.scissor)
         {
-            cb.SetScissor(*renderdata->scissor);
+            cb.SetScissor(*renderdata.scissor);
         }
-        cb.Draw(*renderdata->meshes);
+
+        cb.BindDescriptorSets(renderdata.descriptorSets);
+        cb.Draw(*renderdata.meshes);
     }
 }
 

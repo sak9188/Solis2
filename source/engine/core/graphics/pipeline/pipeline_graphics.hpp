@@ -66,8 +66,7 @@ public:
 
     // virtual Buffer &GetUniformBuffer(const Swapchain *swapchain, size_t index) override;
     // virtual void BindTexture(Texture &texture);
-
-    virtual void BindEverything(Texture &texture, size_t tetIndex);
+    // virtual void BindEverything(Texture &texture, size_t tetIndex);
 
 public:
     std::unique_ptr<Shader> mShader = std::make_unique<Shader>();

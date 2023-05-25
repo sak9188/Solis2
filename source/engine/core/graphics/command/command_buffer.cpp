@@ -103,6 +103,20 @@ void CommandBuffer::BindPipelineDescriptorSet() const
                             0, 1, &(mPipeline->GetDescriptorSets()[mSwapchain->GetActiveImageIndex()]), 0, nullptr);
 }
 
+void CommandBuffer::BindDescriptorSet(const VkDescriptorSet &set) const
+{
+    assert(mPipeline && "Pipeline must be set before binding pipeline descriptor set");
+
+    vkCmdBindDescriptorSets(commandBuffer, mPipeline->GetPipelineBindPoint(), mPipeline->GetPipelineLayout(), 0, 1, &set, 0, nullptr);
+}
+
+void CommandBuffer::BindDescriptorSets(const vector<VkDescriptorSet> &sets)
+{
+    assert(mPipeline && "Pipeline must be set before binding pipeline descriptor set");
+
+    vkCmdBindDescriptorSets(commandBuffer, mPipeline->GetPipelineBindPoint(), mPipeline->GetPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
+}
+
 void CommandBuffer::Wait()
 {
     // if (mSubmitSemaphore != VK_NULL_HANDLE)

@@ -8,6 +8,8 @@
 #include "core/graphics/render_pass.hpp"
 #include "core/graphics/buffer/buffer.hpp"
 
+#include "core/data/mesh.hpp"
+
 #include "volk.h"
 
 namespace solis {
@@ -26,7 +28,30 @@ struct SOLIS_CORE_API RenderData : public Object<RenderData>
     std::unique_ptr<VkViewport> viewport = nullptr;
     std::unique_ptr<VkRect2D>   scissor  = nullptr;
     vector<VkDescriptorSet>     descriptorSets;
-    vector<Mesh>                meshes;
+    vector<Mesh>               *meshes = nullptr;
+
+    // copy constructor
+    RenderData(const RenderData &other)
+    {
+        viewport = std::make_unique<VkViewport>(*other.viewport);
+        scissor  = std::make_unique<VkRect2D>(*other.scissor);
+        meshes   = other.meshes;
+    }
+
+    RenderData &operator=(const RenderData &other)
+    {
+        viewport = std::make_unique<VkViewport>(*other.viewport);
+        scissor  = std::make_unique<VkRect2D>(*other.scissor);
+        meshes   = other.meshes;
+        return *this;
+    }
+
+    RenderData(RenderData &&other)
+    {
+        viewport = std::move(other.viewport);
+        scissor  = std::move(other.scissor);
+        meshes   = other.meshes;
+    }
 };
 
 class SOLIS_CORE_API Pipeline : public Object<Pipeline>,
@@ -77,8 +102,8 @@ public:
     virtual const VkPipelineBindPoint     &GetPipelineBindPoint() const   = 0;
 
     // 先不考虑swapchain
-    void            InitUniformBuffers(size_t size);
-    virtual Buffer &GetUniformBuffer(size_t index);
+    // void            InitUniformBuffers(size_t size);
+    // virtual Buffer &GetUniformBuffer(size_t index);
 
     void Execute(CommandBuffer &commanderbuffer);
 

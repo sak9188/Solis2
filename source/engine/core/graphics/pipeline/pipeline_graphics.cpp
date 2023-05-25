@@ -250,43 +250,43 @@ bool PipelineGraphics::Build(const RenderPass &renderPass, size_t subpassIndex)
 }
 
 // 暂时这么做， 以后再改
-void PipelineGraphics::BindEverything(Texture &texture, size_t index)
-{
-    for (int i = 0; i < MaxFrameInFlight; i++)
-    {
-        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-
-        auto &ubo = GetUniformBuffer(i);
-
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = ubo.GetBuffer();
-        bufferInfo.offset = 0;
-        bufferInfo.range  = ubo.GetSize();
-
-        descriptorWrites[0].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet          = mDescriptorSets[i];
-        descriptorWrites[0].dstBinding      = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo     = &bufferInfo;
-
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView   = texture.GetImage().GetView();
-        imageInfo.sampler     = texture.GetImage().GetSampler();
-
-        descriptorWrites[1].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet          = mDescriptorSets[i];
-        descriptorWrites[1].dstBinding      = index;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo      = &imageInfo;
-
-        // 有些UnionBuffer
-        vkUpdateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
-    }
-}
+// void PipelineGraphics::BindEverything(Texture &texture, size_t index)
+// {
+//     for (int i = 0; i < MaxFrameInFlight; i++)
+//     {
+//         std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+//
+//         auto &ubo = GetUniformBuffer(i);
+//
+//         VkDescriptorBufferInfo bufferInfo{};
+//         bufferInfo.buffer = ubo.GetBuffer();
+//         bufferInfo.offset = 0;
+//         bufferInfo.range  = ubo.GetSize();
+//
+//         descriptorWrites[0].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//         descriptorWrites[0].dstSet          = mDescriptorSets[i];
+//         descriptorWrites[0].dstBinding      = 0;
+//         descriptorWrites[0].dstArrayElement = 0;
+//         descriptorWrites[0].descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//         descriptorWrites[0].descriptorCount = 1;
+//         descriptorWrites[0].pBufferInfo     = &bufferInfo;
+//
+//         VkDescriptorImageInfo imageInfo{};
+//         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+//         imageInfo.imageView   = texture.GetImage().GetView();
+//         imageInfo.sampler     = texture.GetImage().GetSampler();
+//
+//         descriptorWrites[1].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//         descriptorWrites[1].dstSet          = mDescriptorSets[i];
+//         descriptorWrites[1].dstBinding      = index;
+//         descriptorWrites[1].dstArrayElement = 0;
+//         descriptorWrites[1].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//         descriptorWrites[1].descriptorCount = 1;
+//         descriptorWrites[1].pImageInfo      = &imageInfo;
+//
+//         // 有些UnionBuffer
+//         vkUpdateDescriptorSets(*Graphics::Get()->GetLogicalDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+//     }
+// }
 }
 } // namespace solis::graphics

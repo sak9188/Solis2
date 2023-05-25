@@ -36,6 +36,9 @@ public:
     void BindPipeline(Pipeline *pipeline);
     void BindPipelineDescriptorSet() const;
 
+    void BindDescriptorSet(const VkDescriptorSet &descriptorSet) const;
+    void BindDescriptorSets(const vector<VkDescriptorSet> &descriptorSet);
+
     void Wait();
 
     void SetViewport(const VkViewport &viewport) const
@@ -55,7 +58,6 @@ public:
 
     void Draw(vector<Mesh> &meshes)
     {
-        BindPipelineDescriptorSet();
         for (auto &mesh : meshes)
         {
             auto vertexBuffer = mesh.GetVertexBuffer();
