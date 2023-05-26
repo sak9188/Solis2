@@ -107,7 +107,7 @@ if(${BUILD_THIRDPARTY})
     # 3级库(依赖2级库, 1级库)
     # =======================================================================
     # folly
-    install_library(folly_2023_02_13 "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
+    install_library(folly_2023_02_13 "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
 
     # FreeType
 

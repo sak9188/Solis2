@@ -34,7 +34,7 @@ Surface::Surface(const Instance &instance, const PhysicalDevice &physicalDevice,
 #elif defined(XCB_WINDOW)
     VkXcbSurfaceCreateInfoKHR createInfo{};
     createInfo.sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-    createInfo.connection = (xcb_connection_t *)instance.GetInstance();
+    createInfo.connection = (xcb_connection_t *)&instance;
     createInfo.window     = (uint64_t)window;
 
     Graphics::CheckVk(vkCreateXcbSurfaceKHR(instance, &createInfo, nullptr, &surface));
