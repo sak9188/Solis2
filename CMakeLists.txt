@@ -39,7 +39,6 @@ message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
 # 使用Unicode字符集
 ###############################################################################
 # add_definitions("-DUNICODE -D_UNICODE")
-add_compile_options(/utf-8)
 
 if(MSVC)
     set(TARGET_PLATFORM_NAME "Win64")
@@ -50,6 +49,7 @@ if(MSVC)
         set(VC_SHORT_VER "VS2022")
     endif()
 
+    add_compile_options(/utf-8)
 endif()
 
 set(PLATFORM_ARCH_PATH "${TARGET_PLATFORM_NAME}/${VC_SHORT_VER}")
@@ -123,7 +123,7 @@ set(CMAKE_INSTALL_INCLUDEDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUD
 set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE})
 
 # 是否编译第三方库
-set(BUILD_THIRDPARTY ON)
+set(BUILD_THIRDPARTY OFF)
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)

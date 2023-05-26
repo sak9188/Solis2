@@ -51,6 +51,7 @@ public:
         func.assertlize         = (bool (*)(void *))Assetlize;
         func.deassertlize       = (bool (*)(void *, const vector<uint8_t> &))DeAssetlize;
         AssetsFunctionMap[hash] = func;
+        return true;
     }
 
     static IAsset *Create(const string &path, uint64_t &type)
@@ -80,33 +81,32 @@ private:
     inline static dict_map<uint64_t, AssetFunction> AssetsFunctionMap;
 };
 
-/**
- * @brief 资源接口, 大部分的类需要实现这个接口
- *
- */
-template <typename T, vector<uint8_t> (T::*Assetlize)(), bool (T::*DeAssetlize)(const vector<uint8_t> &data)>
-class SOLIS_CORE_API ClassAssetBase : public IAsset
-{
-    inline static const bool Registered = RegisteAsset<T>(Assetlize, DeAssetlize);
+// /**
+//  * @brief 资源接口, 大部分的类需要实现这个接口
+//  *
+//  */
+// template <typename T, vector<uint8_t> (T::*Assetlize)(), bool (T::*DeAssetlize)(const vector<uint8_t> &data)>
+// class SOLIS_CORE_API ClassAssetBase : public IAsset
+// {
+//     inline static const bool Registered = RegisteAsset<T>(Assetlize, DeAssetlize);
 
-public:
-    /**
-     * @brief 将资源序列化为二进制数据
-     *
-     * @return vector<uint8_t>
-     */
-    vector<uint8_t>
-    Assetlize() = 0;
+// public:
+//     /**
+//      * @brief 将资源序列化为二进制数据
+//      *
+//      * @return vector<uint8_t>
+//      */
+//     vector<uint8_t> Assetlize() = 0;
 
-    /**
-     * @brief  将二进制数据反序列化为资源
-     *
-     * @param data
-     * @return true
-     * @return false
-     */
-    bool DeAssetlize(const vector<uint8_t> &data) = 0;
-};
+//     /**
+//      * @brief  将二进制数据反序列化为资源
+//      *
+//      * @param data
+//      * @return true
+//      * @return false
+//      */
+//     bool DeAssetlize(const vector<uint8_t> &data) = 0;
+// };
 
 class SOLIS_CORE_API Asset : public Object<Asset>
 {
@@ -197,11 +197,11 @@ public:
         return true;
     }
 
-    template <typename T>
-    T &Data()
+    template <typename ConvertT>
+    ConvertT &Data()
     {
         assert(mData != nullptr);
-        assert(mType == ctti::type_id<T>());
+        assert(mType == ctti::type_id<ConvertT>());
         return *mData.get();
     }
 

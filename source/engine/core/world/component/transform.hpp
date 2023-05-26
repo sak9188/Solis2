@@ -46,7 +46,7 @@ public:
     {
         OnExpired.PostInvoke({this});
 
-        OnExpired.Clear();
+        OnExpired.Reset();
     }
 
     const math::vec3 &GetPosition() const

@@ -4,6 +4,8 @@
 #include "core/graphics/instance.hpp"
 #include "core/graphics/logical_device.hpp"
 #include "core/graphics/physical_device.hpp"
+#include <cstdint>
+#include <xcb/xcb.h>
 
 namespace solis {
 namespace graphics {
@@ -21,12 +23,39 @@ Surface::Surface(const Instance &instance, const PhysicalDevice &physicalDevice,
 
     Graphics::CheckVk(vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface));
 #elif __LINUX__
+
+#if defined(XLIB_WINDOW)
     VkXlibSurfaceCreateInfoKHR createInfo{};
     createInfo.sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
     createInfo.dpy    = window;
     createInfo.window = window;
 
     Graphics::CheckVk(vkCreateXlibSurfaceKHR(instance, &createInfo, nullptr, &surface));
+#elif defined(XCB_WINDOW)
+    VkXcbSurfaceCreateInfoKHR createInfo{};
+    createInfo.sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+    createInfo.connection = (xcb_connection_t *)instance.GetInstance();
+    createInfo.window     = (uint64_t)window;
+
+    Graphics::CheckVk(vkCreateXcbSurfaceKHR(instance, &createInfo, nullptr, &surface));
+#elif defined(WAYLAND_WINDOW)
+    VkWaylandSurfaceCreateInfoKHR createInfo{};
+    createInfo.sType   = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+    createInfo.display = window;
+    createInfo.surface = window;
+
+    Graphics::CheckVk(vkCreateWaylandSurfaceKHR(instance, &createInfo, nullptr, &surface)
+#elif defined(DIRECTFB_WINDOW)
+    VkDirectFBSurfaceCreateInfoEXT createInfo{};
+    createInfo.sType   = VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT;
+    createInfo.dfb     = window;
+    createInfo.surface = window;
+
+    Graphics::CheckVk(vkCreateDirectFBSurfaceEXT(instance, &createInfo, nullptr, &surface)
+#else
+#error "Unsupported window system"
+#endif
+
 #elif __ANDROID__
     VkAndroidSurfaceCreateInfoKHR createInfo{};
     createInfo.sType  = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;

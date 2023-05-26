@@ -52,7 +52,9 @@ math::ivec2 windowSize{1377, 768};
 float      CameraSpeed{1.0f};
 math::vec3 CameraPos{2.0f, 2.0f, 2.0f};
 
+#ifdef __WIN__
 _CrtMemState s1, s2, s3;
+#endif
 
 void ProcessInput(GLFWwindow *window)
 {
@@ -217,6 +219,7 @@ int main(int argc, char **argv)
         }
     }
     ObjectBase::Clear();
+
     // google::ShutdownGoogleLogging();
 
 #if defined(_DEBUG)

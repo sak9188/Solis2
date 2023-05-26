@@ -257,7 +257,7 @@ private:
     std::list<ObjectPoolNode<T>> mNodes;
     vector<NodeIterator>         mCache;
 
-    ObjectPoolIncreaseType mIncreaseType = IncreaseType::Exponential;
+    ObjectPoolIncreaseType mIncreaseType = ObjectPoolIncreaseType::Exponential;
     uint32_t               mSize         = ObjectPoolInitSize;
 };
 
@@ -280,8 +280,8 @@ public:
         EntityID id;
 
         // 这里不存储id
-        T *ele = Pool::AllocEntity(&id);
-        *ele   = ele;
+        T *allocEle = Pool::AllocEntity(&id);
+        *allocEle   = ele;
 
         mVectorSize++;
     }

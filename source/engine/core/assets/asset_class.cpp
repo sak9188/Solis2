@@ -1,0 +1,1 @@
+#include "core/assets/asset_class.hpp"

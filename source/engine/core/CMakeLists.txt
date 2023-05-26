@@ -58,6 +58,14 @@ if(__WIN__)
             VK_USE_PLATFORM_WIN32_KHR
             VK_KHR_win32_surface
     )
+elseif(__LINUX__)
+    target_compile_definitions(
+        solis_core
+        PUBLIC 
+            XCB_WINDOW
+            VK_USE_PLATFORM_XCB_KHR
+            VK_KHR_xcb_surface
+    )
 endif()
 
 

@@ -6,7 +6,7 @@
 #include "core/base/object.hpp"
 
 #include "volk.h"
-#include "vma/vk_mem_alloc.h"
+#include "vk_mem_alloc.h"
 
 namespace solis {
 namespace graphics {
