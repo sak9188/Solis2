@@ -438,9 +438,15 @@ if (MI_BUILD_OBJECT)
   # D:\Desktop\GitHub\Solis2\build\thirdparty\mimalloc\mimalloc-obj.dir\Debug\static.obj
   # D:/Desktop/GitHub/Solis2/build/thirdparty/mimalloc/CMakeFiles/mimalloc-obj.dir/Debug/static.obj":
 
+if(WIN32)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mimalloc-obj.dir/${CMAKE_BUILD_TYPE}/static${CMAKE_C_OUTPUT_EXTENSION}
           DESTINATION ${mi_install_objdir}
           RENAME ${mi_basename}${CMAKE_C_OUTPUT_EXTENSION} )
+elseif(UNIX)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/mimalloc-obj.dir/src/static.c${CMAKE_C_OUTPUT_EXTENSION}
+          DESTINATION ${mi_install_objdir}
+          RENAME ${mi_basename}${CMAKE_C_OUTPUT_EXTENSION} )
+endif()
 endif()
 
 # pkg-config file support

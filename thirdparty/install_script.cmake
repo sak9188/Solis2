@@ -5,19 +5,23 @@
 
 if(__WIN__)
     set(CMAKE_BUILD_TOOLS "Visual Studio 16 2019")
+    set(CMAKE_BUILD_FLAGS "-A x64 -std:c++latest")
 elseif(__ANDROID__)
     # TODO: 这里有可能是其他的构建工具，不过先不管了
-    set(CMAKE_BUILD_TOOLS "Unix Makefiles")
+    set(CMAKE_BUILD_TOOLS "Ninja")
+    set(CMAKE_BUILD_FLAGS "-DCFLAGS=-std=c++20 -m64")
 elseif(__LINUX__)
-    set(CMAKE_BUILD_TOOLS "Unix Makefiles")
+    set(CMAKE_BUILD_TOOLS "Ninja")
+    set(CMAKE_BUILD_FLAGS "-DCFLAGS=-std=c++20 -m64")
 elseif(__MAC__)
     set(CMAKE_BUILD_TOOLS "Unix Makefiles")
+    set(CMAKE_BUILD_FLAGS "-DCFLAGS=-std=c++20 -m64")
 endif()
 
 macro(install_library lib_name lib_defines)
     message(STATUS "build_library: ${lib_name}")
     set(build_command 
-        cmake . -G "${CMAKE_BUILD_TOOLS}" -B ./build/ -A x64
+        cmake . -G "${CMAKE_BUILD_TOOLS}" -B ./build/ ${CMAKE_BUILD_FLAGS}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
@@ -29,6 +33,8 @@ macro(install_library lib_name lib_defines)
         -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
         -DCMAKE_INCLUDE_PATH=${CMAKE_PREFIX_PATH}/include
         -DCMAKE_LIBRARY_PATH=${CMAKE_PREFIX_PATH}/lib
+        -DCAMKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCAMKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         ${lib_defines}
     )
 

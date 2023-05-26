@@ -1,3 +1,5 @@
+set(BUILD_SUCCESS ON)
+
 if(${BUILD_THIRDPARTY})
     # .\b2.exe address-model=64 --build-dir=build toolset=msvc-14.2 --build-type=complete stage install --prefix=install
     include(install_script.cmake)
@@ -20,98 +22,99 @@ if(${BUILD_THIRDPARTY})
     # # 1级库(可以直接通过CMake完成编译和Install)
     # # =======================================================================
     # # CTTI
-    # install_library(ctti -DCTTI_INSTALL=ON)
+    if(NOT ${BUILD_SUCCESS})
+    install_library(ctti -DCTTI_INSTALL=ON)
 
-    # # GLM
-    # install_library(glm -DGLM_INSTALL=ON)
+    # GLM
+    install_library(glm -DGLM_INSTALL=ON)
  
-    # # glfw
-    # install_library(glfw -DGLFW_BUILD_DOCS=OFF)
+    # glfw
+    install_library(glfw -DGLFW_BUILD_DOCS=OFF)
  
-    # # ASTC
+    # ASTC
  
-    # # GLSLANG
-    # # SPIRV 没有导出符号，所有只能用静态库
-    # install_library(glslang -DBUILD_SHARED_LIBS=OFF)
+    # GLSLANG
+    # SPIRV 没有导出符号，所有只能用静态库
+    install_library(glslang -DBUILD_SHARED_LIBS=OFF)
  
-    # # mimalloc
-    # install_library(mimalloc "")
+    # mimalloc
+    install_library(mimalloc "")
  
-    # # tinygltf
-    # install_library(tinygltf -DBUILD_SHARED_LIBS=OFF)
+    # tinygltf
+    install_library(tinygltf -DBUILD_SHARED_LIBS=OFF)
  
-    # # physfs
-    # install_library(physfs "")
+    # physfs
+    install_library(physfs "")
  
-    # # IMGUI
+    # IMGUI
  
-    # # SPDLOG
-    # install_library(spdlog "")
+    # SPDLOG
+    install_library(spdlog "")
  
-    # # STB 这个得手写cmake
-    # install_library(stb "")
+    # STB 这个得手写cmake
+    install_library(stb "")
  
-    # # VOLK
-    # install_library(volk -DVOLK_INSTALL=ON)
+    # VOLK
+    install_library(volk -DVOLK_INSTALL=ON)
  
-    # # VULKAN
-    # find_package(Vulkan REQUIRED)
+    # VULKAN
+    find_package(Vulkan REQUIRED)
  
-    # # VMA
-    # install_library(VulkanMemoryAllocator -DBUILD_SHARED_LIBS=OFF)
+    # VMA
+    install_library(VulkanMemoryAllocator -DBUILD_SHARED_LIBS=OFF)
 
-    # # fmt
-    # install_library(fmt -DFMT_INSTALL=ON)
+    # fmt
+    install_library(fmt -DFMT_INSTALL=ON)
 
-    # # gflags
-    # install_library(gflags-2.2.2 "
-    # -DBUILD_gflags_LIB=ON;
-    # -DBUILD_SHARED_LIBS=ON;
-    # -DINSTALL_SHARED_LIBS=ON;
-    # ")
+    # gflags
+    install_library(gflags-2.2.2 "
+    -DBUILD_gflags_LIB=ON;
+    -DBUILD_SHARED_LIBS=ON;
+    -DINSTALL_SHARED_LIBS=ON;
+    ")
 
-    # # double conversion -> folly
-    # install_library(double-conversion "")
+    # double conversion -> folly
+    install_library(double-conversion "")
 
-    # # libunwind -> glog
-    # if(__LINUX__)
-        # install_library(libunwind-1.6.2 "")
-    # endif()
+    # libunwind -> glog
+    if(__LINUX__)
+      # install_library(libunwind-1.6.2 "")
+    endif()
 
     # zlib -> folly
-    # install_library(zlib-1.2.13 "")
+    install_library(zlib-1.2.13 "")
 
-    # lz4 -> folly
-    # install_library(lz4-1.9.4 "")
+    # lz4 -> folly (这个不是CMake写的，暂时不处理)
+    # # install_library(lz4-1.9.4 "")
 
     # zstd -> folly
 
     # snappy -> folly
 
     # libevent(openssl) -> folly
-    # install_library(libevent-2.1.12 -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR})
+    install_library(libevent-2.1.12 -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR})
 
     # SPRIV-Cross
-    # install_library(SPIRV-Cross "")
+    install_library(SPIRV-Cross "")
 
     # =======================================================================
     # 2级库(依赖1级库)
     # =======================================================================
     # glog -> folly
-    # install_library(glog-0.6.0 "")
+    install_library(glog-0.6.0 "")
 
     # =======================================================================
     # 3级库(依赖2级库, 1级库)
     # =======================================================================
     # folly
-    # install_library(folly_2023_02_13
-    # "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
+    install_library(folly_2023_02_13 "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;")
 
     # FreeType
 
     # PyBind11
 
     # TracyClient
+    endif()
 else()
     # ctti
     find_package(ctti CONFIG REQUIRED)
