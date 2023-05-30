@@ -29,6 +29,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # 设置是否交叉编译(交叉编译需要设置CMAKE_TOOLCHAIN_FILE)
 set(CROSS_COMPILE OFF)
 
+# 设置Linux窗口系统
+set(LINUX_WINDOW_SYSTEM XCB)
+
 # 设置是否编译Test
 set(BUILD_TEST OFF)
 
@@ -92,6 +95,23 @@ elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
     if(CROSS_COMPILE)
     else()
         set(TARGET_PLATFORM_NAME "Linux")
+    endif()
+
+    # 确定 linux 窗口系统
+    if(LINUX_WINDOW_SYSTEM MATCHES XCB)
+        add_definitions(-DUSE_XCB)
+        add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
+    elseif(LINUX_WINDOW_SYSTEM MATCHES XLIB)
+        add_definitions(-DUSE_XLIB)
+        add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+    elseif(LINUX_WINDOW_SYSTEM MATCHES DIRECTFB)
+        add_definitions(-DUSE_DIRECTFB)
+        add_definitions(-DVK_USE_PLATFORM_DIRECTFB_EXT)
+    elseif(LINUX_WINDOW_SYSTEM MATCHES WAYLAND)
+        add_definitions(-DUSE_WAYLAND)
+        add_definitions(-DVK_USE_PLATFORM_WAYLAND_KHR)
+    else()
+        message(FATAL_ERROR "LINUX_WINDOW_SYSTEM ${LINUX_WINDOW_SYSTEM} not implement.")
     endif()
 endif()
 
