@@ -26,21 +26,33 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install CACHE PATH "set ins
 # 导出编译命令
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# 设置是否交叉编译(交叉编译需要设置CMAKE_TOOLCHAIN_FILE)
+set(CROSS_COMPILE OFF)
+
+# 设置是否编译Test
+set(BUILD_TEST OFF)
+
 project(Solis)
 
-message(STATUS "CMAKE_C_COMPILER_ID ${CMAKE_C_COMPILER_ID}")
+# 判断编译器
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(COMPILER_NAME "Clang")
+    add_definitions(-D__CLANG__)
+    set(CLANG 1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    set(COMPILER_NAME "GCC")
+    add_definitions(-D__GCC__)
+    set(GCC 1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+    set(COMPILER_NAME "Intel")
+    add_definitions(-D__INTEL_CC__)
+    set(INTEL_CC 1)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(COMPILER_NAME "MSVC")
+    add_definitions(-D__MSVC__)
+    set(MSVC 1)
 
-message(STATUS "CMAKE_C_COMPILER_VERSION ${CMAKE_C_COMPILER_VERSION}")
-
-message(STATUS "CMAKE_CXX_COMPILER_ID ${CMAKE_CXX_COMPILER_ID}")
-
-message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
-
-# 使用Unicode字符集
-###############################################################################
-# add_definitions("-DUNICODE -D_UNICODE")
-
-if(MSVC)
+    # 设置平台名称
     set(TARGET_PLATFORM_NAME "Win64")
 
     if(MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS 1930)
@@ -49,13 +61,61 @@ if(MSVC)
         set(VC_SHORT_VER "VS2022")
     endif()
 
+    # 设置编译选项
     add_compile_options(/utf-8)
+
+    # 多线程编译
+    add_compile_options(/MP)
 endif()
 
-set(PLATFORM_ARCH_PATH "${TARGET_PLATFORM_NAME}/${VC_SHORT_VER}")
+# 设置平台
+set(PLATFORM_NAME "UNKNOW")
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+    set(PLATFORM_NAME "Win")
+    add_definitions(-D__WIN__)
+    set(__WIN__ 1)
+elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "MacOS")
+    set(PLATFORM_NAME "Mac")
+    add_definitions(-D__MAC__)
+    set(__MAC__ 1)
 
+    if(CROSS_COMPILE)
+    else()
+        set(TARGET_PLATFORM_NAME "MacOS")
+    endif()
+
+elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
+    set(PLATFORM_NAME "Linux")
+    add_definitions(-D__LINUX__)
+    set(__LINUX__ 1)
+
+    if(CROSS_COMPILE)
+    else()
+        set(TARGET_PLATFORM_NAME "Linux")
+    endif()
+endif()
+
+# 设置架构
+set(PLATFORM_ARCH "UNKNOW")
+if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
+    set(PLATFORM_ARCH "x86_64")
+elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "AMD64")
+    set(PLATFORM_ARCH "AMD64")
+elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
+    set(PLATFORM_ARCH "aarch64")
+endif()
+
+set(TARGET_PLATFORM_ARCH_PATH "${TARGET_PLATFORM_NAME}/${PLATFORM_ARCH}")
+
+# 设置编译器
+message(STATUS "CMAKE_C_COMPILER_ID ${CMAKE_C_COMPILER_ID}")
+message(STATUS "CMAKE_C_COMPILER_VERSION ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "CMAKE_CXX_COMPILER_ID ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_CXX_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION}")
+
+# 设置输出目录
 message(STATUS "\${TARGET_PLATFORM_NAME}:            ${TARGET_PLATFORM_NAME}")
-message(STATUS "\${PLATFORM_ARCH_PATH}:              ${PLATFORM_ARCH_PATH}")
+message(STATUS "\${TARGET_PLATFORM_ARCH_PATH}:       ${TARGET_PLATFORM_ARCH_PATH}")
 message(STATUS "\${CMAKE_INSTALL_PREFIX}:            ${CMAKE_INSTALL_PREFIX}")
 
 # 生成Debug和Release项目配置
@@ -75,52 +135,20 @@ set(CMAKE_BUILD_TYPE Debug)
 # 设置架构
 message(STATUS "CMAKE_HOST_SYSTEM_NAME:      ${CMAKE_HOST_SYSTEM_NAME}")
 message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR:      ${CMAKE_HOST_SYSTEM_PROCESSOR}")
- 
-set(PLATFORM_ARCH "UNKNOW")
-if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64")
-    set(PLATFORM_ARCH "x86_64")
-elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "AMD64")
-    set(PLATFORM_ARCH "AMD64")
-elseif(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
-    set(PLATFORM_ARCH "aarch64")
-endif()
-
-# 设置平台
-set(PLATFORM_NAME "UNKNOW")
-if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
-    set(PLATFORM_NAME "Win")
-    add_definitions(-D__WIN__)
-    set(__WIN__ 1)
-elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Android")
-    set(PLATFORM_NAME "Android")
-    add_definitions(-D__ANDROID__)
-    set(__ANDROID__ 1)
-elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "MacOS")
-    set(PLATFORM_NAME "Mac")
-    add_definitions(-D__MAC__)
-    set(__MAC__ 1)
-elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
-    set(PLATFORM_NAME "Linux")
-    add_definitions(-D__LINUX__)
-    set(__LINUX__ 1)
-endif()
-
-# 设置库的编译架构
-# set(CMAKE_LIBRARY_ARCHITECTURE ${PLATFORM_ARCH_PATH})
 
 # 设置安装目录
 # ==============================================================================
-set(CMAKE_INSTALL_LIBDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/lib)
-set(CMAKE_INSTALL_BINDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/bin)
-set(CMAKE_INSTALL_INCLUDEDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/include)
+set(CMAKE_INSTALL_LIBDIR thirdparty/${TARGET_PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_INSTALL_BINDIR thirdparty/${TARGET_PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/bin)
+set(CMAKE_INSTALL_INCLUDEDIR thirdparty/${TARGET_PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/include)
 
 set(CMAKE_INSTALL_LIBDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_INSTALL_BINDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
 set(CMAKE_INSTALL_INCLUDEDIR_FULL ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
-# ==============================================================================
 
 # set prefix path
-set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE})
+set(CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX}/thirdparty/${TARGET_PLATFORM_ARCH}/${CMAKE_BUILD_TYPE})
+# ==============================================================================
 
 # 是否编译第三方库
 set(BUILD_THIRDPARTY OFF)
@@ -136,11 +164,17 @@ endif()
 
 # 只有Windows平台才有这样的设置
 if(BUILD_SHARED_LIBS AND CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
-    set(CMAKE_INSTALL_LIBDIR thirdparty/${PLATFORM_NAME}/${PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/bin)
+    set(CMAKE_INSTALL_LIBDIR thirdparty/${TARGET_PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}/bin)
 endif()
 
 # 设置第三方库
 set(THIRD_PARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
+
+# Source
+set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
+
+# Test
+set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
 # 设置第三方库
 add_subdirectory(${THIRD_PARTY_PATH})
@@ -148,14 +182,10 @@ add_subdirectory(${THIRD_PARTY_PATH})
 # USE_VMA
 set(VMA_ENABLE ON)
 
-# Source
-set(SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source)
-
 # 加入Source集
 add_subdirectory(${SOURCE_PATH})
 
-# Test
-set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
-
 # 加入Test集
-# add_subdirectory(${TEST_PATH})
+if(BUILD_TEST)
+    add_subdirectory(${TEST_PATH})
+endif()
