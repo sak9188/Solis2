@@ -6,3 +6,4 @@ Install
 *.rar
 .cache
 .VSCodeCounter
+nohup.out
