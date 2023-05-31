@@ -420,18 +420,23 @@ if (OS_WINDOWS)
   set (CONFIG_INSTALL_DIR  ${CMAKE_INSTALL_LIBDIR}/cmake/${PACKAGE_NAME})
   set (PKGCONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 else ()
-  set (RUNTIME_INSTALL_DIR bin)
-  # The LIB_INSTALL_DIR and LIB_SUFFIX variables are used by the Fedora
-  # package maintainers. Also package maintainers of other distribution
-  # packages need to be able to specify the name of the library directory.
-  if (NOT GFLAGS_LIBRARY_INSTALL_DIR AND LIB_INSTALL_DIR)
-    set (GFLAGS_LIBRARY_INSTALL_DIR "${LIB_INSTALL_DIR}")
-  endif ()
-  gflags_define (PATH LIBRARY_INSTALL_DIR "Directory of installed libraries, e.g., \"lib64\"" "lib${LIB_SUFFIX}")
-  gflags_property (LIBRARY_INSTALL_DIR ADVANCED TRUE)
-  set (INCLUDE_INSTALL_DIR include)
-  set (CONFIG_INSTALL_DIR  ${LIBRARY_INSTALL_DIR}/cmake/${PACKAGE_NAME})
-  set (PKGCONFIG_INSTALL_DIR ${LIBRARY_INSTALL_DIR}/pkgconfig)
+  set (RUNTIME_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})
+  set (LIBRARY_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
+  set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR})
+  set (CONFIG_INSTALL_DIR  ${CMAKE_INSTALL_LIBDIR}/cmake/${PACKAGE_NAME})
+  set (PKGCONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+  # set (RUNTIME_INSTALL_DIR bin)
+  # # The LIB_INSTALL_DIR and LIB_SUFFIX variables are used by the Fedora
+  # # package maintainers. Also package maintainers of other distribution
+  # # packages need to be able to specify the name of the library directory.
+  # if (NOT GFLAGS_LIBRARY_INSTALL_DIR AND LIB_INSTALL_DIR)
+  #   set (GFLAGS_LIBRARY_INSTALL_DIR "${LIB_INSTALL_DIR}")
+  # endif ()
+  # gflags_define (PATH LIBRARY_INSTALL_DIR "Directory of installed libraries, e.g., \"lib64\"" "lib${LIB_SUFFIX}")
+  # gflags_property (LIBRARY_INSTALL_DIR ADVANCED TRUE)
+  # set (INCLUDE_INSTALL_DIR include)
+  # set (CONFIG_INSTALL_DIR  ${LIBRARY_INSTALL_DIR}/cmake/${PACKAGE_NAME})
+  # set (PKGCONFIG_INSTALL_DIR ${LIBRARY_INSTALL_DIR}/pkgconfig)
 endif ()
 
 # ----------------------------------------------------------------------------

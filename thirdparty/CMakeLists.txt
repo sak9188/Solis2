@@ -1,4 +1,4 @@
-set(BUILD_SUCCESS ON)
+set(BUILD_SUCCESS OFF)
 
 if(${BUILD_THIRDPARTY})
     # .\b2.exe address-model=64 --build-dir=build toolset=msvc-14.2 --build-type=complete stage install --prefix=install

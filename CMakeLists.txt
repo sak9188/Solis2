@@ -177,7 +177,7 @@ message(STATUS "CMAKE_PREFIX_PATH :             ${CMAKE_PREFIX_PATH}")
 # ==============================================================================
 
 # 是否编译第三方库
-set(BUILD_THIRDPARTY OFF)
+set(BUILD_THIRDPARTY ON)
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)
