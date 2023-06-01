@@ -5,7 +5,7 @@
 
 if(__WIN__)
     set(CMAKE_BUILD_TOOLS "Visual Studio 16 2019")
-    set(CMAKE_BUILD_FLAGS "-A x64 -std:c++latest")
+    set(CMAKE_BUILD_FLAGS "-A x64")
 elseif(__ANDROID__)
     # TODO: 这里有可能是其他的构建工具，不过先不管了
     set(CMAKE_BUILD_TOOLS "Ninja")
@@ -55,6 +55,11 @@ macro(install_library lib_name lib_defines)
 
     # install 
     set(install_command cmake --build ./build/ --target install)
+
+    if(__WIN__)
+        set(install_command cmake --build ./build/ --target install --config ${CMAKE_BUILD_TYPE})
+    endif()
+
     execute_process(
         COMMAND ${install_command}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${lib_name}
