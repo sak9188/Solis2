@@ -32,6 +32,9 @@ set(CROSS_COMPILE OFF)
 # 设置Linux窗口系统
 set(LINUX_WINDOW_SYSTEM XCB)
 
+# 是否编译第三方库
+set(BUILD_THIRDPARTY OFF)
+
 # 设置是否编译Test
 set(BUILD_TEST OFF)
 
@@ -176,8 +179,6 @@ message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL : ${CMAKE_INSTALL_INCLUDEDIR_FULL}
 message(STATUS "CMAKE_PREFIX_PATH :             ${CMAKE_PREFIX_PATH}")
 # ==============================================================================
 
-# 是否编译第三方库
-set(BUILD_THIRDPARTY ON)
 
 set(BUILD_SHARED_LIBS OFF)
 set(BUILD_STATIC_LIBS ON)

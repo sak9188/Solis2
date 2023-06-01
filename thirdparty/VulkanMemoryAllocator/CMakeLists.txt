@@ -35,6 +35,10 @@ if(VMA_BUILD_SAMPLE)
     set(VMA_BUILD_SAMPLE_SHADERS ON)
 endif()
 
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+endif()
+
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" OFF)
 
 if(BUILD_DOCUMENTATION)
