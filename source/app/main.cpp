@@ -83,6 +83,9 @@ void ProcessInput(GLFWwindow *window)
 
 void InitWindow()
 {
+    glfwSetErrorCallback([](int error, const char *description) {
+        Log::SInfo("GLFW Error: {}", description);
+    });
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
