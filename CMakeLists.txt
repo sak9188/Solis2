@@ -26,8 +26,11 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install CACHE PATH "set ins
 # 导出编译命令
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# 设置是否交叉编译(交叉编译需要设置CMAKE_TOOLCHAIN_FILE)
-set(CROSS_COMPILE OFF)
+# 如果是交叉编译，那么就需要把这个开启
+if(CMAKE_CROSSCOMPILING)
+    set(CMAKE_FIND_ROOT_PATH_BOTH true)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+endif()
 
 # 设置Linux窗口系统
 set(LINUX_WINDOW_SYSTEM XCB)
@@ -205,6 +208,7 @@ set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
 
 # 设置第三方库
 add_subdirectory(${THIRD_PARTY_PATH})
+
 
 # USE_VMA
 set(VMA_ENABLE ON)

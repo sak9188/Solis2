@@ -23,25 +23,25 @@ if(${BUILD_THIRDPARTY})
     # # =======================================================================
     # # CTTI
     if(NOT ${BUILD_SUCCESS})
-    install_library(ctti -DCTTI_INSTALL=ON)
+    install_library(ctti "-DCTTI_INSTALL=ON")
 
     # GLM
-    install_library(glm -DGLM_INSTALL=ON)
+    install_library(glm "-DGLM_INSTALL=ON")
  
     # glfw
-    install_library(glfw -DGLFW_BUILD_DOCS=OFF)
+    install_library(glfw "-DGLFW_BUILD_DOCS=OFF")
  
     # ASTC
  
     # GLSLANG
     # SPIRV 没有导出符号，所有只能用静态库
-    install_library(glslang -DBUILD_SHARED_LIBS=OFF)
+    install_library(glslang "-DBUILD_SHARED_LIBS=OFF")
  
     # mimalloc
     install_library(mimalloc "")
  
     # tinygltf
-    install_library(tinygltf -DBUILD_SHARED_LIBS=OFF)
+    install_library(tinygltf "-DBUILD_SHARED_LIBS=OFF")
  
     # physfs
     install_library(physfs "")
@@ -55,31 +55,24 @@ if(${BUILD_THIRDPARTY})
     install_library(stb "")
  
     # VOLK
-    install_library(volk -DVOLK_INSTALL=ON)
+    install_library(volk "-DVOLK_INSTALL=ON")
  
     # VULKAN
     find_package(Vulkan REQUIRED)
  
     # VMA
-    install_library(VulkanMemoryAllocator -DBUILD_SHARED_LIBS=OFF)
+    install_library(VulkanMemoryAllocator "-DBUILD_SHARED_LIBS=OFF")
 
     # fmt
-    install_library(fmt -DFMT_INSTALL=ON)
+    install_library(fmt "-DFMT_INSTALL=ON")
 
     # gflags
-    install_library(gflags-2.2.2 "
-    -DBUILD_gflags_LIB=ON;
-    -DBUILD_SHARED_LIBS=ON;
-    -DINSTALL_SHARED_LIBS=ON;
-    ")
+    install_library(gflags-2.2.2 "-DBUILD_gflags_LIB=ON -DBUILD_SHARED_LIBS=ON -DINSTALL_SHARED_LIBS=ON")
 
     # double conversion -> folly
     install_library(double-conversion "")
 
     # libunwind -> glog
-    if(__LINUX__)
-      # install_library(libunwind-1.6.2 "")
-    endif()
 
     # zlib -> folly
     install_library(zlib-1.2.13 "")
@@ -92,7 +85,7 @@ if(${BUILD_THIRDPARTY})
     # snappy -> folly
 
     # libevent(openssl) -> folly
-    install_library(libevent-2.1.12 -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR})
+    install_library(libevent-2.1.12 "-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR}")
 
     # SPRIV-Cross
     install_library(SPIRV-Cross "")
@@ -107,7 +100,7 @@ if(${BUILD_THIRDPARTY})
     # 3级库(依赖2级库, 1级库)
     # =======================================================================
     # folly
-    install_library(folly_2023_02_13 "-DBUILD_TESTS=OFF;-DCMAKE_LIBRARY_ARCHITECTURE=x86_64;-DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR};-DBUILD_SHARED_LIBS=OFF;-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+    install_library(folly_2023_02_13 "-DBUILD_TESTS=OFF -DCMAKE_LIBRARY_ARCHITECTURE=x86_64 -DOPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR} -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON")
 
     # FreeType
 
