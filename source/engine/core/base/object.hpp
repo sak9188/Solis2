@@ -9,8 +9,8 @@
 namespace solis {
 class SOLIS_CORE_API ObjectBase
 {
+    // TODO:
     // 最大 1000 堆上的对象
-
 public:
     ObjectBase()          = default;
     virtual ~ObjectBase() = default;
@@ -33,13 +33,13 @@ public:
 
     static void FreeSizeAligned(void *ptr, size_t size, std::align_val_t align);
 
-#ifdef _DEBUG
+#ifdef __DEBUG__
     inline static size_t ObjectCount   = 0;
     inline static size_t ObjectMemSize = 0;
 
-    inline static hash_map<void *, string> ObjectNameMap{ObjectBase::GlobalObjectSize};
-    inline static hash_map<void *, size_t> ObjectMap{ObjectBase::GlobalObjectSize};
-    inline static hash_map<void *, string> ObjectTypeNameMap{ObjectBase::GlobalObjectSize};
+    static hash_map<void *, string> ObjectNameMap;
+    static hash_map<void *, size_t> ObjectMap;
+    static hash_map<void *, string> ObjectTypeNameMap;
 
     inline static void Clear()
     {
@@ -192,7 +192,7 @@ public:
     }
 #endif
 
-#ifdef _DEBUG
+#ifdef __DEBUG__
     // 对于某些特殊的对象， 我们可以给他一个名字来进行跟踪
     const string GetDebugObjectName() const
     {

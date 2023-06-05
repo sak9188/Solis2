@@ -97,7 +97,9 @@ void CleanupWindow()
 
 int main(int argc, char **argv)
 {
+#if defined(__WINW__)
     _CrtMemCheckpoint(&s1);
+#endif
 
     // google::InitGoogleLogging(argv[0]);
     // FLAGS_logtostderr      = true;
@@ -118,7 +120,24 @@ int main(int argc, char **argv)
 
     // info.extensions.push_back("VK_KHR_get_physical_device_properties2");
     // info.extensions.push_back("VK_EXT_device_fault");
-    info.window     = glfwGetWin32Window(window);
+
+#if defined(__WIN__)
+    info.window = glfwGetWin32Window(window);
+#elif defined(__LINUX__)
+
+#if defined(USE_XCB) || defined(USE_XLIB)
+    info.window = (void *)glfwGetX11Window(window);
+#elif defined(USE_WAYLAND)
+    info.window = glfwGetWaylandWindow(window);
+#elif defined(USE_DIRECTFB)
+    info.window = glfwGetDirectFBWindow(window);
+#endif
+
+#elif defined(__ANDROID__)
+    info.window = glfwGetAndroidWindow(window);
+#elif defined(__MAC__)
+    info.window = glfwGetCocoaWindow(window);
+#endif
     info.windowSize = windowSize;
 
     // info.renderGraph = "default.graph"
@@ -222,7 +241,7 @@ int main(int argc, char **argv)
 
     // google::ShutdownGoogleLogging();
 
-#if defined(_DEBUG)
+#if defined(__WIN__) && defined(__DEBUG__)
     // 这里的内存泄露是查的最准的，因为这里没有算加载glog和gflags的导致增加的内存
     // 这里会因为folly的hash_map导致有1k的内存无法手动释放(静态代码段里malloc内存，除非手动new和delete)
     _CrtMemCheckpoint(&s2);

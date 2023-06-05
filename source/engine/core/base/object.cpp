@@ -1,6 +1,7 @@
 #include "core/base/object.hpp"
 #include "core/base/memory.hpp"
 
+#include "core/base/using.hpp"
 #include "mimalloc-2.0/mimalloc.h"
 
 struct InitFuction
@@ -14,13 +15,18 @@ struct InitFuction
 };
 
 namespace solis {
+
+hash_map<void *, string> ObjectBase::ObjectNameMap{GlobalObjectSize};
+hash_map<void *, size_t> ObjectBase::ObjectMap{GlobalObjectSize};
+hash_map<void *, string> ObjectBase::ObjectTypeNameMap{GlobalObjectSize};
+
 void *ObjectBase::Malloc(size_t size, const string &name)
 {
     static InitFuction initFuction;
 
     // auto ptr = operator new(size *count);
     auto ptr = mi_new(size);
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount += 1;
     ObjectMemSize += size;
     ObjectMap.insert(std::make_pair(ptr, size));
@@ -38,7 +44,7 @@ void *ObjectBase::MallocNoExcept(size_t size, const string &name)
 {
     // auto ptr = operator new(size *count, std::nothrow);
     auto ptr = mi_new_nothrow(size);
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount += 1;
     ObjectMemSize += size;
     ObjectMap.insert(std::make_pair(ptr, size));
@@ -51,7 +57,7 @@ void *ObjectBase::MallocAligned(size_t size, std::align_val_t align, const strin
 {
     // auto ptr = operator new(size *count, align);
     auto ptr = mi_new_aligned(size, static_cast<size_t>(align));
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount += 1;
     ObjectMemSize += size;
     ObjectMap.insert(std::make_pair(ptr, size));
@@ -64,7 +70,7 @@ void *ObjectBase::MallocAlignedNoExcept(size_t size, std::align_val_t align, con
 {
     // auto ptr = operator new(size *count, align, std::nothrow);
     auto ptr = mi_new_aligned_nothrow(size, static_cast<size_t>(align));
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount += 1;
     ObjectMemSize += size;
     ObjectMap.insert(std::make_pair(ptr, size));
@@ -75,7 +81,7 @@ void *ObjectBase::MallocAlignedNoExcept(size_t size, std::align_val_t align, con
 
 void ObjectBase::Free(void *ptr)
 {
-#ifdef _DEBUG
+#ifdef __DEBUG__
     // if (ObjectArrayCountMap.find(ptr) != ObjectArrayCountMap.end())
     // {
     // ObjectCount -= ObjectArrayCountMap.find(ptr)->second;
@@ -101,7 +107,7 @@ void ObjectBase::Free(void *ptr)
 
 void ObjectBase::FreeAligned(void *ptr, std::align_val_t align)
 {
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount--;
 
     // 如果是走了Malloc的方法这里必定不会报错
@@ -117,7 +123,7 @@ void ObjectBase::FreeAligned(void *ptr, std::align_val_t align)
 // FreeNoExcept
 void ObjectBase::FreeNoExcept(void *ptr)
 {
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount--;
 
     // 如果是走了Malloc的方法这里必定不会报错
@@ -133,7 +139,7 @@ void ObjectBase::FreeNoExcept(void *ptr)
 // FreeSize
 void ObjectBase::FreeSize(void *ptr, size_t size)
 {
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount--;
 
     // 如果是走了Malloc的方法这里必定不会报错
@@ -149,7 +155,7 @@ void ObjectBase::FreeSize(void *ptr, size_t size)
 // FreeAlignedNoExcept
 void ObjectBase::FreeSizeAligned(void *ptr, size_t size, std::align_val_t align)
 {
-#ifdef _DEBUG
+#ifdef __DEBUG__
     ObjectCount--;
 
     // 如果是走了Malloc的方法这里必定不会报错

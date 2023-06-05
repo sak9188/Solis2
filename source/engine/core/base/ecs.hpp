@@ -7,6 +7,7 @@
 #include "core/base/const.hpp"
 
 #include "core/base/i_noncopyable.hpp"
+#include <cstdint>
 
 namespace solis {
 template <typename T>
@@ -98,7 +99,7 @@ public:
         assert(pool <= 0xFFFF);
         assert(poolIndex <= 0xFFFF);
 
-        mUint64 = (mPool << 48) | (mPoolIndex << 32) | mIndex;
+        mUint64 = (mPool << 48) | ((uint64_t)mPoolIndex << 32) | mIndex;
     }
     ~EntityID() = default;
 
