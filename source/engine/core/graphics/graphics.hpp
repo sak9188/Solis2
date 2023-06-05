@@ -1,7 +1,7 @@
 #pragma once
 
+#include <glm/fwd.hpp>
 #include <memory>
-
 #include "volk.h"
 
 #include "core/solis_core.hpp"
@@ -94,6 +94,8 @@ public:
     Swapchain *CreateSurfaceSwapchain(const void *window, math::uvec2 extent);
 
     Swapchain *CreateSurfaceSwapchain(const void *window, VkExtent2D extent);
+
+    Swapchain *CreateSwapchain(VkSurfaceKHR surface, const void *window, math::uvec2 extent);
 
     static string StringifyResultVk(VkResult result);
 

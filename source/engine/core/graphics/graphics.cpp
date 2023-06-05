@@ -10,6 +10,7 @@
 #include "core/graphics/pipeline/pipeline.hpp"
 #include "core/graphics/render_pass.hpp"
 #include "core/graphics/render_graph/render_graph.hpp"
+#include <glm/fwd.hpp>
 
 namespace solis {
 namespace graphics {
@@ -115,6 +116,14 @@ Swapchain *Graphics::CreateSurfaceSwapchain(const void *window, VkExtent2D exten
 {
     mSurfaces.push_back(std::make_unique<Surface>(*mInstance, *mPhysicalDevice, *mLogicalDevice, window));
     mSwapchains.push_back(std::make_unique<Swapchain>(*mPhysicalDevice, *mLogicalDevice, *mSurfaces.back(), extent));
+    return mSwapchains.back().get();
+}
+
+Swapchain *Graphics::CreateSwapchain(VkSurfaceKHR surface, const void *window, math::uvec2 extent)
+{
+    VkExtent2D vkextent{extent.x, extent.y};
+    mSurfaces.push_back(std::make_unique<Surface>(*mInstance, *mPhysicalDevice, *mLogicalDevice, surface, window));
+    mSwapchains.push_back(std::make_unique<Swapchain>(*mPhysicalDevice, *mLogicalDevice, *mSurfaces.back(), vkextent));
     return mSwapchains.back().get();
 }
 

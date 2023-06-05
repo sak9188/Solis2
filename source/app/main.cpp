@@ -17,6 +17,7 @@
 #include "core/data/texture.hpp"
 
 #include "GLFW/glfw3.h"
+#include <xcb/xproto.h>
 
 #define GLM_FORCE_RADIANS
 #include "glm/glm.hpp"
@@ -126,7 +127,10 @@ int main(int argc, char **argv)
 #elif defined(__LINUX__)
 
 #if defined(USE_XCB) || defined(USE_XLIB)
-    info.window = (void *)glfwGetX11Window(window);
+    info.window        = (void *)glfwGetX11Window(window);
+    info.createSurface = [=](VkInstance instance, VkSurfaceKHR &surface) {
+        glfwCreateWindowSurface(instance, window, nullptr, &surface);
+    };
 #elif defined(USE_WAYLAND)
     info.window = glfwGetWaylandWindow(window);
 #elif defined(USE_DIRECTFB)
@@ -141,7 +145,6 @@ int main(int argc, char **argv)
     info.windowSize = windowSize;
 
     // info.renderGraph = "default.graph"
-
     Engine engine(info);
     engine.SetMainWorld(std::make_unique<MainWorld>());
 

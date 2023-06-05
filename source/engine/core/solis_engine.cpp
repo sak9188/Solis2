@@ -1,6 +1,8 @@
 #include "core/solis_engine.hpp"
 
 #include "core/graphics/graphics.hpp"
+#include "core/graphics/instance.hpp"
+
 #include "core/events/events.hpp"
 #include "core/events/event_define.hpp"
 #include "core/world/world.hpp"
@@ -24,7 +26,19 @@ Engine::Engine(const EngineCreateInfo &info) :
     // 初始化FileModule搜索路径
     using namespace graphics;
     Graphics::Get()->Init();
-    mSwapchain = Graphics::Get()->CreateSurfaceSwapchain(info.window, info.windowSize);
+
+    if (info.createSurface)
+    {
+        VkSurfaceKHR surface;
+
+        auto instance = Graphics::Get()->GetInstance()->GetInstance();
+        info.createSurface(instance, surface);
+        mSwapchain = Graphics::Get()->CreateSwapchain(surface, info.window, info.windowSize);
+    }
+    else
+    {
+        mSwapchain = Graphics::Get()->CreateSurfaceSwapchain(info.window, info.windowSize);
+    }
 
     // 下一帧触发
     EVENT_SEND(EngineInitEvent());

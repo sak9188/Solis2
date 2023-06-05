@@ -1,11 +1,17 @@
 #include "core/graphics/surface.hpp"
 
+#include <cstdint>
+
 #include "core/graphics/graphics.hpp"
 #include "core/graphics/instance.hpp"
 #include "core/graphics/logical_device.hpp"
 #include "core/graphics/physical_device.hpp"
-#include <cstdint>
+
+#ifdef __LINUX__
+
 #include <xcb/xcb.h>
+
+#endif
 
 namespace solis {
 namespace graphics {
@@ -27,31 +33,31 @@ Surface::Surface(const Instance &instance, const PhysicalDevice &physicalDevice,
 #if defined(XLIB_WINDOW)
     VkXlibSurfaceCreateInfoKHR createInfo{};
     createInfo.sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
-    createInfo.dpy    = window;
+    createInfo.dpy    = (Display *)instance.GetInstance();
     createInfo.window = window;
 
     Graphics::CheckVk(vkCreateXlibSurfaceKHR(instance, &createInfo, nullptr, &surface));
 #elif defined(XCB_WINDOW)
     VkXcbSurfaceCreateInfoKHR createInfo{};
     createInfo.sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-    createInfo.connection = (xcb_connection_t *)&instance;
+    createInfo.connection = (xcb_connection_t *)instance.GetInstance();
     createInfo.window     = (uint64_t)window;
 
-    Graphics::CheckVk(vkCreateXcbSurfaceKHR(instance, &createInfo, nullptr, &surface));
+    Graphics::CheckVk(vkCreateXcbSurfaceKHR(instance.GetInstance(), &createInfo, nullptr, &surface));
 #elif defined(WAYLAND_WINDOW)
     VkWaylandSurfaceCreateInfoKHR createInfo{};
     createInfo.sType   = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
     createInfo.display = window;
     createInfo.surface = window;
 
-    Graphics::CheckVk(vkCreateWaylandSurfaceKHR(instance, &createInfo, nullptr, &surface)
+    Graphics::CheckVk(vkCreateWaylandSurfaceKHR(instance, &createInfo, nullptr, &surface))
 #elif defined(DIRECTFB_WINDOW)
     VkDirectFBSurfaceCreateInfoEXT createInfo{};
     createInfo.sType   = VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT;
     createInfo.dfb     = window;
     createInfo.surface = window;
 
-    Graphics::CheckVk(vkCreateDirectFBSurfaceEXT(instance, &createInfo, nullptr, &surface)
+    Graphics::CheckVk(vkCreateDirectFBSurfaceEXT(instance, &createInfo, nullptr, &surface))
 #else
 #error "Unsupported window system"
 #endif
@@ -66,12 +72,26 @@ Surface::Surface(const Instance &instance, const PhysicalDevice &physicalDevice,
     VkMacOSSurfaceCreateInfoMVK createInfo{};
 #endif
 
-    Graphics::CheckVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities));
+    Init();
+}
 
+Surface::Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, VkSurfaceKHR surface, const void *window) :
+    instance(instance),
+    physicalDevice(physicalDevice),
+    logicalDevice(logicalDevice),
+    surface(surface), window(window)
+{
+    Init();
+}
+
+void Surface::Init()
+{
     uint32_t surfaceFormatCount = 0;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &surfaceFormatCount, nullptr);
     std::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &surfaceFormatCount, surfaceFormats.data());
+
+    Graphics::CheckVk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &capabilities));
 
     if (surfaceFormatCount == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED)
     {

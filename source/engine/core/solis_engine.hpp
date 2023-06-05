@@ -2,13 +2,15 @@
 
 #include "core/solis_core.hpp"
 
+#include "volk.h"
+
+#include "ctti/type_id.hpp"
+
 #include "core/base/object.hpp"
 #include "core/base/i_noncopyable.hpp"
 #include "core/base/i_destroyable.hpp"
 
 #include "core/base/module.hpp"
-
-#include "ctti/type_id.hpp"
 
 namespace solis {
 
@@ -18,6 +20,8 @@ struct SOLIS_CORE_API EngineCreateInfo
     math::vec2 windowSize;
 
     void *window = nullptr;
+
+    std::function<void(VkInstance, VkSurfaceKHR &)> createSurface;
 
     // Vulkan扩展
     vector<const char *> extensions;

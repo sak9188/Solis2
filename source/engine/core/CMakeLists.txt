@@ -49,6 +49,7 @@ find_package(Vulkan REQUIRED)
 find_package(glslang REQUIRED)
 find_package(stb REQUIRED)
 find_package(VulkanMemoryAllocator REQUIRED)
+find_package(X11 REQUIRED)
 
 
 if(__WIN__)
@@ -75,6 +76,7 @@ target_link_libraries(
         Vulkan::Vulkan # dynamic
         glm::glm # static
         Folly::folly # static
+        X11::xcb
     PRIVATE
         stb::stb # interface
         mimalloc-static # static

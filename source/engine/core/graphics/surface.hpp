@@ -17,6 +17,7 @@ class SOLIS_CORE_API Surface : public Object<Surface>
 
 public:
     Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, const void *window);
+    Surface(const Instance &instance, const PhysicalDevice &physicalDevice, const LogicalDevice &logicalDevice, VkSurfaceKHR surface, const void *window);
     ~Surface();
 
     operator const VkSurfaceKHR &() const
@@ -38,6 +39,8 @@ public:
     }
 
 private:
+    void Init();
+
     const Instance       &instance;
     const PhysicalDevice &physicalDevice;
     const LogicalDevice  &logicalDevice;
