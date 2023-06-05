@@ -67,8 +67,20 @@ public:
         GetModuleFileName(NULL, (LPSTR)buffer, MAX_PATH);
         fs::path full_path(buffer);
         return full_path.parent_path().string();
+#elif __LINUX__
+        char    buffer[PATH_MAX];
+        ssize_t len = ::readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+        if (len != -1)
+        {
+            buffer[len] = '\0';
+            fs::path full_path(buffer);
+            return full_path.parent_path().string();
+        }
+        else
+        {
+            return "";
+        }
 #endif
-        throw std::runtime_error("other platform is implemented");
     }
 };
 }

@@ -31,16 +31,15 @@ message(STATUS "VMA_DEBUG_INITIALIZE_ALLOCATIONS = ${VMA_DEBUG_INITIALIZE_ALLOCA
 message(STATUS "VMA_DEBUG_GLOBAL_MUTEX = ${VMA_DEBUG_GLOBAL_MUTEX}")
 message(STATUS "VMA_DEBUG_DONT_EXCEED_MAX_MEMORY_ALLOCATION_COUNT = ${VMA_DEBUG_DONT_EXCEED_MAX_MEMORY_ALLOCATION_COUNT}")
 
-if(VMA_BUILD_SAMPLE)
-    set(VMA_BUILD_SAMPLE_SHADERS ON)
-endif()
+# if(VMA_BUILD_SAMPLE)
+    # set(VMA_BUILD_SAMPLE_SHADERS ON)
+# endif()
 
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" OFF)
-
+# option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" OFF)
 if(BUILD_DOCUMENTATION)
     find_package(Doxygen REQUIRED)
     # set input and output files

@@ -58,16 +58,7 @@ if(__WIN__)
             VK_USE_PLATFORM_WIN32_KHR
             VK_KHR_win32_surface
     )
-elseif(__LINUX__)
-    target_compile_definitions(
-        solis_core
-        PUBLIC 
-            XCB_WINDOW
-            VK_USE_PLATFORM_XCB_KHR
-            VK_KHR_xcb_surface
-    )
 endif()
-
 
 if(VMA_ENABLE)
     target_compile_definitions(
@@ -94,7 +85,12 @@ target_link_libraries(
         # glslang::HLSL # static
         glslang::SPVRemapper # static
         glslang::glslang-default-resource-limits
-        VulkanMemoryAllocator::VulkanMemoryAllocator # static
+)
+
+target_include_directories(
+    solis_core
+    PUBLIC
+        ${VulkanMemoryAllocator_INCLUDE_DIRS}
 )
 
 # message(STATUS "CMAKE_INSTALL_INCLUDEDIR_FULL: ${CMAKE_INSTALL_INCLUDEDIR_FULL}")
@@ -117,7 +113,6 @@ set_target_properties(
     solis_core 
     PROPERTIES
         OUTPUT_NAME "libsolis_core"
-    
 )
 
 set_target_properties(

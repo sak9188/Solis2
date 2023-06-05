@@ -1,11 +1,12 @@
 #pragma once
 
+#include "volk.h"
+
 #include "core/solis_core.hpp"
 #include "core/base/using.hpp"
 #include "core/base/object.hpp"
 
-#include "volk.h"
-#include "vk_mem_alloc.h"
+#include "core/graphics/vma.hpp"
 
 namespace solis {
 namespace graphics {

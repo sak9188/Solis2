@@ -46,6 +46,9 @@ set(BUILD_THIRDPARTY OFF)
 # 设置是否编译Test
 set(BUILD_TEST OFF)
 
+# 设置是否使用VMA
+set(VMA_ENABLE ON)
+
 project(Solis)
 
 # =============================================================================
@@ -223,8 +226,6 @@ set(TEST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/test)
 # 设置第三方库
 add_subdirectory(${THIRD_PARTY_PATH})
 
-# USE_VMA
-set(VMA_ENABLE ON)
 
 # 加入Source集
 add_subdirectory(${SOURCE_PATH})

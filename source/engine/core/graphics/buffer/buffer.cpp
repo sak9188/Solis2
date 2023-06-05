@@ -5,7 +5,6 @@
 #include "core/graphics/command/command_buffer.hpp"
 
 #include "core/log/log.hpp"
-#include "vk_mem_alloc.h"
 
 namespace solis {
 namespace graphics {

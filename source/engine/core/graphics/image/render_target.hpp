@@ -4,9 +4,6 @@
 #include "core/base/using.hpp"
 #include "core/base/object.hpp"
 
-#include "volk.h"
-#include "vk_mem_alloc.h"
-
 namespace solis {
 namespace graphics {
 
