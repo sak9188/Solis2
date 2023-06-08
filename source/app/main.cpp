@@ -128,12 +128,11 @@ int main(int argc, char **argv)
 #if defined(__WIN__)
     info.window = glfwGetWin32Window(window);
 #elif defined(__LINUX__)
-
-#if defined(USE_XCB) || defined(USE_XLIB)
-    info.window        = (void *)glfwGetX11Window(window);
     info.createSurface = [=](VkInstance instance, VkSurfaceKHR &surface) {
         glfwCreateWindowSurface(instance, window, nullptr, &surface);
     };
+#if defined(USE_XCB) || defined(USE_XLIB)
+    info.window = (void *)glfwGetX11Window(window);
 #elif defined(USE_WAYLAND)
     info.window = glfwGetWaylandWindow(window);
 #elif defined(USE_DIRECTFB)

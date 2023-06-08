@@ -149,7 +149,7 @@ public:
     void RegisterHandler(T *handler, uint32_t priority = 0)
     {
         handler->AddManagerReference(this);
-        static constexpr auto type_id = ctti::type_id<T>().hash();
+        static constexpr auto type_id = ctti::type_id<EventType>().hash();
         auto                 &l       = mEvents[type_id];
         if (l.mDispatching)
             l.mRecursiveHandlers.push_back({MemberFunction<bool, T, EventType, mem_fn>, handler, handler});

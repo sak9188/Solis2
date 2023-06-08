@@ -16,10 +16,8 @@ class SOLIS_CORE_API World : public Object<World>, public Module::Registrar<Worl
 
 public:
     OBJECT_NEW_DELETE(World)
-    World()
-    {
-        EVENT_REG(World, Start, EngineInitEvent);
-    };
+
+    World()          = default;
     virtual ~World() = default;
 
     bool Start(const EngineInitEvent &event)
@@ -38,6 +36,7 @@ public:
     void SetMainWorld(std::unique_ptr<WorldBase> &&world)
     {
         mMainWorld = std::move(world);
+        EVENT_REG(World, Start, EngineInitEvent);
     }
 
     WorldBase &GetMainWorld() const
